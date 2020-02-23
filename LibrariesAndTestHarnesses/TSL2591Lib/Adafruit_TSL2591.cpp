@@ -68,6 +68,7 @@ Adafruit_TSL2591::Adafruit_TSL2591(int32_t sensorID)
   _integration = TSL2591_INTEGRATIONTIME_100MS;
   _gain        = TSL2591_GAIN_MED;
   _sensorID    = sensorID;
+  sensorState  = OFF;
 
   // we cant do wire initialization till later, because we havent loaded Wire yet
 }
@@ -108,6 +109,7 @@ _i2c=theWire;
   // Note: by default, the device is in power down mode on bootup
   disable();
 
+
   return true;
 }
 /**************************************************************************/
@@ -142,6 +144,7 @@ void Adafruit_TSL2591::enable(void)
   // Enable the device by setting the control bit to 0x01
   write8(TSL2591_COMMAND_BIT | TSL2591_REGISTER_ENABLE,
 	 TSL2591_ENABLE_POWERON | TSL2591_ENABLE_AEN | TSL2591_ENABLE_AIEN | TSL2591_ENABLE_NPIEN);
+  sensorState  = ON;
 }
 
 
@@ -160,6 +163,7 @@ void Adafruit_TSL2591::disable(void)
 
   // Disable the device by setting the control bit to 0x00
   write8(TSL2591_COMMAND_BIT | TSL2591_REGISTER_ENABLE, TSL2591_ENABLE_POWEROFF);
+  sensorState  = OFF;
 }
 
 /************************************************************************/
@@ -325,14 +329,16 @@ uint32_t Adafruit_TSL2591::getFullLuminosity (void)
     }
   }
 
-  // Enable the device
-  enable();
+ if(sensorState == OFF){
+	// Enable the device
+	enable();
 
-  // Wait x ms for ADC to complete
-  for (uint8_t d=0; d<=_integration; d++)
-  {
-    delay(120);
-  }
+	// Wait x ms for ADC to complete
+	for (uint8_t d=0; d<=_integration; d++)
+	{
+		delay(120);
+	}
+ }
 
   // CHAN0 must be read before CHAN1
   // See: https://forums.adafruit.com/viewtopic.php?f=19&t=124176
@@ -343,7 +349,7 @@ uint32_t Adafruit_TSL2591::getFullLuminosity (void)
   x <<= 16;
   x |= y;
 
-  disable();
+  //disable(); //This has been commented out to improve response time. If the sensor is to be turned off, it should be done outside the library
 
   return x;
 }
