@@ -1,7 +1,7 @@
 #include "CozirLib.h"
 
 #define OUTPUT_FIELDS 4162 //This is the decimal code to have the sensor output humidity, temperature, and unfiltered CO2
-static Data data;
+static CozirData data;
 static char inString[100];
 static unsigned int inStringPointer = 0;
 static char outString[20];
@@ -19,12 +19,12 @@ uint8_t Cozir_Init(void){
 	Serial1.setTX(1);
 	Serial1.setRX(0);
 	Serial1.begin(9600, SERIAL_8N1);
-	delay(3000);//without this delay, the sensor will think that a reset is a start bit and will return a '?' when given a command immediately. 
+	delay(150);//without this delay, the sensor will think that a reset is a start bit and will return a '?' when given a command immediately. 
 	
 	
 	//set sensor to polling mode
 	Serial1.print("K 2\r\n");
-	delay(3000);//include delay to ensure response is recieved 
+	delay(150);//include delay to ensure response is recieved 
 	
 	//while (Serial.available() < 8);
 	uint8_t j = 0;
@@ -40,7 +40,12 @@ uint8_t Cozir_Init(void){
 	
 	sprintf(outString, "M %d\r\n", OUTPUT_FIELDS);
 	Serial1.print(outString); //The sensor stores setting in NVM so this actually shouldnt be called every power up.
-	delay(3000);
+	delay(150);
+	j = 0;
+	while (Serial1.available() > 0){
+		inString[j] = Serial1.read();
+		j++;
+	}
 	return 1;
 	
 }
