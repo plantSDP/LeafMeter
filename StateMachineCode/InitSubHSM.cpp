@@ -184,11 +184,8 @@ Event Run_SubHSM_Init(Event ThisEvent) {
 						
 					default:
 						break;
-				}					
-				
+				}									
 				break;				
-				
-				break;
 			
 			default:
 				break;
