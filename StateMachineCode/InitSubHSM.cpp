@@ -42,176 +42,176 @@ Event Run_SubHSM_Init(Event thisEvent) {
 
 
 	switch (CurrentState) {
-			case InitPSubState: // If current state is initial Pseudo State
-				if (thisEvent.EventType == INIT_EVENT)// only respond to ES_Init
-				{
-					// now put the machine into the actual initial state
-					nextState = State1_Starting;
-					makeTransition = TRUE;
+		case InitPSubState: // If current state is initial Pseudo State
+			if (thisEvent.EventType == INIT_EVENT)// only respond to ES_Init
+			{
+				// now put the machine into the actual initial state
+				nextState = State1_Starting;
+				makeTransition = TRUE;
 
-				}
-				break;
+			}
+			break;
 
 
-			case State1_Starting:
+		case State1_Starting:
 			
-				switch (thisEvent.EventType) {
-					case ENTRY_EVENT:
-						// Display Hello
-						// Init timer
-						// Open valves
-						// Run Pump
-						// request Cozir Data
+			switch (thisEvent.EventType) {
+				case ENTRY_EVENT:
+					// Display Hello
+					// Init timer
+					// Open valves
+					// Run Pump
+					// request Cozir Data
+				break;
+				case TIMEOUT:
+					if (hum < HUM_DANGER_THRESHOLD) {
+						nextState = State2_HumConfirm;
+						makeTransition = TRUE;
+					} else {
+						nextState = State3_HumFail;
+						makeTransition = TRUE;	
+					}
 					break;
-					case TIMEOUT:
-						if (hum < HUM_DANGER_THRESHOLD) {
-							nextState = State2_HumConfirm;
-							makeTransition = TRUE;
-						} else {
-							nextState = State3_HumFail;
-							makeTransition = TRUE;	
-						}
-						break;
 						
-					default:
-						break;
-				}				
-				break;
+				default:
+					break;
+			}				
+			break;
 
-			case State2_HumConfirm:
+		case State2_HumConfirm:
 
-				switch (thisEvent.EventType) {
-					case ENTRY_EVENT:
-						if (hum > HUM_WARNING_THRESHOLD) {
-							// Display warning
-						} else {
-							// Display ok
-						}
-					break; 
+			switch (thisEvent.EventType) {
+				case ENTRY_EVENT:
+					if (hum > HUM_WARNING_THRESHOLD) {
+						// Display warning
+					} else {
+						// Display ok
+					}
+				break; 
 				
-					// Continue
-					case BTN3:
-						nextState = State5_SettingPeriod;
-						makeTransition = TRUE;
-						break;
+				// Continue
+				case BTN3:
+					nextState = State5_SettingPeriod;
+					makeTransition = TRUE;
+					break;
 
-					default:
-						break;
-				}
-				break;
+				default:
+					break;
+			}
+			break;
 				
-			case State3_HumFail:
-				// Display failure, prompt btn press for retry
+		case State3_HumFail:
+			// Display failure, prompt btn press for retry
 				
-				switch (thisEvent.EventType) {
+			switch (thisEvent.EventType) {
 				
-					// Continue
-					case BTN3:
-						nextState = State4_HumCheck;
-						makeTransition = TRUE;
-						break;
+				// Continue
+				case BTN3:
+					nextState = State4_HumCheck;
+					makeTransition = TRUE;
+					break;
 
-					default:
-						break;					
-				}
-				break;
+				default:
+					break;					
+			}
+			break;
 			
-			case State4_HumCheck:
+		case State4_HumCheck:
 
 				
-				switch (thisEvent.EventType) {
-					case ENTRY_EVENT:
-						// Init timer
-						// Read hum
-						break;						
-					case TIMEOUT:
-						if (hum < HUM_DANGER_THRESHOLD) {
-							nextState = State2_HumConfirm;
-							makeTransition = TRUE;
-						} else {
-							nextState = State3_HumFail;
-							makeTransition = TRUE;	
-						}
-						break;
-						
-					default:
-						break;
-				}								
-				break;
-				
-			case State5_SettingPeriod:
-
-				
-				switch (thisEvent.EventType) {
-					case ENTRY_EVENT:
-						// Display prompt
-						// Display current period
-						// BTN1 || BTN2 increments
-						break;
-				
-					// Continue
-					case BTN3:
-						nextState = State6_SettingRF;
+			switch (thisEvent.EventType) {
+				case ENTRY_EVENT:
+					// Init timer
+					// Read hum
+					break;						
+				case TIMEOUT:
+					if (hum < HUM_DANGER_THRESHOLD) {
+						nextState = State2_HumConfirm;
+						makeTransition = TRUE;
+					} else {
+						nextState = State3_HumFail;
 						makeTransition = TRUE;	
-						break;
-					
-					// Back
-					case BTN4:
-						nextState = State4_HumCheck;
-						makeTransition = TRUE;
-						break;
+					}
+					break;
 						
-					default:
-						break;
-				}								
-				break;
+				default:
+					break;
+			}								
+			break;
 				
-			case State6_SettingRF:
-				// Display prompt
-				// BTN1 yes
-				// BTN2 no
-				
-				switch (thisEvent.EventType) {
-					
-					// Continue
-					case BTN3:
-						nextState = State7_LifetimeDisplay;
-						makeTransition = TRUE;	
-						break;
-						
-					// Back
-					case BTN4:
-						nextState = State5_SettingPeriod;
-						makeTransition = TRUE;
-						break;
-						
-					default:
-						break;
-				}					
-				
-				break;
-				
-			case State7_LifetimeDisplay:
-				// Calculate lifetime
-				// Display lifetime
+		case State5_SettingPeriod:
 
-				switch (thisEvent.EventType) {
+				
+			switch (thisEvent.EventType) {
+				case ENTRY_EVENT:
+					// Display prompt
+					// Display current period
+					// BTN1 || BTN2 increments
+					break;
+				
+				// Continue
+				case BTN3:
+					nextState = State6_SettingRF;
+					makeTransition = TRUE;	
+					break;
+					
+				// Back
+				case BTN4:
+					nextState = State4_HumCheck;
+					makeTransition = TRUE;
+					break;
 						
-					// Back
-					case BTN4:
-						nextState = State5_SettingPeriod;
-						makeTransition = TRUE;
-						break;
+				default:
+					break;
+			}								
+			break;
+				
+		case State6_SettingRF:
+			// Display prompt
+			// BTN1 yes
+			// BTN2 no
+				
+			switch (thisEvent.EventType) {
+					
+				// Continue
+				case BTN3:
+					nextState = State7_LifetimeDisplay;
+					makeTransition = TRUE;	
+					break;
 						
-					default:
-						break;
-				}									
-				break;	
+				// Back
+				case BTN4:
+					nextState = State5_SettingPeriod;
+					makeTransition = TRUE;
+					break;
+						
+				default:
+					break;
+			}					
+				
+			break;
+				
+		case State7_LifetimeDisplay:
+			// Calculate lifetime
+			// Display lifetime
+
+			switch (thisEvent.EventType) {
+						
+				// Back
+				case BTN4:
+					nextState = State5_SettingPeriod;
+					makeTransition = TRUE;
+					break;
+						
+				default:
+					break;
+			}									
+			break;	
 			
 			
-			default:
-				break;
-		}
+		default:
+			break;
+	}
 		
 		
 	if (makeTransition == TRUE) { // making a state transition, send EXIT and ENTRY
