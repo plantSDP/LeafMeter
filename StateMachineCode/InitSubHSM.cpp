@@ -15,8 +15,6 @@ typedef enum {
 	State7_LifetimeDisplay,
 } InitSubHSMStates;
 
-
-
 static InitSubHSMStates CurrentState = InitPSubState;
 
 

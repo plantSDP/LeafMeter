@@ -21,7 +21,7 @@ uint8_t InitHSM(void){
 	Event returnEvent = RunHSM(thisEvent);
 	if (returnEvent.EventType == NO_EVENT){
 		return TRUE;
-	}else{
+	} else {
 		return FALSE;
 	}
 	

@@ -9,8 +9,8 @@
 #define NO_PRESS	0
 #define BTN1		1
 #define BTN2		2
-#define BTN3		3
-#define BTN4		4
+#define BTN3		4
+#define BTN4		8
 
 
 //the possible events for the state machine. Add new events to this enum. 
