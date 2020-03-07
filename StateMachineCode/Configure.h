@@ -3,6 +3,10 @@
 
 #include "Arduino.h"
 
+#define TRUE 1
+#define FALSE 0
+
+
 //the possible events for the state machine. Add new events to this enum. 
 typedef enum {
 	NO_EVENT,

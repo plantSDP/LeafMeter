@@ -36,14 +36,14 @@ uint8_t Init_SubHSM_Init(void){
 
 static int hum = 0;
 Event Run_SubHSM_Init(Event thisEvent) {
+	
 	uint8_t makeTransition = FALSE; // use to flag transition
 	InitSubHSMStates nextState;
-	static 
 
-	
+
 	switch (CurrentState) {
 			case InitPSubState: // If current state is initial Pseudo State
-				if (ThisEvent.EventType == INIT)// only respond to ES_Init
+				if (thisEvent.EventType == INIT_EVENT)// only respond to ES_Init
 				{
 					// now put the machine into the actual initial state
 					nextState = State1_Starting;
@@ -57,7 +57,6 @@ Event Run_SubHSM_Init(Event thisEvent) {
 			
 				switch (thisEvent.EventType) {
 					case ENTRY_EVENT:
-						printf("\r\nState1: Initing \r\n");
 						// Display Hello
 						// Init timer
 						// Open valves
@@ -69,7 +68,7 @@ Event Run_SubHSM_Init(Event thisEvent) {
 							nextState = State2_HumConfirm;
 							makeTransition = TRUE;
 						} else {
-							nextState = State3_HumFail
+							nextState = State3_HumFail;
 							makeTransition = TRUE;	
 						}
 						break;
@@ -104,7 +103,7 @@ Event Run_SubHSM_Init(Event thisEvent) {
 			case State3_HumFail:
 				// Display failure, prompt btn press for retry
 				
-				switch {
+				switch (thisEvent.EventType) {
 				
 					// Continue
 					case BTN3:
@@ -126,11 +125,11 @@ Event Run_SubHSM_Init(Event thisEvent) {
 						// Read hum
 						break;						
 					case TIMEOUT:
-						if (humOk == TRUE) {
+						if (hum < HUM_DANGER_THRESHOLD) {
 							nextState = State2_HumConfirm;
 							makeTransition = TRUE;
 						} else {
-							nextState = State3_HumFail
+							nextState = State3_HumFail;
 							makeTransition = TRUE;	
 						}
 						break;
@@ -207,18 +206,21 @@ Event Run_SubHSM_Init(Event thisEvent) {
 					default:
 						break;
 				}									
-				break;				
+				break;	
+			
 			
 			default:
 				break;
 		}
 		
+		
 	if (makeTransition == TRUE) { // making a state transition, send EXIT and ENTRY
 		// recursively call the current state with an exit event
 		thisEvent.EventType = EXIT_EVENT;
 		Run_SubHSM_Init(thisEvent);
-		currentState = nextState;
+		CurrentState = nextState;
 		thisEvent.EventType = ENTRY_EVENT;
 		Run_SubHSM_Init(thisEvent);
 	}
+	return thisEvent;
 }

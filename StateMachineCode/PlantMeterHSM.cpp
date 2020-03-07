@@ -25,6 +25,7 @@ uint8_t InitHSM(void){
 	}else{
 		return FALSE;
 	}
+	
 }
 
 
@@ -35,27 +36,29 @@ Event RunHSM(Event thisEvent){
 	uint8_t makeTransition = FALSE;
 	HSMstates nextState;
 	
-	switch (currentState){
-		case InitPstate:
+	switch (CurrentState){
+		case InitPState:
 			if (thisEvent.EventType == INIT_EVENT){
 				//any initializations that should start. Maybe some blocking code. This code could also go in the main function 
 				Init_SubHSM_Init();
 				nextState = Initing;
 				makeTransition = TRUE;	
 			}
+			
 			break;
+
 		case Initing:
 		    pinMode(13, OUTPUT);
 			digitalWrite(13, HIGH);
-			thisEvent.EventType = Run_SubHSM_Init(thisEvent);
+			thisEvent = Run_SubHSM_Init(thisEvent);
 			if (thisEvent.EventType == BTN3){
 				nextState = PressureChecking;
 				makeTransition = TRUE;
 			}
 			break;
 		case PressureChecking:
-			pinMode(13, OUTPUT);
-			digitalWrite(13, HIGH);
+			//pinMode(13, OUTPUT);
+			//digitalWrite(13, HIGH);
 			break;
 		case RFChecking:
 			break;
@@ -63,11 +66,12 @@ Event RunHSM(Event thisEvent){
 			break;
 		case Waiting:
 			break;
+			
 	}
 	if (makeTransition == TRUE){
 		thisEvent.EventType = EXIT_EVENT;
 		RunHSM(thisEvent);
-		currentState = nextState;
+		CurrentState = nextState;
 		thisEvent.EventType = ENTRY_EVENT;
 		RunHSM(thisEvent);
 	}
