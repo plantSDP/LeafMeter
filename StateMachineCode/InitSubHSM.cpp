@@ -7,7 +7,7 @@ typedef enum {
     State5_SettingPeriod,
 	State6_SettingRF,
 	State7_LifetimeDisplay,
-} TemplateHSMState_t;
+} SubHSMState;
 
 static const char *StateNames[] = {
 	"InitPState",
@@ -28,7 +28,7 @@ Event Run_SubHSM_Init(Event ThisEvent) {
 	uint8_t makeTransition = FALSE; // use to flag transition
 	SubHSMState nextState;
 
-
+	
 	switch (CurrentState) {
 			case InitPSubState: // If current state is initial Pseudo State
 				if (ThisEvent.EventType == INIT)// only respond to ES_Init
