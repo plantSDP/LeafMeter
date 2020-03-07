@@ -1,5 +1,11 @@
+#include "InitSubHSM.h"
+
+
+#define HUM_DANGER_THRESHOLD 90
+#define HUM_WARNING_THRESHOLD 80
+
 typedef enum {
-    InitPState,
+    InitPSubState,
     State1_Starting,
     State2_HumConfirm,
     State3_HumFail,
@@ -7,26 +13,30 @@ typedef enum {
     State5_SettingPeriod,
 	State6_SettingRF,
 	State7_LifetimeDisplay,
-} SubHSMState;
-
-static const char *StateNames[] = {
-	"InitPState",
-	"State1_Starting",
-	"State2_HumConfirm",
-	"State3_HumFail",
-	"State4_HumCheck",
-	"State5_SettingPeriod",
-	"State6_SettingRF",
-	"State7_LifetimeDisplay",
-};
+} InitSubHSMStates;
 
 
-static SubHSMState CurrentState = InitPSubState;
+
+static InitSubHSMStates CurrentState = InitPSubState;
 
 
+
+uint8_t Init_SubHSM_Init(void){
+	Event returnEvent;
+	CurrentState = InitPSubState;
+	returnEvent = Run_SubHSM_Init(INIT_EVENT);
+	if (returnEvent.EventType == NO_EVENT){
+		return TRUE;
+	}
+	return FALSE;
+}
+
+
+static int hum = 0;
 Event Run_SubHSM_Init(Event ThisEvent) {
 	uint8_t makeTransition = FALSE; // use to flag transition
-	SubHSMState nextState;
+	InitSubHSMStates nextState;
+	static 
 
 	
 	switch (CurrentState) {
@@ -42,16 +52,18 @@ Event Run_SubHSM_Init(Event ThisEvent) {
 
 
 			case State1_Starting:
-				printf("\r\nState1: Initing \r\n");
-				
-				// Display Hello
-				// Init timer
-				// Open valves
-				// Run Pump
-				
+			
 				switch (ThisEvent.EventType) {
+					case ENTRY_EVENT:
+						printf("\r\nState1: Initing \r\n");
+						// Display Hello
+						// Init timer
+						// Open valves
+						// Run Pump
+						// request Cozir Data
+					break;
 					case TIMEOUT:
-						if (humOk == TRUE) {
+						if (hum < HUM_DANGER_THRESHOLD) {
 							nextState = State2_HumConfirm;
 							makeTransition = TRUE;
 						} else {
@@ -66,13 +78,15 @@ Event Run_SubHSM_Init(Event ThisEvent) {
 				break;
 
 			case State2_HumConfirm:
-				if (humWarning == TRUE) {
-					// Display warning
-				} else {
-					// Display ok
-				}
 
 				switch (ThisEvent.EventType) {
+					case ENTRY_EVENT:
+						if (hum > HUM_WARNING_THRESHOLD) {
+							// Display warning
+						} else {
+							// Display ok
+						}
+					break; 
 				
 					// Continue
 					case BTN3:
@@ -102,10 +116,13 @@ Event Run_SubHSM_Init(Event ThisEvent) {
 				break;
 			
 			case State4_HumCheck:
-				// Init timer
-				// Read hum
+
 				
 				switch (ThisEvent.EventType) {
+					case ENTRY_EVENT:
+						// Init timer
+						// Read hum
+						break;						
 					case TIMEOUT:
 						if (humOk == TRUE) {
 							nextState = State2_HumConfirm;
@@ -122,11 +139,14 @@ Event Run_SubHSM_Init(Event ThisEvent) {
 				break;
 				
 			case State5_SettingPeriod:
-				// Display prompt
-				// Display current period
-				// BTN1 || BTN2 increments
+
 				
 				switch (ThisEvent.EventType) {
+					case ENTRY_EVENT:
+						// Display prompt
+						// Display current period
+						// BTN1 || BTN2 increments
+						break;
 				
 					// Continue
 					case BTN3:

@@ -1,5 +1,6 @@
 #include "PlantMeterHSM.h"
-#inlcude "Configure.h"
+#include "Configure.h"
+#include "InitSubHSM.h"
 
 
 typedef enum {
@@ -16,9 +17,10 @@ static HSMstates CurrentState = InitPState;
 
 uint8_t InitHSM(void){
 	Event ThisEvent;
-	ThisEvent.EventType = init;
+	ThisEvent.EventType = INIT_EVENT;
 	ThisEvent.EventParam = 0;
-	if (RunHSM(ThisEvent)){
+	Event returnEvent = RunHSM(ThisEvent);
+	if (returnEvent.EventType == NO_EVENT){
 		return TRUE;
 	}else{
 		return FALSE;
@@ -28,26 +30,48 @@ uint8_t InitHSM(void){
 
 
 
-uint8_t RunHSM(Event thisEvent){
+Event RunHSM(Event thisEvent){
 	
 	uint8_t makeTransition = FALSE;
 	HSMstates nextState;
 	
 	switch (currentState){
 		case InitPstate:
-			if (thisEvent.EventType != )
-		break;
+			if (thisEvent.EventType == INIT_EVENT){
+				//any initializations that should start. Maybe some blocking code. This code could also go in the main function 
+				Init_SubHSM_Init();
+				nextState = Initing;
+				makeTransition = TRUE;	
+			}
+			break;
 		case Initing:
-		break;
+		    pinMode(13, OUTPUT);
+			digitalWrite(13, HIGH);
+			thisEvent.EventType = Run_SubHSM_Init(thisEvent);
+			if (thisEvent.EventType == BTN3){
+				nextState = PressureChecking;
+				makeTransition = TRUE;
+			}
+			break;
 		case PressureChecking:
-		break;
+			pinMode(13, OUTPUT);
+			digitalWrite(13, HIGH);
+			break;
 		case RFChecking:
-		break;
+			break;
 		case Active:
-		break;
+			break;
 		case Waiting:
-		break;
+			break;
 	}
+	if (makeTransition == TRUE){
+		thisEvent.EventType = EXIT_EVENT;
+		RunHSM(thisEvent);
+		currentState = nextState;
+		thisEvent.EventType = ENTRY_EVENT;
+		RunHSM(thisEvent);
+	}
+	return ThisEvent;
 	
 	
 	

@@ -2,6 +2,7 @@
 #define PLANT_HSM
 
 #include "Configure.h"
+#include "Arduino.h"
 /*
 * Used to initialize the HSM. 
 * This function should be called at the startup of the system
@@ -15,7 +16,7 @@ uint8_t InitHSM(void);
 * The events will be run through the subHSM and only passed back up if they 
 * are not handled in the lower states.
 */
-uint8_t RunHSM(Event thisEvent);
+Event RunHSM(Event thisEvent);
 
 
 #endif
