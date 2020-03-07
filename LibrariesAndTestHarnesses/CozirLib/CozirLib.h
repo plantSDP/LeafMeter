@@ -22,6 +22,7 @@ uint8_t Cozir_Init(void);
 
 /*
 Calibrates the sensor to set the current reading as 400 ppm.
+NOT IMPLEMENTED YET
 */
 uint8_t Cozir_Calibrate(void);
 
@@ -57,5 +58,21 @@ returns humidity of most recent read
 */
 unsigned int Cozir_Get_Rh(void);
 
+
+
+
+
+
+/*
+code to use serial2 instead of serial1
+*/
+
+uint8_t Cozir2_Init(void);
+uint8_t Cozir2_Calibrate(void);
+uint8_t Cozir2_NewDataAvailable(void);
+void Cozir2_Request_Data(void);
+unsigned int Cozir2_Get_Co2(void);
+int Cozir2_Get_Temp(void);
+unsigned int Cozir2_Get_Rh(void);
 
 #endif
