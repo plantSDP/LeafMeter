@@ -2,7 +2,6 @@
 #include "Configure.h"
 #include "InitSubHSM.h"
 
-
 typedef enum {
 	InitPState, //initilizing state maching pseudo state
     Initing, //initializing the device
@@ -51,9 +50,11 @@ Event RunHSM(Event thisEvent){
 		    pinMode(13, OUTPUT);
 			digitalWrite(13, HIGH);
 			thisEvent = Run_SubHSM_Init(thisEvent);
-			if (thisEvent.EventType == BTN3){
-				nextState = PressureChecking;
-				makeTransition = TRUE;
+			if (thisEvent.EventType == BTN_EVENT){
+				if (thisEvent.EventParam == BTN3) {
+					nextState = PressureChecking;
+					makeTransition = TRUE;
+				}
 			}
 			break;
 		case PressureChecking:

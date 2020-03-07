@@ -90,9 +90,11 @@ Event Run_SubHSM_Init(Event thisEvent) {
 				break; 
 				
 				// Continue
-				case BTN3:
-					nextState = State5_SettingPeriod;
-					makeTransition = TRUE;
+				case BTN_EVENT:
+					if (thisEvent.EventParam == BTN3)
+						nextState = State5_SettingPeriod;
+						makeTransition = TRUE;
+					}
 					break;
 
 				default:
@@ -149,16 +151,15 @@ Event Run_SubHSM_Init(Event thisEvent) {
 					// BTN1 || BTN2 increments
 					break;
 				
-				// Continue
-				case BTN3:
-					nextState = State6_SettingRF;
-					makeTransition = TRUE;	
-					break;
-					
-				// Back
-				case BTN4:
-					nextState = State4_HumCheck;
-					makeTransition = TRUE;
+				
+				case BTN_EVENT:
+					if (thisEvent.EventParam == BTN3) {		// Continue
+						nextState = State6_SettingRF;
+						makeTransition = TRUE;
+					} else if (thisEvent.EventParam == BTN4){
+						nextState = State4_HumCheck;		// Back
+						makeTransition = TRUE;
+					}
 					break;
 						
 				default:
@@ -173,16 +174,14 @@ Event Run_SubHSM_Init(Event thisEvent) {
 				
 			switch (thisEvent.EventType) {
 					
-				// Continue
-				case BTN3:
-					nextState = State7_LifetimeDisplay;
-					makeTransition = TRUE;	
-					break;
-						
-				// Back
-				case BTN4:
-					nextState = State5_SettingPeriod;
-					makeTransition = TRUE;
+				case BTN_EVENT:
+					if (thisEvent.EventParam == BTN3) {		// Continue
+						nextState = State7_LifetimeDisplay;
+						makeTransition = TRUE;
+					} else if (thisEvent.EventParam == BTN4){
+						nextState = State5_SettingPeriod;		// Back
+						makeTransition = TRUE;
+					}
 					break;
 						
 				default:
@@ -198,9 +197,11 @@ Event Run_SubHSM_Init(Event thisEvent) {
 			switch (thisEvent.EventType) {
 						
 				// Back
-				case BTN4:
-					nextState = State5_SettingPeriod;
-					makeTransition = TRUE;
+				case BTN_EVENT:
+					if (thisEvent.EventParam == BTN4) {
+						nextState = State5_SettingPeriod;
+						makeTransition = TRUE;
+					}
 					break;
 						
 				default:

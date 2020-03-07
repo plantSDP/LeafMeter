@@ -6,6 +6,12 @@
 #define TRUE 1
 #define FALSE 0
 
+#define NO_PRESS	0
+#define BTN1		1
+#define BTN2		2
+#define BTN3		3
+#define BTN4		4
+
 
 //the possible events for the state machine. Add new events to this enum. 
 typedef enum {
@@ -13,10 +19,7 @@ typedef enum {
 	ENTRY_EVENT,
 	EXIT_EVENT,
 	INIT_EVENT,
-	BTN1,
-	BTN2,
-	BTN3,
-	BTN4,
+	BTN_EVENT,
 	TIMEOUT} eventTypes;
 
 //struct to hold event types and parameter.
