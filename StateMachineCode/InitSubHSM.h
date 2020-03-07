@@ -25,6 +25,6 @@
 
 uint8_t Init_SubHSM_Init(void);
 
-Event Run_SubHSM_Init(Event ThisEvent);
+Event Run_SubHSM_Init(Event thisEvent);
 
 #endif /* SUB_HSM_INIT_H */

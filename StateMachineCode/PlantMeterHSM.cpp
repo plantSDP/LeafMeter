@@ -16,10 +16,10 @@ typedef enum {
 static HSMstates CurrentState = InitPState;
 
 uint8_t InitHSM(void){
-	Event ThisEvent;
-	ThisEvent.EventType = INIT_EVENT;
-	ThisEvent.EventParam = 0;
-	Event returnEvent = RunHSM(ThisEvent);
+	Event thisEvent;
+	thisEvent.EventType = INIT_EVENT;
+	thisEvent.EventParam = 0;
+	Event returnEvent = RunHSM(thisEvent);
 	if (returnEvent.EventType == NO_EVENT){
 		return TRUE;
 	}else{
@@ -71,7 +71,7 @@ Event RunHSM(Event thisEvent){
 		thisEvent.EventType = ENTRY_EVENT;
 		RunHSM(thisEvent);
 	}
-	return ThisEvent;
+	return thisEvent;
 	
 	
 	

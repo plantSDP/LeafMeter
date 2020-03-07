@@ -22,18 +22,20 @@ static InitSubHSMStates CurrentState = InitPSubState;
 
 
 uint8_t Init_SubHSM_Init(void){
-	Event returnEvent;
-	CurrentState = InitPSubState;
-	returnEvent = Run_SubHSM_Init(INIT_EVENT);
+	Event thisEvent;
+	thisEvent.EventType = INIT_EVENT;
+	thisEvent.EventParam = 0;
+	Event returnEvent = Run_SubHSM_Init(thisEvent);
 	if (returnEvent.EventType == NO_EVENT){
 		return TRUE;
+	}else{
+		return FALSE;
 	}
-	return FALSE;
 }
 
 
 static int hum = 0;
-Event Run_SubHSM_Init(Event ThisEvent) {
+Event Run_SubHSM_Init(Event thisEvent) {
 	uint8_t makeTransition = FALSE; // use to flag transition
 	InitSubHSMStates nextState;
 	static 
@@ -53,7 +55,7 @@ Event Run_SubHSM_Init(Event ThisEvent) {
 
 			case State1_Starting:
 			
-				switch (ThisEvent.EventType) {
+				switch (thisEvent.EventType) {
 					case ENTRY_EVENT:
 						printf("\r\nState1: Initing \r\n");
 						// Display Hello
@@ -79,7 +81,7 @@ Event Run_SubHSM_Init(Event ThisEvent) {
 
 			case State2_HumConfirm:
 
-				switch (ThisEvent.EventType) {
+				switch (thisEvent.EventType) {
 					case ENTRY_EVENT:
 						if (hum > HUM_WARNING_THRESHOLD) {
 							// Display warning
@@ -118,7 +120,7 @@ Event Run_SubHSM_Init(Event ThisEvent) {
 			case State4_HumCheck:
 
 				
-				switch (ThisEvent.EventType) {
+				switch (thisEvent.EventType) {
 					case ENTRY_EVENT:
 						// Init timer
 						// Read hum
@@ -141,7 +143,7 @@ Event Run_SubHSM_Init(Event ThisEvent) {
 			case State5_SettingPeriod:
 
 				
-				switch (ThisEvent.EventType) {
+				switch (thisEvent.EventType) {
 					case ENTRY_EVENT:
 						// Display prompt
 						// Display current period
@@ -170,7 +172,7 @@ Event Run_SubHSM_Init(Event ThisEvent) {
 				// BTN1 yes
 				// BTN2 no
 				
-				switch (ThisEvent.EventType) {
+				switch (thisEvent.EventType) {
 					
 					// Continue
 					case BTN3:
@@ -194,7 +196,7 @@ Event Run_SubHSM_Init(Event ThisEvent) {
 				// Calculate lifetime
 				// Display lifetime
 
-				switch (ThisEvent.EventType) {
+				switch (thisEvent.EventType) {
 						
 					// Back
 					case BTN4:
@@ -213,8 +215,10 @@ Event Run_SubHSM_Init(Event ThisEvent) {
 		
 	if (makeTransition == TRUE) { // making a state transition, send EXIT and ENTRY
 		// recursively call the current state with an exit event
-		Run_SubHSM_Init(EXIT_EVENT); 
-		CurrentState = nextState;
-		Run_SubHSM_Init(ENTRY_EVENT);
+		thisEvent.EventType = EXIT_EVENT;
+		Run_SubHSM_Init(thisEvent);
+		currentState = nextState;
+		thisEvent.EventType = ENTRY_EVENT;
+		Run_SubHSM_Init(thisEvent);
 	}
 }
