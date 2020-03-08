@@ -36,6 +36,17 @@ void setup() {
 //  }else {
 //    Serial.println("Serious Failure");
 //  }
+//
+//
+//
+//  errorCheck = Cozir2_Calibrate();
+//  if(errorCheck == 0){
+//    Serial.println("Calibration2 Failure");
+//  }else if (errorCheck == 1){
+//    Serial.println("Calibration2 Success");
+//  }else {
+//    Serial.println("Serious Failure");
+//  }
 
 }
 
