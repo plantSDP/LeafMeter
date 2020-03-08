@@ -41,8 +41,7 @@ Event Run_SubHSM_Init(Event thisEvent) {
 
 	switch (CurrentState) {
 		case InitPSubState: // If current state is initial Pseudo State
-			if (thisEvent.EventType == INIT_EVENT)// only respond to ES_Init
-			{
+			if (thisEvent.EventType == INIT_EVENT){// only respond to ES_Init
 				// now put the machine into the actual initial state
 				nextState = State1_Starting;
 				makeTransition = TRUE;
@@ -72,6 +71,9 @@ Event Run_SubHSM_Init(Event thisEvent) {
 					break;
 						
 				default:
+					pinMode(13, OUTPUT);
+					digitalWrite(13, HIGH);
+					thisEvent.EventType = NO_EVENT;
 					break;
 			}				
 			break;
@@ -89,7 +91,7 @@ Event Run_SubHSM_Init(Event thisEvent) {
 				
 				// Continue
 				case BTN_EVENT:
-					if (thisEvent.EventParam == BTN3)
+					if (thisEvent.EventParam == BTN3){
 						nextState = State5_SettingPeriod;
 						makeTransition = TRUE;
 					}

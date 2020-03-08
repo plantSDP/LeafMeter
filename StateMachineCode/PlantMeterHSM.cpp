@@ -2,6 +2,7 @@
 #include "Configure.h"
 #include "InitSubHSM.h"
 
+
 typedef enum {
 	InitPState, //initilizing state maching pseudo state
     Initing, //initializing the device
@@ -10,6 +11,7 @@ typedef enum {
 	Active, // Running a measurment
 	Waiting, //waiting for next measurement or user input
 } HSMstates;
+
 
 
 static HSMstates CurrentState = InitPState;
@@ -47,8 +49,7 @@ Event RunHSM(Event thisEvent){
 			break;
 
 		case Initing:
-		    pinMode(13, OUTPUT);
-			digitalWrite(13, HIGH);
+
 			thisEvent = Run_SubHSM_Init(thisEvent);
 			if (thisEvent.EventType == BTN_EVENT){
 				if (thisEvent.EventParam == BTN3) {

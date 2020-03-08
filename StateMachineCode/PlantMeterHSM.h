@@ -3,6 +3,7 @@
 
 #include "Configure.h"
 #include "Arduino.h"
+
 /*
 * Used to initialize the HSM. 
 * This function should be called at the startup of the system

@@ -26,11 +26,10 @@ uint8_t InitEventCheckers(void){
 /*
 debounces the buttons and set the flag in the struct, along with the bitmasked button states
 */
-ButtonEvent ButtonCheckDebounce(void){
+Event ButtonCheckDebounce(void){
 	
 	static uint16_t oldButtonStates = 0;
-	uint16_t newButtonStates;
-	int i;
+	uint16_t newButtonStates = 0;
 	
 	buttonVals[3] = buttonVals[3] << 1 | digitalRead(BTN4_PIN);
 	buttonVals[2] = buttonVals[2] << 1 | digitalRead(BTN3_PIN);
@@ -65,17 +64,17 @@ ButtonEvent ButtonCheckDebounce(void){
 	
 	//add other buttons here
 	
-	ButtonEvent returnBtnEvent;
+	Event returnBtnEvent;
 	if (oldButtonStates != newButtonStates){
-		returnBtnEvent.ButtonFlag = 1;
-		returnBtnEvent.ButtonParams = newButtonStates;
+		returnBtnEvent.EventType = BTN_EVENT;
+		returnBtnEvent.EventParam = newButtonStates;
 	} else {
-		returnBtnEvent.ButtonFlag = 0;
-		returnBtnEvent.ButtonParams = oldButtonStates;
+		returnBtnEvent.EventType = NO_EVENT;
+		returnBtnEvent.EventParam = oldButtonStates;
 	}
 	oldButtonStates = newButtonStates;
 	
-	return ButtonEvent;
+	return returnBtnEvent;
 		
 	
 }
