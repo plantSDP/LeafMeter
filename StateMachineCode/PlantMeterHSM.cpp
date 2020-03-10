@@ -1,7 +1,8 @@
 #include "PlantMeterHSM.h"
 #include "Configure.h"
 #include "InitSubHSM.h"
-
+#include <LiquidCrystal_I2C.h>
+#include <Wire.h>
 
 typedef enum {
 	InitPState, //initilizing state maching pseudo state
@@ -15,8 +16,13 @@ typedef enum {
 
 
 static HSMstates CurrentState = InitPState;
+char myString2[50]; 
 
 uint8_t InitHSM(void){
+	
+	  sprintf(myString2, "Hello please");
+  lcd.setCursor(0, 0); // set the cursor to column 0, line 0
+  lcd.print(myString2);  // Print a message to the LCD
 	Event thisEvent;
 	thisEvent.EventType = INIT_EVENT;
 	thisEvent.EventParam = 0;
