@@ -26,7 +26,7 @@ uint8_t Init_SubHSM_Init(void){
 	Event returnEvent = Run_SubHSM_Init(thisEvent);
 	if (returnEvent.EventType == NO_EVENT){
 		return TRUE;
-	}else{
+	} else {
 		return FALSE;
 	}
 }
@@ -59,7 +59,7 @@ Event Run_SubHSM_Init(Event thisEvent) {
 					// Open valves
 					// Run Pump
 					// request Cozir Data
-				break;
+					break;
 				case TIMEOUT:
 					if (hum < HUM_DANGER_THRESHOLD) {
 						nextState = State2_HumConfirm;
@@ -209,11 +209,9 @@ Event Run_SubHSM_Init(Event thisEvent) {
 			}									
 			break;	
 			
-			
 		default:
 			break;
 	}
-		
 		
 	if (makeTransition == TRUE) { // making a state transition, send EXIT and ENTRY
 		// recursively call the current state with an exit event

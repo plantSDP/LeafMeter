@@ -4,6 +4,8 @@
 #define HUM_DANGER_THRESHOLD 90
 #define HUM_WARNING_THRESHOLD 80
 
+#define PRESSURE_TEST_THRESHOLD 10 // just a placeholder for now
+
 typedef enum {
     InitPSubState,
     State1_Starting,
@@ -13,7 +15,7 @@ typedef enum {
 static LeakSubHSMStates CurrentState = InitPSubState;
 
 
-
+// This function runs the state machine with an INIT_EVENT
 uint8_t Init_SubHSM_Leak(void){
 	Event thisEvent;
 	thisEvent.EventType = INIT_EVENT;
@@ -28,6 +30,7 @@ uint8_t Init_SubHSM_Leak(void){
 
 
 static int hum = 0;
+static int pressure= 0;
 Event Run_SubHSM_Leak(Event thisEvent) {
 	
 	uint8_t makeTransition = FALSE; // use to flag transition
@@ -44,37 +47,36 @@ Event Run_SubHSM_Leak(Event thisEvent) {
 			break;
 
 
-		case State1_Starting:
+		case State1_ContinuePrompt:
 			switch (thisEvent.EventType) {
 				case ENTRY_EVENT:
-					// Display Hello
-					// Init timer
-					// Open valves
-					// Run Pump
-					// request Cozir Data
-				break;
-				case TIMEOUT:
-					if (hum < HUM_DANGER_THRESHOLD) {
-						nextState = State2_HumConfirm;
+					// Display "continue with leak check" prompt
+					break;
+				case BTN_EVENT:
+					if (thisEvent.EventParam == BTN3) {		// Continue
+						nextState = State2_Pressurizing;
 						makeTransition = TRUE;
-					} else {
-						nextState = State3_HumFail;
-						makeTransition = TRUE;	
 					}
 					break;
 						
 				default:
-					pinMode(13, OUTPUT);
-					digitalWrite(13, HIGH);
-					thisEvent.EventType = NO_EVENT;
 					break;
 			}				
 			break;
+
+		case State2_Pressurizing:
+			switch (thisEvent.EventType) {
+				case ENTRY_EVENT:
+					// Display "Pressurizing"
+					// Run pump
+					// Close valves
+					// Read cozir data
+					break;
+			}
 			
 		default:
 			break;
 	}
-		
 		
 	if (makeTransition == TRUE) { // making a state transition, send EXIT and ENTRY
 		// recursively call the current state with an exit event
