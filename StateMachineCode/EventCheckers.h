@@ -3,7 +3,7 @@
 #include "Configure.h"
 #include "Arduino.h"
 
-#ifdef __cplusplus // This was added to fix compilation error for "name mangling"
+#ifdef __cplusplus // This was added to fix compilation error for "name mangling", a C/C++ compatibility issue.
 extern "C" {
 #endif
 
