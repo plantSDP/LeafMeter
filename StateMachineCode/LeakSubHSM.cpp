@@ -72,8 +72,19 @@ Event Run_SubHSM_Leak(Event thisEvent) {
 					// Close valves
 					// Read cozir data
 					break;
+				// Transition to State3 when pressure reaches testing threshold. This number is defined above.
+				// Transition to State5 when humidity is greater than threshold. This number is defined above.
 			}
-			
+		
+		case State3_ReadingPressure:
+			break;
+
+		case State4_DisplayingResult:
+			break;
+
+		case State5_HumDanger:
+			break;
+
 		default:
 			break;
 	}
