@@ -39,26 +39,26 @@ Event ButtonCheckDebounce(void){
 	
 	if (buttonVals[3] == 0x00){
 		newButtonStates &= 0b0111;
-	}else if (buttonVals[3] == 0xFF){
+	} else if (buttonVals[3] == 0xFF){
 		newButtonStates |= 0b1000;
 	}
 	
 	if (buttonVals[2] == 0x00){
 		newButtonStates &= 0b1011;
-	}else if (buttonVals[2] == 0xFF){
+	} else if (buttonVals[2] == 0xFF){
 		newButtonStates |= 0b0100;
 	}
 	
 	if (buttonVals[1] == 0x00){
 		newButtonStates &= 0b1101;
-	}else if (buttonVals[1] == 0xFF){
+	} else if (buttonVals[1] == 0xFF){
 		newButtonStates |= 0b0010;
 	}
 	
 	
 	if (buttonVals[0] == 0x00){
 		newButtonStates &= 0b1110;
-	}else if (buttonVals[0] == 0xFF){
+	} else if (buttonVals[0] == 0xFF){
 		newButtonStates |= 0b0001;
 	}
 	

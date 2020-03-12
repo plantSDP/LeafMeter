@@ -7,10 +7,10 @@
 typedef enum {
 	InitPState, //initilizing state maching pseudo state
     Initing, //initializing the device
-    PressureChecking, //checking for a leak
+    LeakChecking, //checking for a leak
 	RFChecking, //checking for RF connection
 	Active, // Running a measurment
-	Waiting, //waiting for next measurement or user input
+	Waiting, // waiting for next measurement or user input
 } HSMstates;
 
 
@@ -55,16 +55,16 @@ Event RunHSM(Event thisEvent){
 			break;
 
 		case Initing:
-
 			thisEvent = Run_SubHSM_Init(thisEvent);
 			if (thisEvent.EventType == BTN_EVENT){
 				if (thisEvent.EventParam == BTN3) {
-					nextState = PressureChecking;
+					nextState = LeakChecking;
 					makeTransition = TRUE;
 				}
 			}
 			break;
-		case PressureChecking:
+
+		case LeakChecking:
 			//pinMode(13, OUTPUT);
 			//digitalWrite(13, HIGH);
 			break;

@@ -51,7 +51,6 @@ Event Run_SubHSM_Init(Event thisEvent) {
 
 
 		case State1_Starting:
-			
 			switch (thisEvent.EventType) {
 				case ENTRY_EVENT:
 					// Display Hello
@@ -79,7 +78,6 @@ Event Run_SubHSM_Init(Event thisEvent) {
 			break;
 
 		case State2_HumConfirm:
-
 			switch (thisEvent.EventType) {
 				case ENTRY_EVENT:
 					if (hum > HUM_WARNING_THRESHOLD) {
@@ -119,8 +117,6 @@ Event Run_SubHSM_Init(Event thisEvent) {
 			break;
 			
 		case State4_HumCheck:
-
-				
 			switch (thisEvent.EventType) {
 				case ENTRY_EVENT:
 					// Init timer
@@ -142,15 +138,12 @@ Event Run_SubHSM_Init(Event thisEvent) {
 			break;
 				
 		case State5_SettingPeriod:
-
-				
 			switch (thisEvent.EventType) {
 				case ENTRY_EVENT:
 					// Display prompt
 					// Display current period
 					// BTN1 || BTN2 increments
 					break;
-				
 				
 				case BTN_EVENT:
 					if (thisEvent.EventParam == BTN3) {		// Continue
@@ -173,7 +166,6 @@ Event Run_SubHSM_Init(Event thisEvent) {
 			// BTN2 no
 				
 			switch (thisEvent.EventType) {
-					
 				case BTN_EVENT:
 					if (thisEvent.EventParam == BTN3) {		// Continue
 						nextState = State7_LifetimeDisplay;
@@ -195,7 +187,7 @@ Event Run_SubHSM_Init(Event thisEvent) {
 			// Display lifetime
 
 			switch (thisEvent.EventType) {
-						
+
 				// Back
 				case BTN_EVENT:
 					if (thisEvent.EventParam == BTN4) {
