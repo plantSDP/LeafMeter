@@ -1,6 +1,7 @@
+// Includes
 #include "LeakSubHSM.h"
 
-
+// Private Definitions
 #define HUM_DANGER_THRESHOLD 90
 #define HUM_WARNING_THRESHOLD 80
 
@@ -9,6 +10,7 @@
 #define TEST_TIMER 0
 #define DATA_TIMER 1
 
+// List states here:
 typedef enum {
     InitPSubState,
     State1_Starting,
@@ -20,16 +22,16 @@ typedef enum {
 	State7_HumConfirm,
 } LeakSubHSMStates;
 
+// Holds the current state
 static LeakSubHSMStates CurrentState = InitPSubState;
-
 
 // This function runs the state machine with an INIT_EVENT
 uint8_t Init_SubHSM_Leak(void){
 	Event thisEvent;
 	thisEvent.EventType = INIT_EVENT;
 	thisEvent.EventParam = 0;
-	Event returnEvent = Run_SubHSM_Init(thisEvent);
-	if (returnEvent.EventType == NO_EVENT){
+	Event returnEvent = Run_SubHSM_Leak(thisEvent);
+	if (returnEvent.EventType == NO_EVENT) {
 		return TRUE;
 	} else {
 		return FALSE;
@@ -43,7 +45,6 @@ Event Run_SubHSM_Leak(Event thisEvent) {
 	
 	uint8_t makeTransition = FALSE; // use to flag transition
 	InitSubHSMStates nextState;
-
 
 	switch (CurrentState) {
 		case InitPSubState:								// If current state is initial Pseudo State
@@ -65,7 +66,6 @@ Event Run_SubHSM_Leak(Event thisEvent) {
 						makeTransition = TRUE;
 					}
 					break;
-						
 				default:
 					break;
 			}				
@@ -88,6 +88,8 @@ Event Run_SubHSM_Leak(Event thisEvent) {
 				// Transition to State3 when pressure is greater than threshold. This number is defined above.
 					// Stop pump, init leak test timer
 				// Transition to State5 when humidity is greater than threshold. This number is defined above.
+				default:
+					break;
 			}
 			break;
 		
@@ -105,6 +107,8 @@ Event Run_SubHSM_Leak(Event thisEvent) {
 						makeTransition = TRUE;
 					}
 					break;
+				default:
+					break;
 			}
 			break;
 
@@ -114,15 +118,13 @@ Event Run_SubHSM_Leak(Event thisEvent) {
 					// Open valves
 					// Display results
 					break;
-
 				case BTN_EVENT:
-					if (thisEvent.EventParam == BTN3) {			// Continue
+					if (thisEvent.EventParam == BTN4) {			// Back
 						nextState = State2_Pressurizing;
 						makeTransition = TRUE;
-					} else if (thisEvent.EventParam == BTN4){	// Back
-						nextState = State5_SettingPeriod;
-						makeTransition = TRUE;
 					}
+					break;
+				default:
 					break;
 			}
 			break;
@@ -137,7 +139,6 @@ Event Run_SubHSM_Leak(Event thisEvent) {
 					nextState = State6_HumCheck;
 					makeTransition = TRUE;
 					break;
-
 				default:
 					break;					
 			}
@@ -158,7 +159,6 @@ Event Run_SubHSM_Leak(Event thisEvent) {
 						makeTransition = TRUE;	
 					}
 					break;
-						
 				default:
 					break;
 			}			
@@ -173,7 +173,6 @@ Event Run_SubHSM_Leak(Event thisEvent) {
 						// Display ok
 					}
 				break; 
-				
 				// Continue to State2_Pressurizing
 				case BTN_EVENT:
 					if (thisEvent.EventParam == BTN3){
@@ -181,7 +180,6 @@ Event Run_SubHSM_Leak(Event thisEvent) {
 						makeTransition = TRUE;
 					}
 					break;
-
 				default:
 					break;
 			}
@@ -194,10 +192,10 @@ Event Run_SubHSM_Leak(Event thisEvent) {
 	if (makeTransition == TRUE) { // making a state transition, send EXIT and ENTRY
 		// recursively call the current state with an exit event
 		thisEvent.EventType = EXIT_EVENT;
-		Run_SubHSM_Init(thisEvent);
+		Run_SubHSM_Leak(thisEvent);
 		CurrentState = nextState;
 		thisEvent.EventType = ENTRY_EVENT;
-		Run_SubHSM_Init(thisEvent);
+		Run_SubHSM_Leak(thisEvent);
 	}
 	return thisEvent;
 }

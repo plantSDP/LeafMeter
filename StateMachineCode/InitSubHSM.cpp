@@ -1,9 +1,13 @@
+// Includes
 #include "InitSubHSM.h"
 
-
+// Private definitions
 #define HUM_DANGER_THRESHOLD 90
 #define HUM_WARNING_THRESHOLD 80
+#define RF_NO 0
+#define RF_YES 1
 
+// List states here:
 typedef enum {
     InitPSubState,
     State1_Starting,
@@ -15,16 +19,16 @@ typedef enum {
 	State7_LifetimeDisplay,
 } InitSubHSMStates;
 
+// Holds the current state
 static InitSubHSMStates CurrentState = InitPSubState;
 
-
-
+// This function runs the state machine with an INIT_EVENT
 uint8_t Init_SubHSM_Init(void){
 	Event thisEvent;
 	thisEvent.EventType = INIT_EVENT;
 	thisEvent.EventParam = 0;
 	Event returnEvent = Run_SubHSM_Init(thisEvent);
-	if (returnEvent.EventType == NO_EVENT){
+	if (returnEvent.EventType == NO_EVENT) {
 		return TRUE;
 	} else {
 		return FALSE;
@@ -32,7 +36,8 @@ uint8_t Init_SubHSM_Init(void){
 }
 
 
-static int hum = 0;
+static int hum = 0;					// holds humidity measurement
+static int rfOption = RF_NO;		// sets rfOption, default is NO (0)
 Event Run_SubHSM_Init(Event thisEvent) {
 	
 	uint8_t makeTransition = FALSE; // use to flag transition
@@ -66,7 +71,6 @@ Event Run_SubHSM_Init(Event thisEvent) {
 						makeTransition = TRUE;	
 					}
 					break;
-						
 				default:
 					pinMode(13, OUTPUT);
 					digitalWrite(13, HIGH);
@@ -84,31 +88,26 @@ Event Run_SubHSM_Init(Event thisEvent) {
 						// Display ok
 					}
 				break; 
-				
-				// Continue
 				case BTN_EVENT:
-					if (thisEvent.EventParam == BTN3){
+					if (thisEvent.EventParam == BTN3) {			// Continue
 						nextState = State5_SettingPeriod;
 						makeTransition = TRUE;
 					}
 					break;
-
 				default:
 					break;
 			}
 			break;
 				
 		case State3_HumFail:
-			// Display failure, prompt btn press for retry
-				
 			switch (thisEvent.EventType) {
-				
-				// Continue
+				case ENTRY_EVENT:
+					// Display failure, prompt any btn press for retry
+					break;
 				case BTN_EVENT:
-					nextState = State4_HumCheck;
+					nextState = State4_HumCheck;				// Continue
 					makeTransition = TRUE;
 					break;
-
 				default:
 					break;					
 			}
@@ -129,7 +128,6 @@ Event Run_SubHSM_Init(Event thisEvent) {
 						makeTransition = TRUE;	
 					}
 					break;
-						
 				default:
 					break;
 			}								
@@ -142,38 +140,53 @@ Event Run_SubHSM_Init(Event thisEvent) {
 					// Display current period
 					// BTN1 || BTN2 increments
 					break;
-				
 				case BTN_EVENT:
-					if (thisEvent.EventParam == BTN3) {		// Continue
+					if (thisEvent.EventParam == BTN1) {
+						// increment periodParam1
+						// update display
+
+					} else if (thisEvent.EventParam == BTN2) {
+						// increment periodParam2
+						// update display
+
+					} else if (thisEvent.EventParam == BTN3) {		// Continue
 						nextState = State6_SettingRF;
 						makeTransition = TRUE;
-					} else if (thisEvent.EventParam == BTN4){
-						nextState = State4_HumCheck;		// Back
+
+					} else if (thisEvent.EventParam == BTN4) {		// Back
+						nextState = State4_HumCheck;
 						makeTransition = TRUE;
+
 					}
 					break;
-						
 				default:
 					break;
 			}								
 			break;
 				
 		case State6_SettingRF:
-			// Display prompt
-			// BTN1 yes
-			// BTN2 no
-				
 			switch (thisEvent.EventType) {
+				case ENTRY_EVENT:
+					// Display prompt
+					// BTN1 yes, BTN2 no, default is no
+					break;
 				case BTN_EVENT:
-					if (thisEvent.EventParam == BTN3) {			// Continue
+					if (thisEvent.EventParam == BTN1) {
+						rfOption = 1;
+
+					} else if (thisEvent.EventParam == BTN2) {
+						rfOption = 0;
+
+					} else if (thisEvent.EventParam == BTN3) {		// Continue
 						nextState = State7_LifetimeDisplay;
 						makeTransition = TRUE;
-					} else if (thisEvent.EventParam == BTN4){
-						nextState = State5_SettingPeriod;		// Back
+
+					} else if (thisEvent.EventParam == BTN4) {		// Back
+						nextState = State5_SettingPeriod;
 						makeTransition = TRUE;
+
 					}
 					break;
-						
 				default:
 					break;
 			}					
@@ -181,12 +194,11 @@ Event Run_SubHSM_Init(Event thisEvent) {
 			break;
 				
 		case State7_LifetimeDisplay:
-			// Calculate lifetime
-			// Display lifetime
-
 			switch (thisEvent.EventType) {
-
-				// Back
+				case ENTRY_EVENT:
+					// Calculate lifetime
+					// Display lifetime				
+					break;
 				case BTN_EVENT:
 					if (thisEvent.EventParam == BTN4) {
 						nextState = State5_SettingPeriod;

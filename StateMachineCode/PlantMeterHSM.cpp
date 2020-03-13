@@ -28,7 +28,7 @@ uint8_t InitHSM(void){
 	thisEvent.EventType = INIT_EVENT;
 	thisEvent.EventParam = 0;
 	Event returnEvent = RunHSM(thisEvent);
-	if (returnEvent.EventType == NO_EVENT){
+	if (returnEvent.EventType == NO_EVENT) {
 		return TRUE;
 	} else {
 		return FALSE;
@@ -79,7 +79,8 @@ Event RunHSM(Event thisEvent){
 			break;
 			
 	}
-	if (makeTransition == TRUE){
+
+	if (makeTransition == TRUE) {
 		thisEvent.EventType = EXIT_EVENT;
 		RunHSM(thisEvent);
 		CurrentState = nextState;
