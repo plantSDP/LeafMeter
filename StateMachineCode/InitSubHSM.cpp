@@ -40,12 +40,10 @@ Event Run_SubHSM_Init(Event thisEvent) {
 
 
 	switch (CurrentState) {
-		case InitPSubState: // If current state is initial Pseudo State
-			if (thisEvent.EventType == INIT_EVENT){// only respond to ES_Init
-				// now put the machine into the actual initial state
-				nextState = State1_Starting;
+		case InitPSubState:								// If current state is initial Pseudo State
+			if (thisEvent.EventType == INIT_EVENT){		// only respond to INIT_EVENT
+				nextState = State1_Starting;			// transition to first state
 				makeTransition = TRUE;
-
 			}
 			break;
 
@@ -106,7 +104,7 @@ Event Run_SubHSM_Init(Event thisEvent) {
 			switch (thisEvent.EventType) {
 				
 				// Continue
-				case BTN3:
+				case BTN_EVENT:
 					nextState = State4_HumCheck;
 					makeTransition = TRUE;
 					break;
@@ -167,7 +165,7 @@ Event Run_SubHSM_Init(Event thisEvent) {
 				
 			switch (thisEvent.EventType) {
 				case BTN_EVENT:
-					if (thisEvent.EventParam == BTN3) {		// Continue
+					if (thisEvent.EventParam == BTN3) {			// Continue
 						nextState = State7_LifetimeDisplay;
 						makeTransition = TRUE;
 					} else if (thisEvent.EventParam == BTN4){
