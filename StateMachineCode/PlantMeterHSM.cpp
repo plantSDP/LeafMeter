@@ -52,7 +52,6 @@ Event RunHSM(Event thisEvent){
 				nextState = Initing;
 				makeTransition = TRUE;	
 			}
-			
 			break;
 
 		case Initing:
@@ -69,13 +68,20 @@ Event RunHSM(Event thisEvent){
 			//pinMode(13, OUTPUT);
 			//digitalWrite(13, HIGH);
 			break;
+
 		case RFChecking:
 			break;
+
 		case DateTime:
 			break;
+
 		case Active:
 			break;
+
 		case Waiting:
+			break;
+
+		default:
 			break;
 			
 	}
