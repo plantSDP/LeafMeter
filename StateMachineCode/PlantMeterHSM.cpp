@@ -5,12 +5,13 @@
 #include <Wire.h>
 
 typedef enum {
-	InitPState, //initilizing state maching pseudo state
-    Initing, //initializing the device
-    LeakChecking, //checking for a leak
-	RFChecking, //checking for RF connection
-	Active, // Running a measurment
-	Waiting, // waiting for next measurement or user input
+	InitPState,		// initilizing state machine pseudo state
+    Initing,		// initializing the device
+    LeakChecking,	// checking for a leak
+	RFChecking,		// checking for RF connection
+	DateTime,		// entering date and time
+	Active,			// running a measurment
+	Waiting,		// waiting for next measurement or user input
 } HSMstates;
 
 
@@ -69,6 +70,8 @@ Event RunHSM(Event thisEvent){
 			//digitalWrite(13, HIGH);
 			break;
 		case RFChecking:
+			break;
+		case DateTime:
 			break;
 		case Active:
 			break;
