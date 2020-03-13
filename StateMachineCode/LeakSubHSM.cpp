@@ -89,6 +89,7 @@ Event Run_SubHSM_Leak(Event thisEvent) {
 					// Stop pump, init leak test timer
 				// Transition to State5 when humidity is greater than threshold. This number is defined above.
 			}
+			break;
 		
 		case State3_ReadingPressure:
 			switch (thisEvent.EventType) {
@@ -130,6 +131,7 @@ Event Run_SubHSM_Leak(Event thisEvent) {
 			switch (thisEvent.EventType) {
 				case ENTRY_EVENT:
 					// Display failure, prompt btn press for retry
+					// Open valves
 					break;
 				case BTN_EVENT:
 					nextState = State6_HumCheck;
@@ -142,11 +144,48 @@ Event Run_SubHSM_Leak(Event thisEvent) {
 			break;
 
 		case State6_HumCheck:
-			
+			switch (thisEvent.EventType) {
+				case ENTRY_EVENT:
+					// Init timer
+					// Read hum
+					break;						
+				case TIMEOUT:
+					if (hum < HUM_DANGER_THRESHOLD) {
+						nextState = State7_HumConfirm;
+						makeTransition = TRUE;
+					} else {
+						nextState = State5_HumFail;
+						makeTransition = TRUE;	
+					}
+					break;
+						
+				default:
+					break;
+			}			
 			break;
 
 		case State7_HumConfirm:
-			break;
+			switch (thisEvent.EventType) {
+				case ENTRY_EVENT:
+					if (hum > HUM_WARNING_THRESHOLD) {
+						// Display warning
+					} else {
+						// Display ok
+					}
+				break; 
+				
+				// Continue to State2_Pressurizing
+				case BTN_EVENT:
+					if (thisEvent.EventParam == BTN3){
+						nextState = State2_SettingPeriod;
+						makeTransition = TRUE;
+					}
+					break;
+
+				default:
+					break;
+			}
+			break;			
 
 		default:
 			break;
