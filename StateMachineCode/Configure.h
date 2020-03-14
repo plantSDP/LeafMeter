@@ -4,6 +4,8 @@
 #include "Arduino.h"
 
 
+// Private Definitions
+
 #define TRUE 1
 #define FALSE 0
 
@@ -13,6 +15,8 @@
 #define BTN3		4
 #define BTN4		8
 
+#define TIMER_0_PARAM 0b1
+#define TIMER_1_PARAM 0b10
 
 //the possible events for the state machine. Add new events to this enum. 
 typedef enum {
