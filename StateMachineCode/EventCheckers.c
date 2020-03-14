@@ -1,7 +1,7 @@
 #include "Configure.h"
 #include "Arduino.h"
 #include "EventCheckers.h"
-
+#include <Metro.h> //this library is used to create timers
 
 #define BTN4_PIN 17
 #define BTN3_PIN 16
@@ -10,6 +10,11 @@
 
 
 static uint8_t buttonVals[4];
+static uint8_t timer0state = 0; //holder for if the timers are currently active
+static uint8_t timer1State = 0;
+static Metro timer0;
+statuc Metro timer1; 
+
 
 
 /*
@@ -78,3 +83,67 @@ Event ButtonCheckDebounce(void){
 		
 	
 }
+
+
+
+
+/*
+Sets the interval for a timer. The timer will only generate a single event. 
+A timer that has not expired yet cannot be set again. 
+Parameters
+	timer - the number of the timer to set 
+	interval - time in ms for the interval
+	
+Return - one or zero based on success
+*/
+uint8_t SetTimer(uint8_t timer, unsigned int interval){
+	
+	
+	if (timer == 0){
+		if (timer0state == 0){
+			//start the interval
+			timer0state = 1;
+			return 1;
+		}
+	} else if (timer == 1){
+		if (timer0state == 0){
+			//start the interval
+			timer1state = 1;
+			return 1;
+		}
+	}
+	
+	return 0;
+}
+
+
+
+/*
+Checks for timer expirations and triggers an event if a timer has expired. Multiple timer events cannot be triggered on the same check. 
+*/
+Event TimerExpireCheck(void){
+	Event returnEvent;
+	if (timer0state == 1){
+		if (timer0.check() == 1){
+			timer0state = 0;
+			returnEvent.EventType = TIMEOUT;
+			returnEvent.EventParam = 0b1;
+			return returnEvent;
+		}
+	} 
+	
+	
+	if (timer1state == 1){
+		if (timer1.check() == 1){
+			timer1State = 0;
+			returnEvent.EventType = TIMEOUT;
+			returnEvent.EventParam = 0b10;
+			return returnEvent;
+		}
+	} 
+	
+	returnEvent.EventType = NO_EVENT;
+}
+
+
+
