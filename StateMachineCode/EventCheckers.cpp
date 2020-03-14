@@ -3,11 +3,11 @@
 #include "EventCheckers.h"
 #include <Metro.h> //this library is used to create timers
 
+// Private Definitions
 #define BTN4_PIN 17
 #define BTN3_PIN 16
 #define BTN2_PIN 16 //CHANGE THIS!
 #define BTN1_PIN 16 //CHANGE THIS!
-
 
 static uint8_t buttonVals[4];
 static uint8_t timer0state = 0; //holder for if the timers are currently active

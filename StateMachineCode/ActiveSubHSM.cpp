@@ -1,5 +1,7 @@
 // Includes
 #include "ActiveSubHSM.h"
+#include "Arduino.h"
+#include "EventCheckers.h"
 
 // Private Definitions
 
@@ -55,11 +57,14 @@ Event Run_SubHSM_Active(Event thisEvent) {
 		case State2_TakingMeasurement1:
 			switch (thisEvent.EventType) {
 				case ENTRY_EVENT:
-					// 
+					// init timer
+					// display current lifetime, time remaining
 					break;
 				case TIMEOUT:
-					nextState = State3_TakingMeasurement2;
-					makeTransition = TRUE;
+					if (thisEvent.EventParam == TIMER_0_PARAM) {
+						nextState = State3_TakingMeasurement2;
+						makeTransition = TRUE;
+					}
 					break;
 				default:
 					break;
@@ -69,12 +74,13 @@ Event Run_SubHSM_Active(Event thisEvent) {
 		case State3_TakingMeasurement2:
 			switch (thisEvent.EventType) {
 				case ENTRY_EVENT:
-					// Open valves
-					// Display results
+					// init timer
+					// read data
+					// temporarily store data
 					break;
-				case BTN_EVENT:
-					if (thisEvent.EventParam == BTN4) {			// Back
-						nextState = State2_RFChecking;
+				case TIMEOUT:
+					if (thisEvent.EventParam == TIMER_0_PARAM) {
+						nextState = State3_TakingMeasurement2;
 						makeTransition = TRUE;
 					}
 					break;

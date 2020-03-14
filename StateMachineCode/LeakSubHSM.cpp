@@ -1,5 +1,7 @@
 // Includes
 #include "LeakSubHSM.h"
+#include "Arduino.h"
+#include "EventCheckers.h"
 
 // Private Definitions
 #define HUM_DANGER_THRESHOLD 90

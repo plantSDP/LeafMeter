@@ -4,6 +4,8 @@
 #include "Arduino.h"
 
 
+// Public Definitions
+
 
 /*
 typedef struct ButtonEvent{

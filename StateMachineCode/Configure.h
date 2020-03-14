@@ -4,7 +4,7 @@
 #include "Arduino.h"
 
 
-// Private Definitions
+// Public Definitions
 
 #define TRUE 1
 #define FALSE 0
