@@ -4,7 +4,8 @@
 
 #include <inttypes.h>
 #include "Print.h" 
-#include <Wire.h>
+//#include <Wire.h>
+#include "i2c_t3.h"
 
 // commands
 #define LCD_CLEARDISPLAY 0x01
