@@ -20,6 +20,9 @@ typedef enum {
 	State4_DayDigit2,
     State5_YearDigit1,
 	State6_YearDigit2,
+	State7_HourDigit1,
+	State8_MinuteDigit1,
+	State9_MinuteDigit2,
 } DateTimeSubHSMStates;
 
 // Holds current state
@@ -179,6 +182,72 @@ Event Run_SubHSM_DateTime(Event thisEvent) {
 						makeTransition = TRUE;
 					} else if (thisEvent.EventParam == BTN4) {			// Back to Day digit 1
 						nextState = State3_DayDigit1;
+						makeTransition = TRUE;
+					}
+					break;
+				default:
+					break;
+			}
+			break;
+
+		case State7_HourDigit1:
+			switch (thisEvent.EventType) {
+				case ENTRY_EVENT:
+					// Update Display
+					break;
+				case BTN_EVENT:
+					if (thisEvent.EventParam == BTN1) {
+						// increment digit
+						// update display
+					} else if (thisEvent.EventParam == BTN3) {			// Continue to Minute digit 1
+						nextState = State8_MinuteDigit1;
+						makeTransition = TRUE;
+					} else if (thisEvent.EventParam == BTN4) {			// Back to Year digit 2
+						nextState = State6_YearDigit2;
+						makeTransition = TRUE;
+					}
+					break;
+				default:
+					break;
+			}
+			break;
+
+		case State8_MinuteDigit1:
+			switch (thisEvent.EventType) {
+				case ENTRY_EVENT:
+					// Update Display
+					break;
+				case BTN_EVENT:
+					if (thisEvent.EventParam == BTN1) {
+						// increment digit
+						// update display
+					} else if (thisEvent.EventParam == BTN2) {			// Continue to Minute digit 2
+						nextState = State9_MinuteDigit2;
+						makeTransition = TRUE;
+					} else if (thisEvent.EventParam == BTN4) {			// Back to Hour digit 1
+						nextState = State7_HourDigit1;
+						makeTransition = TRUE;
+					}
+					break;
+				default:
+					break;
+			}
+			break;
+
+		case State9_MinuteDigit2:
+			switch (thisEvent.EventType) {
+				case ENTRY_EVENT:
+					// Update Display
+					break;
+				case BTN_EVENT:
+					if (thisEvent.EventParam == BTN1) {
+						// increment digit
+						// update display
+					} else if (thisEvent.EventParam == BTN2) {			// Continue to Minute digit 1
+						nextState = State8_MinuteDigit1;
+						makeTransition = TRUE;
+					} else if (thisEvent.EventParam == BTN4) {			// Back to Hour digit 1
+						nextState = State7_HourDigit1;
 						makeTransition = TRUE;
 					}
 					break;
