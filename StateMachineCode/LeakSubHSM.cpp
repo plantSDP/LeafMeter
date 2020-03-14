@@ -13,7 +13,7 @@
 // List states here:
 typedef enum {
     InitPSubState,
-    State1_Starting,
+    State1_ContinuePrompt,
 	State2_Pressurizing,
 	State3_ReadingPressure,
 	State4_DisplayingResult,
@@ -44,7 +44,7 @@ static int pressure = 0;
 Event Run_SubHSM_Leak(Event thisEvent) {
 	
 	uint8_t makeTransition = FALSE; // use to flag transition
-	InitSubHSMStates nextState;
+	LeakSubHSMStates nextState;
 
 	switch (CurrentState) {
 		case InitPSubState:								// If current state is initial Pseudo State
@@ -176,7 +176,7 @@ Event Run_SubHSM_Leak(Event thisEvent) {
 				// Continue to State2_Pressurizing
 				case BTN_EVENT:
 					if (thisEvent.EventParam == BTN3){
-						nextState = State2_SettingPeriod;
+						nextState = State2_Pressurizing;
 						makeTransition = TRUE;
 					}
 					break;

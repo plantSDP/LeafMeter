@@ -1,5 +1,7 @@
 // Includes
 #include "InitSubHSM.h"
+#include "Arduino.h"
+#include "EventCheckers.h"
 
 // Private definitions
 #define HUM_DANGER_THRESHOLD 90
@@ -58,11 +60,16 @@ Event Run_SubHSM_Init(Event thisEvent) {
 				case ENTRY_EVENT:
 					// Display Hello
 					// Init timer
+					SetTimer(0, 5000);
 					// Open valves
 					// Run Pump
 					// request Cozir Data
 					break;
 				case TIMEOUT:
+					if (thisEvent.EventParam == 0b10){
+						digitalWrite(13,LOW);
+					}
+					
 					if (hum < HUM_DANGER_THRESHOLD) {
 						nextState = State2_HumConfirm;
 						makeTransition = TRUE;
@@ -72,9 +79,6 @@ Event Run_SubHSM_Init(Event thisEvent) {
 					}
 					break;
 				default:
-					pinMode(13, OUTPUT);
-					digitalWrite(13, HIGH);
-					thisEvent.EventType = NO_EVENT;
 					break;
 			}				
 			break;

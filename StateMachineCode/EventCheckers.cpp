@@ -102,12 +102,14 @@ uint8_t SetTimer(uint8_t timer, unsigned int interval){
 	if (timer == 0){
 		if (timer0state == 0){
 			//start the interval
+			timer0.interval(interval); 
 			timer0state = 1;
 			return 1;
 		}
 	} else if (timer == 1){
 		if (timer0state == 0){
 			//start the interval
+			timer1.interval(interval); 
 			timer1state = 1;
 			return 1;
 		}
@@ -135,7 +137,7 @@ Event TimerExpireCheck(void){
 	
 	if (timer1state == 1){
 		if (timer1.check() == 1){
-			timer1State = 0;
+			timer1state = 0;
 			returnEvent.EventType = TIMEOUT;
 			returnEvent.EventParam = 0b10;
 			return returnEvent;

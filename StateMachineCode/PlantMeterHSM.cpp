@@ -21,7 +21,7 @@ char myString2[50];
 
 uint8_t InitHSM(void){
 	
-	  sprintf(myString2, "Hello please");
+  sprintf(myString2, "Hello please");
   lcd.setCursor(0, 0); // set the cursor to column 0, line 0
   lcd.print(myString2);  // Print a message to the LCD
 	Event thisEvent;

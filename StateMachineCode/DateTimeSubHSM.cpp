@@ -165,7 +165,10 @@ Event Run_SubHSM_DateTime(Event thisEvent) {
 						makeTransition = TRUE;
 					}
 					break;
+				default:
+					break;
 			}
+			
 			break;
 
 		case State6_YearDigit2:

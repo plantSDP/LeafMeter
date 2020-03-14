@@ -8,7 +8,7 @@ typedef enum {
     InitPSubState,
     State1_ContinuePrompt,
     State2_RFChecking,
-	State3_,
+	State3_DisplayingResult,
 } RFSubHSMStates;
 
 // Holds current state
@@ -30,7 +30,7 @@ uint8_t Init_SubHSM_RF(void){
 Event Run_SubHSM_RF(Event thisEvent) {
 	
 	uint8_t makeTransition = FALSE; // use to flag transition
-	InitSubHSMStates nextState;
+	RFSubHSMStates nextState;
 
 	switch (CurrentState) {
 		case InitPSubState:								// If current state is initial Pseudo State
