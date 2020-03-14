@@ -3,9 +3,7 @@
 #include "Configure.h"
 #include "Arduino.h"
 
-#ifdef __cplusplus // This was added to fix compilation error for "name mangling", a C/C++ compatibility issue.
-extern "C" {
-#endif
+
 
 /*
 typedef struct ButtonEvent{
@@ -50,11 +48,5 @@ Event TimerExpireCheck(void);
 
 
 
-
-
-
-#ifdef __cplusplus //closes the above fix for "name mangling"
-}
-#endif
 
 #endif
