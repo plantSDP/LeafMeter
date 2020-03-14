@@ -44,7 +44,7 @@ uint8_t Init_SubHSM_DateTime(void){
 Event Run_SubHSM_DateTime(Event thisEvent) {
 	
 	uint8_t makeTransition = FALSE; // use to flag transition
-	InitSubHSMStates nextState;
+	DateTimeSubHSMStates nextState;
 
 	switch (CurrentState) {
 		case InitPSubState:								// If current state is initial Pseudo State
