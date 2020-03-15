@@ -2,8 +2,9 @@
 #include "Adafruit_TSL2591.h"
 #include "BME280.h"
 #include "CozirLib.h"
+#include <LiquidCrystal_I2C.h>
 
-
+LiquidCrystal_I2C lcd(0x27, 16, 2);
 BME280 bme280Sensor(Wire,0x77);
 Adafruit_TSL2591 tsl = Adafruit_TSL2591(2591);
 uint32_t lum;
@@ -22,6 +23,27 @@ void setup() {
   Serial.println("Starting CO2 Meter Sensor Test");
   delay(10000);
 
+
+  lcd.init();  //initialize the lcd  
+  lcd.backlight();  //open the backlight
+
+
+  
+
+  
+  time1 = curTime;
+  sprintf(myString, "Welcome To the");
+  lcd.setCursor(1, 0); // set the cursor to column 0, line 0
+  lcd.print(myString);  // Print a message to the LCD
+  elapsedTime = curTime - time1;
+  
+  sprintf(myString, "LCD/Sensor Test!");
+  lcd.setCursor(0, 1); // set the cursor to column 0, line 0
+  lcd.print(myString);  // Print a message to the LCD
+  sprintf(myString, "Time to write one line to LCD:  %d ms", elapsedTime);
+  Serial.println(myString);
+
+  
   time1 = curTime;
   if (tsl.begin()) {
     elapsedTime = curTime - time1;
@@ -87,6 +109,9 @@ void loop() {
   elapsedTime = curTime - time1;
   sprintf(myString, "CO2: %d   Lux: %u,   Pressure: %d,   Temp: %d,   RH: %d,   Elapsed time:  %d", cozirData.co2, lux, pressureRead, tempRead, humidRead, elapsedTime);
   Serial.println(myString);
+  
+  
+  
 
   delay(500);
 
