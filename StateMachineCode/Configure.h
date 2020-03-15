@@ -4,10 +4,12 @@
 #include "Arduino.h"
 
 
-// Public Definitions
+// Public Definitions & Global Things
 
 #define TRUE 1
 #define FALSE 0
+
+char myString[50]; // for screen printing
 
 #define NO_PRESS	0
 #define BTN1		1
@@ -17,6 +19,8 @@
 
 #define TIMER_0_PARAM 0b1
 #define TIMER_1_PARAM 0b10
+
+
 
 //the possible events for the state machine. Add new events to this enum. 
 typedef enum {

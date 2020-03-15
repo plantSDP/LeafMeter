@@ -17,13 +17,13 @@ typedef enum {
 
 
 static HSMstates CurrentState = InitPState;
-char myString2[50]; 
+char myString[50]; 
 
 uint8_t InitHSM(void){
 	
-  sprintf(myString2, "Hello please");
-  lcd.setCursor(0, 0); // set the cursor to column 0, line 0
-  lcd.print(myString2);  // Print a message to the LCD
+//   sprintf(myString, "Hello please");
+//   lcd.setCursor(0, 0); // set the cursor to column 0, line 0
+//   lcd.print(myString);  // Print a message to the LCD
 	Event thisEvent;
 	thisEvent.EventType = INIT_EVENT;
 	thisEvent.EventParam = 0;
