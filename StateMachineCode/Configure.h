@@ -30,7 +30,6 @@ extern Adafruit_TSL2591 lightSensor;
 #define TIMER_1_PARAM 0b10
 
 
-
 //the possible events for the state machine. Add new events to this enum. 
 typedef enum {
 	NO_EVENT,

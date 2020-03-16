@@ -5,7 +5,6 @@
 #include "EventCheckers.h"
 
 
-
 // Private definitions
 #define HUM_DANGER_THRESHOLD 90
 #define HUM_WARNING_THRESHOLD 80
@@ -15,7 +14,6 @@
 // List states here:
 typedef enum {
     InitPSubState,
-	State0_Failure,
     State1_Starting,
     State2_HumConfirm,
     State3_HumFail,
@@ -41,9 +39,10 @@ uint8_t Init_SubHSM_Init(void){
 	}
 }
 
-static unsigned int hum = 0;		// holds humidity measurement
+
+static int hum = 0;					// holds humidity measurement
 static int rfOption = RF_NO;		// sets rfOption, default is NO (0)
-static int period = 60;				// holds value for period in between measurements
+static int period = 0;				// holds value for period in between measurements
 Event Run_SubHSM_Init(Event thisEvent) {
 	
 	uint8_t makeTransition = FALSE; // use to flag transition
@@ -54,69 +53,32 @@ Event Run_SubHSM_Init(Event thisEvent) {
 		case InitPSubState:								// If current state is initial Pseudo State
 			if (thisEvent.EventType == INIT_EVENT){		// only respond to INIT_EVENT
 				nextState = State1_Starting;			// transition to first state
-			    if (lightSensor.begin() <= 0){
-					nextState = State0_Failure;
-				} else {
-					lightSensor.setGain(TSL2591_GAIN_LOW);
-					lightSensor.setTiming(TSL2591_INTEGRATIONTIME_100MS);
-				}
-				if (pressureSensor.begin() < 0){
-					nextState = State0_Failure;
-				} else {
-					pressureSensor.setNormalMode();
-				}
-	
-
-				
 				makeTransition = TRUE;
 			}
 			break;
-		
-		case State0_Failure:
-			sprintf(myString, "Sensor Failure");
-			lcd.setCursor(0, 0); // set the cursor to column 0, line 0
-			lcd.print(myString);  // Print a message to the LCD	
-			thisEvent.EventType = NO_EVENT;
-			break;
+
 
 		case State1_Starting:
 			switch (thisEvent.EventType) {
 				case ENTRY_EVENT:
 					// Display Hello
-					//sprintf(myString, "Starting...");
-					//lcd.setCursor(0, 0); // set the cursor to column 0, line 0
-					//lcd.print(myString);  // Print a message to the LCD
+					sprintf(myString, "Starting Plant CO2 Meter");
+					lcd.setCursor(0, 0); // set the cursor to column 0, line 0
+					lcd.print(myString);  // Print a message to the LCD
 					// Init timer
-					SetTimer(1, 10000); // cozir
-					
+					SetTimer(0, 5000);
 					// Open valves
 					// Run Pump
 					// request Cozir Data
-					
 					break;
 				case TIMEOUT:
-					if (thisEvent.EventParam == TIMER_0_PARAM) {
-						Cozir_NewDataAvailable();
-						hum = Cozir_Get_Rh();
-						if (hum < HUM_DANGER_THRESHOLD) {
-							nextState = State2_HumConfirm;
-							makeTransition = TRUE;
-						} else {
-							nextState = State3_HumFail;
-							makeTransition = TRUE;	
-						}
-					} else if (thisEvent.EventParam == TIMER_1_PARAM) {	
-						sprintf(myString, "timer 1");
-						Serial.println(myString);					
-						if (Cozir_Init() == 0){
-							nextState = State0_Failure;
-							makeTransition = TRUE;
-						} else {
-							Cozir_Request_Data();
-							SetTimer(0, 100); //It takes around 70-100ms for the Cozir to send data 
-						}
+					if (hum < HUM_DANGER_THRESHOLD) {
+						nextState = State2_HumConfirm;
+						makeTransition = TRUE;
+					} else {
+						nextState = State3_HumFail;
+						makeTransition = TRUE;	
 					}
-					thisEvent.EventType = NO_EVENT;
 					break;
 				default:
 					break;
@@ -128,19 +90,13 @@ Event Run_SubHSM_Init(Event thisEvent) {
 				case ENTRY_EVENT:
 					if (hum > HUM_WARNING_THRESHOLD) {
 						// Display warning
-						sprintf(myString, "HUM WARNING, %d      ", hum);
+						sprintf(myString, "HUM WARNING, BTN3 CONTINUE");
 						lcd.setCursor(0, 0); // set the cursor to column 0, line 0
-						lcd.print(myString);  // Print a message to the LCD	
-						sprintf(myString, "BTN3 CONTINUE           ");
-						lcd.setCursor(0, 1); // set the cursor to column 0, line 0
-						lcd.print(myString);  // Print a message to the LCD							
+						lcd.print(myString);  // Print a message to the LCD				
 					} else {
 						// Display ok
-						sprintf(myString, "HUM OK, %d          ", hum);
+						sprintf(myString, "HUM OK, BTN3 CONTINUE");
 						lcd.setCursor(0, 0); // set the cursor to column 0, line 0
-						lcd.print(myString);  // Print a message to the LCD
-					    sprintf(myString, "   BTN3 CONTINUE      ");
-						lcd.setCursor(0, 1); // set the cursor to column 0, line 0
 						lcd.print(myString);  // Print a message to the LCD
 					}
 				break; 
@@ -149,7 +105,6 @@ Event Run_SubHSM_Init(Event thisEvent) {
 						nextState = State5_SettingPeriod;
 						makeTransition = TRUE;
 					}
-					thisEvent.EventType = NO_EVENT;
 					break;
 				default:
 					break;
@@ -160,17 +115,13 @@ Event Run_SubHSM_Init(Event thisEvent) {
 			switch (thisEvent.EventType) {
 				case ENTRY_EVENT:
 					// Display failure, prompt any btn press for retry
-					sprintf(myString, "HUM DANGER, %d        ", hum);
+					sprintf(myString, "HUM DANGER, BTN3 CONTINUE");
 					lcd.setCursor(0, 0); // set the cursor to column 0, line 0
-					lcd.print(myString);  // Print a message to the LCD
-					sprintf(myString, "BTN3 CONTINUE         ");
-					lcd.setCursor(0, 1); // set the cursor to column 0, line 0
 					lcd.print(myString);  // Print a message to the LCD
 					break;
 				case BTN_EVENT:
 					nextState = State4_HumCheck;				// Continue
 					makeTransition = TRUE;
-					thisEvent.EventType = NO_EVENT;
 					break;
 				default:
 					break;					
@@ -181,20 +132,11 @@ Event Run_SubHSM_Init(Event thisEvent) {
 			switch (thisEvent.EventType) {
 				case ENTRY_EVENT:
 					// Init timer
-					sprintf(myString, "Checking         ");
-					lcd.setCursor(0, 0); // set the cursor to column 0, line 0
-					lcd.print(myString);  // Print a message to the LCD
-					sprintf(myString, "      Humidity   ");
-					lcd.setCursor(0, 1); // set the cursor to column 0, line 0
-					lcd.print(myString);  // Print a message to the LCD
 					SetTimer(0, 5000);
-					Cozir_Request_Data();
 					// Read hum
 
 					break;						
 				case TIMEOUT:
-					Cozir_NewDataAvailable();
-					hum = Cozir_Get_Rh();
 					if (hum < HUM_DANGER_THRESHOLD) {
 						nextState = State2_HumConfirm;
 						makeTransition = TRUE;
@@ -202,7 +144,6 @@ Event Run_SubHSM_Init(Event thisEvent) {
 						nextState = State3_HumFail;
 						makeTransition = TRUE;	
 					}
-					thisEvent.EventType = NO_EVENT;
 					break;
 				default:
 					break;
@@ -213,45 +154,27 @@ Event Run_SubHSM_Init(Event thisEvent) {
 			switch (thisEvent.EventType) {
 				case ENTRY_EVENT:
 					// Display prompt
-					sprintf(myString, "Min btwn meas,");
+					sprintf(myString, "Time btwn meas: \n %d ", period);
 					lcd.setCursor(0, 0); // set the cursor to column 0, line 0
 					lcd.print(myString);  // Print a message to the LCD
-					sprintf(myString, "          %3d        ", period);
-					lcd.setCursor(0, 1); // set the cursor to column 0, line 0
-					lcd.print(myString);  // Print a message to the LCD
 					// BTN1 || BTN2 increments
-				    lcd.setCursor(12, 1);
-					lcd.blink();
 					break;
 				case BTN_EVENT:
 					if (thisEvent.EventParam == BTN1) {
 						// increment periodParam
-						if (period < 300){
-							period = period + 1;
-						}
+						period = period++;
 						// update display
-						sprintf(myString, "Min btwn meas,");
+						sprintf(myString, "Time btwn meas: \n %d ", period);
 						lcd.setCursor(0, 0); // set the cursor to column 0, line 0
 						lcd.print(myString);  // Print a message to the LCD
-						sprintf(myString, "          %3d     ", period);
-						lcd.setCursor(0, 1); // set the cursor to column 0, line 0
-						lcd.print(myString);  // Print a message to the LCD
-						lcd.setCursor(12, 1);
 
 					} else if (thisEvent.EventParam == BTN2) {
 						// decrement periodParam
-						if (period > 10){
-							period = period - 1;
-						}
-						
+						period = period--;
 						// update display
-						sprintf(myString, "Min btwn meas,");
-						lcd.setCursor(0, 0);  // set the cursor to column 0, line 0
+						sprintf(myString, "Time btwn meas: \n %d ", period);
+						lcd.setCursor(0, 0); // set the cursor to column 0, line 0
 						lcd.print(myString);  // Print a message to the LCD
-						sprintf(myString, "          %3d     ", period);
-						lcd.setCursor(0, 1);  // set the cursor to column 0, line 0
-						lcd.print(myString);  // Print a message to the LCD
-						lcd.setCursor(12, 1);
 					} else if (thisEvent.EventParam == BTN3) {		// Continue
 						nextState = State6_SettingRF;
 						makeTransition = TRUE;
@@ -261,10 +184,6 @@ Event Run_SubHSM_Init(Event thisEvent) {
 						makeTransition = TRUE;
 
 					}
-					thisEvent.EventType = NO_EVENT;
-					break;
-				case EXIT_EVENT:
-					lcd.noBlink();
 					break;
 				default:
 					break;
@@ -275,55 +194,33 @@ Event Run_SubHSM_Init(Event thisEvent) {
 			switch (thisEvent.EventType) {
 				case ENTRY_EVENT:
 					// Display prompt
-					sprintf(myString, "Set RF option:");
+					sprintf(myString, "Set RF option: \n NO");
 					lcd.setCursor(0, 0); // set the cursor to column 0, line 0
 					lcd.print(myString);  // Print a message to the LCD
-					
-					sprintf(myString, "NO       YES          ");
-					lcd.setCursor(0, 1); // set the cursor to column 0, line 0
-					lcd.print(myString);  // Print a message to the LCD
-					
-					lcd.setCursor(0, 1);
-					lcd.blink();
 					// BTN1 yes, BTN2 no, default is no
 					break;
 				case BTN_EVENT:
 					if (thisEvent.EventParam == BTN1) {
 						rfOption = 1;
-						sprintf(myString, "Set RF option:");
+						sprintf(myString, "Set RF option: \n YES");
 						lcd.setCursor(0, 0); // set the cursor to column 0, line 0
 						lcd.print(myString);  // Print a message to the LCD
-					
-						sprintf(myString, "NO       YES          ");
-						lcd.setCursor(0, 1); // set the cursor to column 0, line 0
-						lcd.print(myString);  // Print a message to the LCD
-						
-						lcd.setCursor(9, 1);
 
 					} else if (thisEvent.EventParam == BTN2) {
 						rfOption = 0;
-						sprintf(myString, "Set RF option:");
+						sprintf(myString, "Set RF option: \n NO");
 						lcd.setCursor(0, 0); // set the cursor to column 0, line 0
 						lcd.print(myString);  // Print a message to the LCD
-					
-						sprintf(myString, "NO       YES          ");
-						lcd.setCursor(0, 1); // set the cursor to column 0, line 0
-						lcd.print(myString);  // Print a message to the LCD
-						
-						lcd.setCursor(0, 1);
 
 					} else if (thisEvent.EventParam == BTN3) {		// Continue
-					    lcd.noBlink();
 						nextState = State7_LifetimeDisplay;
 						makeTransition = TRUE;
 
 					} else if (thisEvent.EventParam == BTN4) {		// Back
-					    lcd.noBlink();
 						nextState = State5_SettingPeriod;
 						makeTransition = TRUE;
 
 					}
-					thisEvent.EventType = NO_EVENT;
 					break;
 				default:
 					break;
@@ -336,20 +233,15 @@ Event Run_SubHSM_Init(Event thisEvent) {
 				case ENTRY_EVENT:
 					// Calculate lifetime
 					// Display lifetime
-					sprintf(myString, "Est. Lifetime:        ");
+					sprintf(myString, "Est. Lifetime: \n [test]");
 					lcd.setCursor(0, 0); // set the cursor to column 0, line 0
-					lcd.print(myString);  // Print a message to the LCD
-					sprintf(myString, "    x [Hours]     ");
-					lcd.setCursor(0, 1); // set the cursor to column 0, line 0
 					lcd.print(myString);  // Print a message to the LCD
 					break;
 				case BTN_EVENT:
 					if (thisEvent.EventParam == BTN4) {
-						nextState = State6_SettingRF;
+						nextState = State5_SettingPeriod;
 						makeTransition = TRUE;
-						thisEvent.EventType = NO_EVENT;
 					}
-					
 					break;
 						
 				default:
@@ -368,7 +260,6 @@ Event Run_SubHSM_Init(Event thisEvent) {
 		CurrentState = nextState;
 		thisEvent.EventType = ENTRY_EVENT;
 		Run_SubHSM_Init(thisEvent);
-		thisEvent.EventType = NO_EVENT;
 	}
 	return thisEvent;
 }

@@ -23,8 +23,9 @@ typedef enum {
     State5_YearDigit1,
 	State6_YearDigit2,
 	State7_HourDigit1,
-	State8_MinuteDigit1,
-	State9_MinuteDigit2,
+	State8_HourDigit2,
+	State9_MinuteDigit1,
+	State10_MinuteDigit2,
 } DateTimeSubHSMStates;
 
 // Holds current state
@@ -43,13 +44,22 @@ uint8_t Init_SubHSM_DateTime(void){
 	}
 }
 
-
+// MM/DD/YY
 static uint8_t month1 = 0;
 static uint8_t month2 = 1;
-static uint8_t day1 = 0;
-static uint8_t day2 = 1;
-static uint8_t year1 = 2;
-static uint8_t year2 = 0;
+
+static uint8_t day1   = 0;
+static uint8_t day2   = 1;
+
+static uint8_t year1  = 2;
+static uint8_t year2  = 0;
+
+// HH:MM
+static uint8_t hour1  = 0;
+static uint8_t hour2  = 0;
+
+static uint8_t min1   = 0;
+static uint8_t min2   = 0
 Event Run_SubHSM_DateTime(Event thisEvent) {
 	
 	uint8_t makeTransition = FALSE; // use to flag transition
@@ -67,15 +77,11 @@ Event Run_SubHSM_DateTime(Event thisEvent) {
 			switch (thisEvent.EventType) {
 				case ENTRY_EVENT:
 					// Update Display
-					sprintf(myString, "Enter MM/DD/YY      ");
-					lcd.setCursor(0, 0); // set the cursor to column 0, line 0
-					lcd.print(myString);  // Print a message to the LCD
-					sprintf(myString, "%1d%1d/%1d%1d/%1d%1d      ", month1, month2, day1, day2, year1, year2);
-					lcd.setCursor(0, 1); // set the cursor to column 0, line 0
-					lcd.print(myString);  // Print a message to the LCD
-					
+					PrintDate();
+					// blink cursor location
 					lcd.setCursor(0, 1);
-					lcd.blink();	// set blink
+					// turn blinking on
+					lcd.blink();
 					break;
 				case BTN_EVENT:
 					if (thisEvent.EventParam == BTN1) {
@@ -92,14 +98,9 @@ Event Run_SubHSM_DateTime(Event thisEvent) {
 							}
 						}
 						// update display
-						sprintf(myString, "Enter MM/DD/YY      ");
-						lcd.setCursor(0, 0);  // set the cursor to column 0, line 0
-						lcd.print(myString);  // Print a message to the LCD
-						sprintf(myString, "%1d%1d/%1d%1d/%1d%1d      ", month1, month2, day1, day2, year1, year2);
-						lcd.setCursor(0, 1); // set the cursor to column 0, line 0
-						lcd.print(myString);  // Print a message to the LCD
-					
-						lcd.setCursor(0, 1);						
+						PrintDate();
+						// blink cursor location
+						lcd.setCursor(0, 1);				
 					} else if (thisEvent.EventParam == BTN2) {			// Switch digits
 						nextState = State2_MonthDigit2;
 						makeTransition = TRUE;
@@ -118,14 +119,9 @@ Event Run_SubHSM_DateTime(Event thisEvent) {
 			switch (thisEvent.EventType) {
 				case ENTRY_EVENT:
 					// Update Display
-					sprintf(myString, "Enter MM/DD/YY      ");
-					lcd.setCursor(0, 0);  // set the cursor to column 0, line 0
-					lcd.print(myString);  // Print a message to the LCD
-					sprintf(myString, "%1d%1d/%1d%1d/%1d%1d      ", month1, month2, day1, day2, year1, year2);
-					lcd.setCursor(0, 1); // set the cursor to column 0, line 0
-					lcd.print(myString);  // Print a message to the LCD
-				
-					lcd.setCursor(1, 1);
+					PrintDate();
+					// blink cursor location
+					lcd.setCursor(1, 1); 
 					break;
 				case BTN_EVENT:
 					if (thisEvent.EventParam == BTN1) {
@@ -144,13 +140,8 @@ Event Run_SubHSM_DateTime(Event thisEvent) {
 							}
 						}
 						// update display
-						sprintf(myString, "Enter MM/DD/YY      ");
-						lcd.setCursor(0, 0);  // set the cursor to column 0, line 0
-						lcd.print(myString);  // Print a message to the LCD
-						sprintf(myString, "%1d%1d/%1d%1d/%1d%1d      ", month1, month2, day1, day2, year1, year2);
-						lcd.setCursor(0, 1); // set the cursor to column 0, line 0
-						lcd.print(myString);  // Print a message to the LCD
-					
+						PrintDate();
+						// blink cursor location
 						lcd.setCursor(1, 1);
 					} else if (thisEvent.EventParam == BTN2) {			// Switch digits
 						nextState = State1_MonthDigit1;
@@ -170,13 +161,8 @@ Event Run_SubHSM_DateTime(Event thisEvent) {
 			switch (thisEvent.EventType) {
 				case ENTRY_EVENT:
 					// Update Display
-					sprintf(myString, "Enter MM/DD/YY      ");
-					lcd.setCursor(0, 0);  // set the cursor to column 0, line 0
-					lcd.print(myString);  // Print a message to the LCD
-					sprintf(myString, "%1d%1d/%1d%1d/%1d%1d      ", month1, month2, day1, day2, year1, year2);
-					lcd.setCursor(0, 1); // set the cursor to column 0, line 0
-					lcd.print(myString);  // Print a message to the LCD
-				
+					PrintDate();
+					// blink cursor location
 					lcd.setCursor(3, 1);
 					break;
 				case BTN_EVENT:
@@ -196,14 +182,9 @@ Event Run_SubHSM_DateTime(Event thisEvent) {
 							}
 						}
 						// update display
-						sprintf(myString, "Enter MM/DD/YY      ");
-						lcd.setCursor(0, 0);  // set the cursor to column 0, line 0
-						lcd.print(myString);  // Print a message to the LCD
-						sprintf(myString, "%1d%1d/%1d%1d/%1d%1d      ", month1, month2, day1, day2, year1, year2);
-						lcd.setCursor(0, 1); // set the cursor to column 0, line 0
-						lcd.print(myString);  // Print a message to the LCD
+						PrintDate();
 					
-						lcd.setCursor(3, 1);
+						lcd.setCursor(3, 1); // blink cursor location
 					} else if (thisEvent.EventParam == BTN2) {			// Switch digits
 						nextState = State4_DayDigit2;
 						makeTransition = TRUE;
@@ -225,13 +206,8 @@ Event Run_SubHSM_DateTime(Event thisEvent) {
 			switch (thisEvent.EventType) {
 				case ENTRY_EVENT:
 					// Update Display
-					sprintf(myString, "Enter MM/DD/YY      ");
-					lcd.setCursor(0, 0);  // set the cursor to column 0, line 0
-					lcd.print(myString);  // Print a message to the LCD
-					sprintf(myString, "%1d%1d/%1d%1d/%1d%1d      ", month1, month2, day1, day2, year1, year2);
-					lcd.setCursor(0, 1); // set the cursor to column 0, line 0
-					lcd.print(myString);  // Print a message to the LCD
-				
+					PrintDate();
+					// blink cursor location
 					lcd.setCursor(4, 1);					
 					break;
 				case BTN_EVENT:
@@ -257,13 +233,8 @@ Event Run_SubHSM_DateTime(Event thisEvent) {
 							}							
 						}							
 						// update display
-						sprintf(myString, "Enter MM/DD/YY      ");
-						lcd.setCursor(0, 0);  // set the cursor to column 0, line 0
-						lcd.print(myString);  // Print a message to the LCD
-						sprintf(myString, "%1d%1d/%1d%1d/%1d%1d      ", month1, month2, day1, day2, year1, year2);
-						lcd.setCursor(0, 1); // set the cursor to column 0, line 0
-						lcd.print(myString);  // Print a message to the LCD
-					
+						PrintDate();
+						// blink cursor location
 						lcd.setCursor(4, 1);							
 					} else if (thisEvent.EventParam == BTN2) {			// Switch digits
 						nextState = State3_DayDigit1;
@@ -286,31 +257,21 @@ Event Run_SubHSM_DateTime(Event thisEvent) {
 			switch (thisEvent.EventType) {
 				case ENTRY_EVENT:
 					// Update Display
-					sprintf(myString, "Enter MM/DD/YY      ");
-					lcd.setCursor(0, 0);  // set the cursor to column 0, line 0
-					lcd.print(myString);  // Print a message to the LCD
-					sprintf(myString, "%1d%1d/%1d%1d/%1d%1d      ", month1, month2, day1, day2, year1, year2);
-					lcd.setCursor(0, 1); // set the cursor to column 0, line 0
-					lcd.print(myString);  // Print a message to the LCD
-				
+					PrintDate();
+					// blink cursor location
 					lcd.setCursor(6, 1);
 					break;
 				case BTN_EVENT:
 					if (thisEvent.EventParam == BTN1) {
 						// increment digit
-						if (year1 >= 9) {
+						if (year1 < 9) {
+							year1 = year + 1;
+						} else if (year1 == 9) {
 							year1 = 0;
-						} else {
-							year1 = year1 + 1;
 						}
 						// update display
-						sprintf(myString, "Enter MM/DD/YY      ");
-						lcd.setCursor(0, 0);  // set the cursor to column 0, line 0
-						lcd.print(myString);  // Print a message to the LCD
-						sprintf(myString, "%1d%1d/%1d%1d/%1d%1d      ", month1, month2, day1, day2, year1, year2);
-						lcd.setCursor(0, 1); // set the cursor to column 0, line 0
-						lcd.print(myString);  // Print a message to the LCD
-					
+						PrintDate();
+						// blink cursor location
 						lcd.setCursor(6, 1);						
 					} else if (thisEvent.EventParam == BTN2) {			// Switch digits
 						nextState = State6_YearDigit2;
@@ -324,38 +285,27 @@ Event Run_SubHSM_DateTime(Event thisEvent) {
 				default:
 					break;
 			}
-			
 			break;
 
 		case State6_YearDigit2:
 			switch (thisEvent.EventType) {
 				case ENTRY_EVENT:
 					// Update Display
-					sprintf(myString, "Enter MM/DD/YY      ");
-					lcd.setCursor(0, 0);  // set the cursor to column 0, line 0
-					lcd.print(myString);  // Print a message to the LCD
-					sprintf(myString, "%1d%1d/%1d%1d/%1d%1d      ", month1, month2, day1, day2, year1, year2);
-					lcd.setCursor(0, 1); // set the cursor to column 0, line 0
-					lcd.print(myString);  // Print a message to the LCD
-				
+					PrintDate();
+					// blink cursor location
 					lcd.setCursor(7, 1);
 					break;
 				case BTN_EVENT:
 					if (thisEvent.EventParam == BTN1) {
 						// increment digit
-						if (year2 >= 9) {
+						if (year1 < 9) {
+							year2 = year + 1;
+						} else if (year1 == 9) {
 							year2 = 0;
-						} else {
-							year2 = year2 + 1;
 						}						
 						// update display
-						sprintf(myString, "Enter MM/DD/YY      ");
-						lcd.setCursor(0, 0);  // set the cursor to column 0, line 0
-						lcd.print(myString);  // Print a message to the LCD
-						sprintf(myString, "%1d%1d/%1d%1d/%1d%1d      ", month1, month2, day1, day2, year1, year2);
-						lcd.setCursor(0, 1); // set the cursor to column 0, line 0
-						lcd.print(myString);  // Print a message to the LCD
-					
+						PrintDate();
+						// blink cursor location
 						lcd.setCursor(7, 1);						
 					} else if (thisEvent.EventParam == BTN2) {			// Switch digits
 						nextState = State5_YearDigit1;
@@ -375,13 +325,32 @@ Event Run_SubHSM_DateTime(Event thisEvent) {
 			switch (thisEvent.EventType) {
 				case ENTRY_EVENT:
 					// Update Display
+					PrintTime();
+					// blink cursor location
+					lcd.setCursor(0, 1);
 					break;
 				case BTN_EVENT:
 					if (thisEvent.EventParam == BTN1) {
 						// increment digit
+						if (hour1 < 2) {
+							hour1 = hour1 + 1;
+							if (hour1 == 2) {
+								if (hour2 > 4) {
+									hour2 = 4;
+								}
+							}
+						} else if (hour1 == 2) {
+							hour1 = 0;
+						}
 						// update display
+					PrintTime();
+					// blink cursor location
+					lcd.setCursor(0, 1);
+					} else if (thisEvent.EventParam == BTN2) {			// Switch digits
+						nextState = State8_HourDigit2;
+						makeTransition = TRUE;
 					} else if (thisEvent.EventParam == BTN3) {			// Continue to Minute digit 1
-						nextState = State8_MinuteDigit1;
+						nextState = State9_MinuteDigit1;
 						makeTransition = TRUE;
 					} else if (thisEvent.EventParam == BTN4) {			// Back to Year digit 2
 						nextState = State6_YearDigit2;
@@ -394,17 +363,73 @@ Event Run_SubHSM_DateTime(Event thisEvent) {
 			}
 			break;
 
-		case State8_MinuteDigit1:
+		case State8_HourDigit2:
 			switch (thisEvent.EventType) {
 				case ENTRY_EVENT:
 					// Update Display
+					PrintTime();
+					// blink cursor location
+					lcd.setCursor(1, 1);
 					break;
 				case BTN_EVENT:
 					if (thisEvent.EventParam == BTN1) {
 						// increment digit
+						if (hour1 == 2) {
+							if (hour2 < 4) {
+								hour2 = hour2 + 1; 
+							} else if (hour2 == 4) {
+								hour2 = 0;
+							}
+						} else {
+							if (hour2 < 9) {
+								hour2 = hour2 + 1;
+							} else if (hour2 == 9) {
+								hour2 = 0;
+							}
+						}
 						// update display
-					} else if (thisEvent.EventParam == BTN2) {			// Continue to Minute digit 2
-						nextState = State9_MinuteDigit2;
+						PrintTime();
+						// blink cursor location
+						lcd.setCursor(1, 1);
+					} else if (thisEvent.EventParam == BTN2) {			// Switch digits
+						nextState = State7_HourDigit1;
+						makeTransition = TRUE;
+					} else if (thisEvent.EventParam == BTN3) {			// Continue to Minute digit 1
+						nextState = State9_MinuteDigit1;
+						makeTransition = TRUE;
+					} else if (thisEvent.EventParam == BTN4) {			// Back to Year digit 2
+						nextState = State6_YearDigit2;
+						makeTransition = TRUE;
+					}
+					thisEvent.EventType = NO_EVENT;
+					break;
+				default:
+					break;
+			}
+			break;
+
+		case State9_MinuteDigit1:
+			switch (thisEvent.EventType) {
+				case ENTRY_EVENT:
+					// Update Display
+					PrintTime();
+					// blink cursor location
+					lcd.setCursor(3, 1);
+					break;
+				case BTN_EVENT:
+					if (thisEvent.EventParam == BTN1) {
+						// increment digit
+						if (min1 < 5) {
+							min1 = min1 + 1;
+						} else if (min1 == 5) {
+							min1 = 0;
+						}
+						// update display
+						PrintTime();
+						// blink cursor location
+						lcd.setCursor(3, 1);
+					} else if (thisEvent.EventParam == BTN2) {			// Switch digits
+						nextState = State10_MinuteDigit2;
 						makeTransition = TRUE;
 					} else if (thisEvent.EventParam == BTN4) {			// Back to Hour digit 1
 						nextState = State7_HourDigit1;
@@ -417,17 +442,28 @@ Event Run_SubHSM_DateTime(Event thisEvent) {
 			}
 			break;
 
-		case State9_MinuteDigit2:
+		case State10_MinuteDigit2:
 			switch (thisEvent.EventType) {
 				case ENTRY_EVENT:
 					// Update Display
+					PrintTime();
+					// blink cursor location
+					lcd.setCursor(4, 1);
 					break;
 				case BTN_EVENT:
 					if (thisEvent.EventParam == BTN1) {
 						// increment digit
+						if (min2 < 9) {
+							min2 = min2 + 1;
+						} else if (min2 == 9) {
+							min2 = 0;
+						}
 						// update display
-					} else if (thisEvent.EventParam == BTN2) {			// Continue to Minute digit 1
-						nextState = State8_MinuteDigit1;
+						PrintTime();
+						// blink cursor location
+						lcd.setCursor(4, 1);
+					} else if (thisEvent.EventParam == BTN2) {			// Switch digits
+						nextState = State9_MinuteDigit1;
 						makeTransition = TRUE;
 					} else if (thisEvent.EventParam == BTN4) {			// Back to Hour digit 1
 						nextState = State7_HourDigit1;
@@ -453,4 +489,27 @@ Event Run_SubHSM_DateTime(Event thisEvent) {
 		Run_SubHSM_DateTime(thisEvent);
 	}
 	return thisEvent;
+}
+
+
+// Private functions
+
+// Prints the date in MM/DD/YY form.
+void PrintDate() {
+	sprintf(myString, "Enter MM/DD/YY      ");
+	lcd.setCursor(0, 0); // set the cursor to column 0, line 0
+	lcd.print(myString);  // Print a message to the LCD
+	sprintf(myString, "%1d%1d/%1d%1d/%1d%1d      ", month1, month2, day1, day2, year1, year2);
+	lcd.setCursor(0, 1); // set the cursor to column 0, line 0
+	lcd.print(myString);  // Print a message to the LCD
+}
+
+// Prints the time in HH:MM form.
+void PrintTime() {
+	sprintf(myString, "Enter time HH:MM");
+	lcd.setCursor(0, 0); // set the cursor to column 0, line 0
+	lcd.print(myString);  // Print a message to the LCD
+	sprintf(myString, "%1d%1d:%1d%1d           ", hour1, hour2, min1, min2);
+	lcd.setCursor(0, 1); // set the cursor to column 0, line 0
+	lcd.print(myString);  // Print a message to the LCD
 }
