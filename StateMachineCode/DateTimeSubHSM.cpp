@@ -276,6 +276,9 @@ Event Run_SubHSM_DateTime(Event thisEvent) {
 					} else if (thisEvent.EventParam == BTN2) {			// Switch digits
 						nextState = State6_YearDigit2;
 						makeTransition = TRUE;
+					} else if (thisEvent.EventParam == BTN3) {			// Continue to Hour digit 1
+						nextState = State7_HourDigit1;
+						makeTransition = TRUE;
 					} else if (thisEvent.EventParam == BTN4) {			// Back to Day digit 1
 						nextState = State3_DayDigit1;
 						makeTransition = TRUE;
@@ -309,6 +312,9 @@ Event Run_SubHSM_DateTime(Event thisEvent) {
 						lcd.setCursor(7, 1);						
 					} else if (thisEvent.EventParam == BTN2) {			// Switch digits
 						nextState = State5_YearDigit1;
+						makeTransition = TRUE;
+					} else if (thisEvent.EventParam == BTN3) {			// Continue to Hour digit 1
+						nextState = State7_HourDigit1;
 						makeTransition = TRUE;
 					} else if (thisEvent.EventParam == BTN4) {			// Back to Day digit 1
 						nextState = State3_DayDigit1;
