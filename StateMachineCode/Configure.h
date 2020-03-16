@@ -2,14 +2,23 @@
 #define CONFIGURE_H
 
 #include "Arduino.h"
-
+#include "LiquidCrystal_I2C.h"
+#include <Adafruit_Sensor.h>
+#include "Adafruit_TSL2591.h"
+#include "BME280.h"
+#include "CozirLib.h"
 
 // Public Definitions & Global Things
 
 #define TRUE 1
 #define FALSE 0
 
-char myString[50]; // for screen printing
+extern char myString[50]; // for screen printing
+
+//added this to try and give global access to this object
+extern LiquidCrystal_I2C lcd;
+extern BME280 pressureSensor;
+extern Adafruit_TSL2591 lightSensor;
 
 #define NO_PRESS	0
 #define BTN1		1
@@ -37,6 +46,8 @@ typedef struct Events{
 	eventTypes EventType;
 	int EventParam;
 }Event;
+
+
 
 
 

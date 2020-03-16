@@ -1,8 +1,13 @@
 #include "PlantMeterHSM.h"
 #include "Configure.h"
 #include "InitSubHSM.h"
+#include "LeakSubHSM.h"
+#include "RFSubHSM.h"
+#include "DateTimeSubHSM.h"
+#include "ActiveSubHSM.h"
+#include "WaitSubHSM.h"
 #include <LiquidCrystal_I2C.h>
-#include <Wire.h>
+
 
 typedef enum {
 	InitPState,		// initilizing state machine pseudo state
@@ -17,13 +22,10 @@ typedef enum {
 
 
 static HSMstates CurrentState = InitPState;
-char myString[50]; 
+
 
 uint8_t InitHSM(void){
 	
-//   sprintf(myString, "Hello please");
-//   lcd.setCursor(0, 0); // set the cursor to column 0, line 0
-//   lcd.print(myString);  // Print a message to the LCD
 	Event thisEvent;
 	thisEvent.EventType = INIT_EVENT;
 	thisEvent.EventParam = 0;
@@ -48,8 +50,13 @@ Event RunHSM(Event thisEvent){
 		case InitPState:
 			if (thisEvent.EventType == INIT_EVENT){
 				//any initializations that should start. Maybe some blocking code. This code could also go in the main function 
-				Init_SubHSM_Init();
-				nextState = Initing;
+				//Init_SubHSM_Init();
+				//Init_SubHSM_Leak();
+				//Init_SubHSM_RF();
+				Init_SubHSM_DateTime();
+				//Init_SubHSM_Active();
+				//Init_SubHSM_Wait();
+				nextState = DateTime;
 				makeTransition = TRUE;	
 			}
 			break;
@@ -73,6 +80,7 @@ Event RunHSM(Event thisEvent){
 			break;
 
 		case DateTime:
+			thisEvent = Run_SubHSM_DateTime(thisEvent);
 			break;
 
 		case Active:

@@ -61,6 +61,7 @@ uint8_t Cozir_Init(void){
 
 /*
 Calibrates the sensor to set the current reading as 400 ppm.
+NOT IMPLEMENTED YET
 */
 uint8_t Cozir_Calibrate(void){
 	if (dataRetrieveFlag == 0){
@@ -209,34 +210,6 @@ uint8_t Cozir2_Init(void){
 	
 }
 
-
-/*
-Calibrates the sensor to set the current reading as 400 ppm.
-*/
-uint8_t Cozir2_Calibrate(void){
-	if (dataRetrieveFlag2 == 0){
-		Serial2.print("G\r\n"); //requests the sensor to calibrate to 400ppm
-		
-		delay(150);//include delay to ensure response is recieved 
-	
-		//while (Serial2.available() < 8);
-		uint8_t j = 0;
-		while (Serial2.available() > 0){
-			inString2[j] = Serial2.read();
-			j++;
-		}
-	
-		if (inString2[1] != 'G'){
-			Serial.println(inString);
-			return 0;
-		}
-		
-		return 1;
-	}
-	
-	return 0;
-	
-}
 
 
 

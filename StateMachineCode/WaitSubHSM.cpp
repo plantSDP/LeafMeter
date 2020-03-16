@@ -15,13 +15,12 @@
 // List states here:
 typedef enum {
     InitPSubState,
-    State1_ContinuePrompt,
-	State2_Pressurizing,
-	State3_ReadingPressure,
-	State4_DisplayingResult,
-	State5_HumFail,
-	State6_HumCheck,
-	State7_HumConfirm,
+	State1_Pressurizing,
+	State2_ReadingPressure,
+	State3_RecordingResult,
+	State4_HumFail,
+	State5_HumCheck,
+	State6_HumConfirm
 } WaitSubHSMStates;
 
 // Holds the current state
@@ -51,7 +50,7 @@ Event Run_SubHSM_Wait(Event thisEvent) {
 	switch (CurrentState) {
 		case InitPSubState:								// If current state is initial Pseudo State
 			if (thisEvent.EventType == INIT_EVENT){		// only respond to INIT_EVENT
-				nextState = State1_ContinuePrompt;		// transition to first state
+				nextState = State1_Pressurizing;		// transition to first state
 				makeTransition = TRUE;
 			}
 			break;
@@ -67,7 +66,7 @@ Event Run_SubHSM_Wait(Event thisEvent) {
 					// Read pressure sensor
 					break;
 				case TIMEOUT:
-					nextState = State2_Pressurizing;	// transitions back into itself on a data timer timeout, so new pressure can be read
+					nextState = State2_ReadingPressure;	// transitions back into itself on a data timer timeout, so new pressure can be read
 					makeTransition = TRUE;				// not sure if this works
 					break;
 				// Transition to State3 when pressure is greater than threshold. This number is defined above.
@@ -85,7 +84,7 @@ Event Run_SubHSM_Wait(Event thisEvent) {
 					break;
 				case TIMEOUT:
 					if (thisEvent.EventParam == TEST_TIMER) {			// if leak test duration is over, transition to next state
-						nextState = State3_DisplayingResult;
+						nextState = State3_RecordingResult;
 						makeTransition = TRUE;
 					} else if (thisEvent.EventParam == DATA_TIMER) {	// transitions back into itself on a data timer timeout, so new pressure can be read, like above
 						nextState = State2_ReadingPressure;
@@ -154,10 +153,10 @@ Event Run_SubHSM_Wait(Event thisEvent) {
 						// Display ok
 					}
 				break; 
-				// Continue to State2_Pressurizing
+				// Continue to State1_Pressurizing
 				case BTN_EVENT:
 					if (thisEvent.EventParam == BTN3){
-						nextState = State2_Pressurizing;
+						nextState = State1_Pressurizing;
 						makeTransition = TRUE;
 					}
 					break;

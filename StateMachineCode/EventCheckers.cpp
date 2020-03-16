@@ -6,8 +6,8 @@
 // Private Definitions
 #define BTN4_PIN 17
 #define BTN3_PIN 16
-#define BTN2_PIN 16 //CHANGE THIS!
-#define BTN1_PIN 16 //CHANGE THIS!
+#define BTN2_PIN 15 //CHANGE THIS!
+#define BTN1_PIN 14 //CHANGE THIS!
 
 static uint8_t buttonVals[4];
 static uint8_t timer0state = 0; //holder for if the timers are currently active
@@ -21,6 +21,8 @@ static Metro timer1 = Metro(1000);
 Initializes the event checkers. 
 */
 uint8_t InitEventCheckers(void){
+	pinMode(BTN1_PIN, INPUT);
+	pinMode(BTN2_PIN, INPUT);
 	pinMode(BTN3_PIN, INPUT);
 	pinMode(BTN4_PIN, INPUT);
 	
@@ -103,13 +105,15 @@ uint8_t SetTimer(uint8_t timer, unsigned int interval){
 		if (timer0state == 0){
 			//start the interval
 			timer0.interval(interval); 
+			timer0.reset();
 			timer0state = 1;
 			return 1;
 		}
 	} else if (timer == 1){
-		if (timer0state == 0){
+		if (timer1state == 0){
 			//start the interval
 			timer1.interval(interval); 
+			timer1.reset();
 			timer1state = 1;
 			return 1;
 		}

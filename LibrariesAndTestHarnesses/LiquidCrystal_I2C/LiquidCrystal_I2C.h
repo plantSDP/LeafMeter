@@ -124,8 +124,6 @@ private:
   uint8_t _backlightval;
 };
 
-//added this to try and give global access to this object
-extern LiquidCrystal_I2C lcd;
 
 
 #endif
