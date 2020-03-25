@@ -13,6 +13,9 @@
 #define YEAR_1 2
 #define YEAR_2 0
 
+void PrintDate(void);
+void PrintTime(void);
+
 // List states here:
 typedef enum {
     InitPSubState,
@@ -59,7 +62,7 @@ static uint8_t hour1  = 0;
 static uint8_t hour2  = 0;
 
 static uint8_t min1   = 0;
-static uint8_t min2   = 0
+static uint8_t min2   = 0;
 Event Run_SubHSM_DateTime(Event thisEvent) {
 	
 	uint8_t makeTransition = FALSE; // use to flag transition
@@ -265,7 +268,7 @@ Event Run_SubHSM_DateTime(Event thisEvent) {
 					if (thisEvent.EventParam == BTN1) {
 						// increment digit
 						if (year1 < 9) {
-							year1 = year + 1;
+							year1 = year1 + 1;
 						} else if (year1 == 9) {
 							year1 = 0;
 						}
@@ -302,7 +305,7 @@ Event Run_SubHSM_DateTime(Event thisEvent) {
 					if (thisEvent.EventParam == BTN1) {
 						// increment digit
 						if (year1 < 9) {
-							year2 = year + 1;
+							year2 = year1 + 1;
 						} else if (year1 == 9) {
 							year2 = 0;
 						}						
@@ -501,7 +504,7 @@ Event Run_SubHSM_DateTime(Event thisEvent) {
 // Private functions
 
 // Prints the date in MM/DD/YY form.
-void PrintDate() {
+void PrintDate(void) {
 	sprintf(myString, "Enter MM/DD/YY      ");
 	lcd.setCursor(0, 0); // set the cursor to column 0, line 0
 	lcd.print(myString);  // Print a message to the LCD
@@ -511,7 +514,7 @@ void PrintDate() {
 }
 
 // Prints the time in HH:MM form.
-void PrintTime() {
+void PrintTime(void) {
 	sprintf(myString, "Enter time HH:MM");
 	lcd.setCursor(0, 0); // set the cursor to column 0, line 0
 	lcd.print(myString);  // Print a message to the LCD
