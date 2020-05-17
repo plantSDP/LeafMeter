@@ -12,8 +12,10 @@
 static uint8_t buttonVals[4];
 static uint8_t timer0state = 0; //holder for if the timers are currently active
 static uint8_t timer1state = 0;
+static uint8_t timer2state = 0;
 static Metro timer0 = Metro(1000);
 static Metro timer1 = Metro(1000); 
+static Metro timer2 = Metro(1000);
 
 
 
@@ -117,6 +119,14 @@ uint8_t SetTimer(uint8_t timer, unsigned int interval){
 			timer1state = 1;
 			return 1;
 		}
+	} else if (timer == 2){
+		if (timer2state == 0){
+			//start the interval
+			timer2.interval(interval); 
+			timer2.reset();
+			timer2state = 1;
+			return 1;
+		}
 	}
 	
 	return 0;
@@ -144,6 +154,15 @@ Event TimerExpireCheck(void){
 			timer1state = 0;
 			returnEvent.EventType = TIMEOUT;
 			returnEvent.EventParam = 0b10;
+			return returnEvent;
+		}
+	} 
+	
+	if (timer2state == 1){
+		if (timer2.check() == 1){
+			timer2state = 0;
+			returnEvent.EventType = TIMEOUT;
+			returnEvent.EventParam = 0b100;
 			return returnEvent;
 		}
 	} 
