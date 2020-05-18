@@ -1,24 +1,34 @@
 #include "Configure.h"
 #include "Arduino.h"
 #include "EventCheckers.h"
-#include <Metro.h> //this library is used to create timers
+#include <Metro.h> // this library is used to create timers
+
+//=====================================================================================
+// EventCheckers generates button and timeout Events based on button and timer statuses
+//=====================================================================================
 
 // Private Definitions
 #define BTN4_PIN 17
 #define BTN3_PIN 16
-#define BTN2_PIN 15 //CHANGE THIS!
-#define BTN1_PIN 14 //CHANGE THIS!
+#define BTN2_PIN 15 // CHANGE THIS LATER!
+#define BTN1_PIN 14 // CHANGE THIS LATER!
 
-static uint8_t buttonVals[4];
-static uint8_t timer0state = 0; //holder for if the timers are currently active
+static uint16_t oldButtonStates = 0;	// Holds the previous button states. Default is 0, or no press.
+static uint8_t buttonVals[4];			// Button debouncing array, each array address holds the previous 8 button hardware pin reads
+
+// active timer flags
+static uint8_t timer0state = 0; 	
 static uint8_t timer1state = 0;
-static Metro timer0 = Metro(1000);
+
+static Metro timer0 = Metro(1000); // default timer tic at 1ms
 static Metro timer1 = Metro(1000); 
 
 
 
 /*
-Initializes the event checkers. 
+Initializes the event checkers - sets button pinouts
+
+Returns TRUE
 */
 uint8_t InitEventCheckers(void){
 	pinMode(BTN1_PIN, INPUT);
@@ -26,23 +36,40 @@ uint8_t InitEventCheckers(void){
 	pinMode(BTN3_PIN, INPUT);
 	pinMode(BTN4_PIN, INPUT);
 	
-	return 1;
+	return TRUE;
 }
 
 
 /*
-debounces the buttons and set the flag in the struct, along with the bitmasked button states
+Debounces the buttons and generates the corresponding EventType, along with the bitmasked button states via EventParam
+
+Returns an Event with EventType BTN_EVENT and corresponding EventParam on button press or release
 */
 Event ButtonCheckDebounce(void){
-	
-	static uint16_t oldButtonStates = 0;
+	// this 16-bit int holds the new event parameter, for the BTN_EVENT this is the state of the four buttons
 	uint16_t newButtonStates = 0;
 	
-	buttonVals[3] = buttonVals[3] << 1 | digitalRead(BTN4_PIN);
-	buttonVals[2] = buttonVals[2] << 1 | digitalRead(BTN3_PIN);
-	buttonVals[1] = buttonVals[1] << 1 | digitalRead(BTN2_PIN);
-	buttonVals[0] = buttonVals[0] << 1 | digitalRead(BTN1_PIN);
-	//add other buttons here 
+	// get new button state, discard oldest button state by shifting, store in buttonVals array
+	// each array address holds 8 previous button states for a single button via an 8-bit integer
+	
+	// add other buttons here
+	
+	buttonVals[3] = buttonVals[3] << 1 | digitalRead(BTN4_PIN);		// BTN4
+	buttonVals[2] = buttonVals[2] << 1 | digitalRead(BTN3_PIN);		// BTN3
+	buttonVals[1] = buttonVals[1] << 1 | digitalRead(BTN2_PIN);		// BTN2
+	buttonVals[0] = buttonVals[0] << 1 | digitalRead(BTN1_PIN);		// BTN1
+	
+	
+	// Here the 16-bit integer newButtonStates is formed. 
+	// If a button state persists for 8 or more times, the button state is allowed to change.
+	// The least significant bits correspond to each button: 1 is button pressed, 0 is button depressed
+	/* 
+	With four buttons, the four least significant bits look like this:
+	Button:   [BTN4] [BTN3] [BTN2] [BTN1]
+	Bit:	 	3	   2	  1		 0
+	*/
+	
+	// add more buttons buttons here
 	
 	if (buttonVals[3] == 0x00){
 		newButtonStates &= 0b0111;
@@ -62,15 +89,15 @@ Event ButtonCheckDebounce(void){
 		newButtonStates |= 0b0010;
 	}
 	
-	
 	if (buttonVals[0] == 0x00){
 		newButtonStates &= 0b1110;
 	} else if (buttonVals[0] == 0xFF){
 		newButtonStates |= 0b0001;
 	}
 	
-	//add other buttons here
 	
+	// Finally, if there is any change to button states, return BTN_EVENT & set EventParam to newButtonStates
+	// If no change, return NO_EVENT & set EventPram to oldButtonStates (default 0).
 	Event returnBtnEvent;
 	if (oldButtonStates != newButtonStates){
 		returnBtnEvent.EventType = BTN_EVENT;

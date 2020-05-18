@@ -4,31 +4,37 @@
 #include "Configure.h"
 #include "EventCheckers.h"
 
+//===================================================================================================================
+// InitSubHSM implements the top-level HSM for the field unit via two functions: Init_SubHSM_Init and Run_SubHSM_Init
+//===================================================================================================================
 
-
+//=====================
 // Private definitions
-#define HUM_DANGER_THRESHOLD 90
-#define HUM_WARNING_THRESHOLD 80
-#define RF_NO 0
-#define RF_YES 1
+//=====================
 
-// List states here:
+// This enum lists the names of all states in this state machine
 typedef enum {
-    InitPSubState,
-	State0_Failure,
-    State1_Starting,
-    State2_HumConfirm,
-    State3_HumFail,
-    State4_HumCheck,
-    State5_SettingPeriod,
-	State6_SettingRF,
-	State7_LifetimeDisplay,
+    InitPSubState,					// initial pseudostate to implement one-time startup behavior, the light and pressure sensors are initialized here
+	State0_Failure,					// l or p sensor initialization failure 
+    State1_Starting,				// Co2 sensor startup
+    State2_HumConfirm,				// take humidity reading, display results
+    State3_HumFail,					// humidity too high, warn user to alleviate and prompt humidity reread
+    State4_HumCheck,				// humidity rereading, display results
+    State5_SettingPeriod,			// prompt user to set period between measurements
+	State6_SettingRF,				// prompt user to set RF option
+	State7_LifetimeDisplay,			// calculate and display expected lifetime
 } InitSubHSMStates;
 
 // Holds the current state
 static InitSubHSMStates CurrentState = InitPSubState;
 
-// This function runs the state machine with an INIT_EVENT
+/*
+This function initializes the state machine with an INIT_EVENT. 
+In regards to the state machine, it transitions the machine out of the initial pseudostate and performs one-time setup functions
+
+Parameters: none
+Return: TRUE on success, FALSE on failure
+*/
 uint8_t Init_SubHSM_Init(void){
 	Event thisEvent;
 	thisEvent.EventType = INIT_EVENT;
@@ -41,9 +47,17 @@ uint8_t Init_SubHSM_Init(void){
 	}
 }
 
-static unsigned int hum = 0;		// holds humidity measurement
-static int rfOption = RF_NO;		// sets rfOption, default is NO (0)
-static int period = 60;				// holds value for period in between measurements
+//static unsigned int hum = 0;		// holds humidity measurement
+//static int rfOption = RF_NO;		// sets rfOption, default is NO (0)
+//static int period = 60;				// holds value for period in between measurements
+
+
+/* 
+Contains a nested switch-case that implements the state machine.
+
+Parameters: Event thisEvent - a struct that contains an EventType and EventParameter, defined in Configure.h
+Return: NO_EVENT if thisEvent is handled/consumed, return thisEvent unchanged if thisEvent not consumed 
+*/
 Event Run_SubHSM_Init(Event thisEvent) {
 	
 	uint8_t makeTransition = FALSE; // use to flag transition
@@ -54,21 +68,20 @@ Event Run_SubHSM_Init(Event thisEvent) {
 		case InitPSubState:								// If current state is initial Pseudo State
 			if (thisEvent.EventType == INIT_EVENT){		// only respond to INIT_EVENT
 				nextState = State1_Starting;			// transition to first state
-			    if (lightSensor.begin() <= 0){
+				
+			    if (lightSensor.begin() <= 0){			// Light sensor error checking
 					nextState = State0_Failure;
 				} else {
 					lightSensor.setGain(TSL2591_GAIN_LOW);
 					lightSensor.setTiming(TSL2591_INTEGRATIONTIME_100MS);
 				}
-				if (pressureSensor.begin() < 0){
+				
+				if (pressureSensor.begin() < 0){		// Pressure sensor error checking
 					nextState = State0_Failure;
 				} else {
 					pressureSensor.setNormalMode();
 				}
-	
-
-				
-				makeTransition = TRUE;
+				makeTransition = TRUE;					// Always transition out of the initial pseudostate
 			}
 			break;
 		
@@ -87,7 +100,7 @@ Event Run_SubHSM_Init(Event thisEvent) {
 					lcd.setCursor(0, 0); // set the cursor to column 0, line 0
 					lcd.print(myString);  // Print a message to the LCD
 					// Init timer
-					SetTimer(1, 10000); // cozir
+					SetTimer(1, 10000); // cozir warmup
 					
 					// Open valves
 					// Run Pump
@@ -180,17 +193,15 @@ Event Run_SubHSM_Init(Event thisEvent) {
 		case State4_HumCheck:
 			switch (thisEvent.EventType) {
 				case ENTRY_EVENT:
-					// Init timer
 					sprintf(myString, "Checking         ");
-					lcd.setCursor(0, 0); // set the cursor to column 0, line 0
-					lcd.print(myString);  // Print a message to the LCD
+					lcd.setCursor(0, 0); 					// set the cursor to column 0, line 0
+					lcd.print(myString);  					// Print a message to the LCD
 					sprintf(myString, "      Humidity   ");
-					lcd.setCursor(0, 1); // set the cursor to column 0, line 0
-					lcd.print(myString);  // Print a message to the LCD
-					SetTimer(0, 5000);
-					Cozir_Request_Data();
-					// Read hum
-
+					lcd.setCursor(0, 1); 					// set the cursor to column 0, line 0
+					lcd.print(myString);  					// Print a message to the LCD
+					
+					SetTimer(0, 5000);		// Init timer
+					Cozir_Request_Data();	// Read hum
 					break;						
 				case TIMEOUT:
 					Cozir_NewDataAvailable();
@@ -361,11 +372,14 @@ Event Run_SubHSM_Init(Event thisEvent) {
 			break;
 	}
 		
-	if (makeTransition == TRUE) { // making a state transition, send EXIT and ENTRY
-		// recursively call the current state with an exit event
+	if (makeTransition == TRUE) { // making a state transition, send EXIT and ENTRY events to allow for special on-transition behavior
+		// recursively call the current state machine with an exit event before changing states for exit behavior
 		thisEvent.EventType = EXIT_EVENT;
 		Run_SubHSM_Init(thisEvent);
+		
 		CurrentState = nextState;
+		
+		// recursively call the current state machine with an entry event after changing states for exit behavior
 		thisEvent.EventType = ENTRY_EVENT;
 		Run_SubHSM_Init(thisEvent);
 		thisEvent.EventType = NO_EVENT;
