@@ -36,7 +36,9 @@ typedef enum {
 	TIMEOUT,
 	RF_RECIEVE_EVENT,
 	TRANSMIT_REQUEST_EVENT,
-	} eventTypes;
+	LINK_SETUP_EVENT,
+	END_LINK_SETUP_EVENT,
+} eventTypes;
 
 //struct to hold event types and parameter.
 //this struct will be the argument for the state machine functions, and the event checkers generate these events. 
@@ -50,14 +52,13 @@ typedef struct Events{
 //In particular it should be used to ensure the transciever chip is in the correct state for 
 //the non-stateless protocol, and to keep track of retries, and previous payloads for retransmission
 typedef struct RF_module_info{
-	uint8_t transciever_state;
-	uint8_t retry_number;
-	uint16_t total_retries;
-	uint8_t payloadIsData; 
+	uint8_t totalDataPackets;
+	uint8_t currentDataPacket;
 	uint8_t payloadToSend[256];
 	uint8_t payloadToSend_length;
 	uint8_t previousPayload[256];
 	uint8_t previousPayload_length;
+	int8_t lastRSSI;
 } RF_module_info;
 
 
@@ -66,27 +67,35 @@ typedef struct Recieved_info{
 	uint8_t raw_payload[RH_RF95_MAX_MESSAGE_LEN]; //the most recent recieved payload without the header. 
 	uint8_t payloadLength; //this will hold the length of the payload. Use this and the member above with the recv() function to get data from the transciever
 	uint8_t messageID; // most recent messageID
-	uint8_t measurement_confirmed; //indicator for if the field device is going to take an on-demand measurement
-	uint8_t remaining_cycles;
+	uint8_t day;
+	uint8_t month;
+	uint8_t year;
+	uint8_t hour;
+	uint8_t minute;
+	uint8_t data_transmit_indicator;
+	uint8_t new_total_measurements;
+	uint16_t new_min_between_measurements;
 	uint16_t time_till_powerOff;
-	uint16_t time_left_battery;
-	uint8_t num_measurments_taken;
-	uint8_t timestamps[2][NUM_CYCLES_MAX]; //2D array to store the timestamps of each measurment. timestamps[0][x] has the hour, timestamps[1][x] has the corresponding minute
-	uint16_t time_till_nextCycle;
-	uint16_t sample_period;
-	uint16_t flux_estimate;
-	uint8_t data_packets_total;
-	uint8_t data_packet_current;
-	uint8_t num_sample_points; //how many points of data are being transmitted in the current packet
-	uint8_t recent_temp[32];
-	uint8_t recent_humidity[32];
-	uint16_t recent_CO2[32];
-	uint32_t recent_pressure[32];
-	uint32_t recent_light[32];
+	uint8_t requested_measurement_number; //the measurement cycle number thats data is to be transmitted
 } Recieved_info;
 
 
+//struct to hold crucial information on the status of the field unit 
+typedef struct Field_info{
+	uint8_t total_measurements;
+	uint8_t num_measurements_taken;
+	uint8_t timestamps[2][NUM_CYCLES_MAX]; //2D array to store the timestamps of each measurment. timestamps[0][x] has the hour, timestamps[1][x] has the corresponding minute
+	uint16_t numSamples[NUM_CYCLES_MAX]; //stores how many sample points each measurment cycle had. To be used to calculate how many packets will be needed to transmit 
+	uint16_t min_between_measurements;	
+	uint16_t time_till_powerOff;
+	uint16_t time_left_battery;
+	uint16_t time_till_next_measurment; 
+} Field_info;
+
 //additional globals
-extern RF_module_info clientInfo; //the struct used to keep track of the transciever state and retries. Defined in this file. 
+extern RF_module_info serverInfo; //the struct used to keep track of the transciever state and retries. Defined in this file. 
 extern Recieved_info info_recieved;
+extern Field_info fieldInfo;
 #endif
+
+

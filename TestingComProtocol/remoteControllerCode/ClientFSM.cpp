@@ -23,6 +23,7 @@ typedef enum {
 	State0_Idle,
     State1_WaitingForACK,
     State2_GettingData,
+	State3_TestingLink,
 } ClientFSMStates;
 
 // Holds the current state
@@ -64,12 +65,13 @@ Event Run_ClientFSM(Event thisEvent) {
 			switch(thisEvent.EventType){
 				case ENTRY_EVENT:
 					Serial.println("Entered Idle"); //here for testing
+					clientInfo.transciever_state = TRANSMITTING;
 					thisEvent.EventType = NO_EVENT;
 					break;
 					
 				case TRANSMIT_REQUEST_EVENT:		//transmissions are made by storing the desired payload into the transciever struct calling this function with this event while in this state
-					clientInfo.payloadToSend[0] = 1;
-					clientInfo.payloadToSend_length = 1;
+					clientInfo.payloadToSend[0] = 1; //remove?
+					clientInfo.payloadToSend_length = 1; //remove?
 					rf95.send(clientInfo.payloadToSend, clientInfo.payloadToSend_length);
 					clientInfo.transciever_state = RECIEVING; //this is set to start the event checker, thereby putting the chip into reciever mode as soon as transmission ends
 					
@@ -88,6 +90,12 @@ Event Run_ClientFSM(Event thisEvent) {
 						makeTransition = TRUE;
 					}
 					break;
+				
+				case LINK_SETUP_EVENT:	//move to setup state to test RSSI. Must set the client to be a reciever to await a ping message
+					clientInfo.transciever_state = RECIEVING;
+					nextState = State3_TestingLink;
+					makeTransition = TRUE;
+					break;
 					
 				default:
 					break;
@@ -103,6 +111,7 @@ Event Run_ClientFSM(Event thisEvent) {
 					
 				case RF_RECIEVE_EVENT:				
 					Serial.print("Recieved...");
+					info_recieved.payloadLength = RH_RF95_MAX_MESSAGE_LEN; //this is needed to indicate that the entire payload may be copied
 					rf95.recv(info_recieved.raw_payload, &info_recieved.payloadLength);
 					clientInfo.transciever_state = TRANSMITTING; //set back to transmitter. All this does is disable the event checker so the chip stays in idle mode.  
 					info_recieved.messageID = info_recieved.raw_payload[0];
@@ -212,8 +221,9 @@ Event Run_ClientFSM(Event thisEvent) {
 					break;
 					
 				case RF_RECIEVE_EVENT:	
-
 					Serial.println("Recieved");
+					
+					info_recieved.payloadLength = RH_RF95_MAX_MESSAGE_LEN; //this is needed to indicate that the entire payload may be copied
 					rf95.recv(info_recieved.raw_payload, &info_recieved.payloadLength);
 					clientInfo.transciever_state = TRANSMITTING; //set back to transmitter. All this does is disable the event checker so the chip stays in idle mode.  
 					info_recieved.messageID = info_recieved.raw_payload[0];
@@ -244,7 +254,7 @@ Event Run_ClientFSM(Event thisEvent) {
 							nextState = State0_Idle;
 							makeTransition = TRUE;	
 						} else {
-							clientInfo.payloadToSend[0] = DATA_TRANSMITTION_ACK; //load the payload to send an ack back to the field unit
+							clientInfo.payloadToSend[0] = DATA_TRANSMISSION_ACK; //load the payload to send an ack back to the field unit
 							clientInfo.payloadToSend_length = 1;
 							rf95.send(clientInfo.payloadToSend, clientInfo.payloadToSend_length);
 							clientInfo.transciever_state = RECIEVING; //this is set to start the event checker, thereby putting the chip into reciever mode as soon as transmission ends
@@ -278,7 +288,7 @@ Event Run_ClientFSM(Event thisEvent) {
 							nextState = State0_Idle;
 							makeTransition = TRUE;	
 						} else {
-							clientInfo.payloadToSend[0] = DATA_TRANSMITTION_ACK; //load the payload to send an ack back to the field unit
+							clientInfo.payloadToSend[0] = DATA_TRANSMISSION_ACK; //load the payload to send an ack back to the field unit
 							clientInfo.payloadToSend_length = 1;
 							rf95.send(clientInfo.payloadToSend, clientInfo.payloadToSend_length);
 							clientInfo.transciever_state = RECIEVING; //this is set to start the event checker, thereby putting the chip into reciever mode as soon as transmission ends
@@ -304,7 +314,9 @@ Event Run_ClientFSM(Event thisEvent) {
 					Serial.println("Data Timeout");
 					clientInfo.transciever_state = TRANSMITTING;
 					if (clientInfo.retry_number < ALLOWED_RETRIES){ //check if retry count is exceeded. If not retransmit the most recent packet and restart the timer. 
-						rf95.send(clientInfo.previousPayload, clientInfo.previousPayload_length);
+						clientInfo.payloadToSend[0] = DATA_TRANSMISSION_NACK; //load the payload to send an ack back to the field unit
+						clientInfo.payloadToSend_length = 1;
+						rf95.send(clientInfo.payloadToSend, clientInfo.payloadToSend_length);
 						clientInfo.transciever_state = RECIEVING;
 						SetTimer(2, RETRY_PERIOD_MAX);
 						clientInfo.retry_number++;
@@ -328,7 +340,38 @@ Event Run_ClientFSM(Event thisEvent) {
 				
 			}
 			break;			
-			
+		
+		case State3_TestingLink:
+			switch (thisEvent.EventType){
+				case ENTRY_EVENT:
+					Serial.println("Entered TestingLink");
+					break;
+					
+				case RF_RECIEVE_EVENT:
+					info_recieved.payloadLength = RH_RF95_MAX_MESSAGE_LEN; 
+					rf95.recv(info_recieved.raw_payload, &info_recieved.payloadLength); 
+					info_recieved.messageID = info_recieved.raw_payload[0];
+					
+					if(info_recieved.messageID == PING){
+						Serial.println("Recieved Pong");
+						clientInfo.lastRSSI = serverInfo.lastRSSI;
+						clientInfo.payloadToSend[0] = PONG; //load the payload to send an ack back to the field unit
+						clientInfo.payloadToSend_length = 1;
+						rf95.send(clientInfo.payloadToSend, clientInfo.payloadToSend_length);
+					}
+					
+					break;
+					
+				case END_LINK_SETUP_EVENT:	
+					nextState = State0_Idle;	// transciever_state will be set to transmitting upon entry to Idle state
+					makeTransition = TRUE;
+					break;
+					
+				default:
+					break;
+			}
+			break;
+		
 		default:
 			break;
 	}

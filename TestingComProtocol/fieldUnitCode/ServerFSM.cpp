@@ -3,12 +3,13 @@
 //To send messages, first the desired payload and the length should be stored in the global struct 'clientInfo'. If the message is a measurment data request, the member 'payloadIsData' should be set to TRUE. 
 //call the function 'Run_ClientFSM()' with a 'TRANSMIT_REQUEST_EVENT' to send this payload. The packet will only be sent if the current state of the remote controller is not in the middle of handling a transaction. 
 //currently there is no way to queue packets to be sent. 
+//THIS IS THE COMMENT FOR CLIENTFSM? NEEDS TO BE UPDATED?
 
 // Includes
-#include "ClientFSM.h"
+#include "ServerFSM.h"
 #include "Arduino.h"
-#include "ClientConfigure.h"
-#include "EventChecker.h"
+#include "ServerConfigure.h"
+#include "ServerEventChecker.h"
 
 
 
@@ -20,20 +21,20 @@
 // List states here:
 typedef enum {
     InitPState,
-	State0_Idle,
-    State1_WaitingForACK,
-    State2_GettingData,
-} ClientFSMStates;
+	State0_Listening,
+    State1_TransmittingData,
+	State2_TestingLink,
+} ServerFSMStates;
 
 // Holds the current state
-static ClientFSMStates CurrentState = InitPState;
+static ServerFSMStates CurrentState = InitPState;
 
 // This function runs the state machine with an INIT_EVENT
-uint8_t Init_ClientFSM(void){
+uint8_t Init_ServerFSM(void){
 	Event thisEvent;
 	thisEvent.EventType = INIT_EVENT;
 	thisEvent.EventParam = 0;
-	Event returnEvent = Run_ClientFSM(thisEvent);
+	Event returnEvent = Run_ServerFSM(thisEvent);
 	if (returnEvent.EventType == NO_EVENT) {
 		return TRUE;
 	} else {
@@ -41,52 +42,160 @@ uint8_t Init_ClientFSM(void){
 	}
 }
 
-Event Run_ClientFSM(Event thisEvent) {
+Event Run_ServerFSM(Event thisEvent) {
 	
 	uint8_t makeTransition = FALSE; // use to flag transition
-	ClientFSMStates nextState;
+	ServerFSMStates nextState;
 	int i,j;	// these variables are used to iterate through payload data during decoding and to copy data between two arrays which hold transmitted payloads
 
 	
 	switch (CurrentState) {
 		case InitPState:								// If current state is initial Pseudo State
 			if (thisEvent.EventType == INIT_EVENT){		// only respond to INIT_EVENT
-				clientInfo.payloadIsData = FALSE;
-				clientInfo.retry_number = 0;
-				clientInfo.total_retries = 0;
-				clientInfo.transciever_state = TRANSMITTING;
-				nextState = State0_Idle;				// transition to first state where we wait for a command to transmit
+				fieldInfo.total_measurements = 24; //initialize some information about the field unit. This should be updated in the main state machine. 
+				fieldInfo.num_measurements_taken = 0;
+				fieldInfo.min_between_measurements = 60;
+				serverInfo.lastRSSI = 0;
+				nextState = State0_Listening;				
 				makeTransition = TRUE;
 			}
 			break;
 		
-		case State0_Idle: //In this state, the transciever is in its idle state and awaits a request to send a packet. 
-			switch(thisEvent.EventType){
+		case State0_Listening: 					//This is the most common state. In here, the server is always waiting for a packet to decode. After decoding, an acknowledgmenet is sent to the client. 
+			switch(thisEvent.EventType){		//If the client asks for measurement data, the state will change to 
 				case ENTRY_EVENT:
-					Serial.println("Entered Idle"); //here for testing
+					Serial.println("Entered Listening State"); //here for testing
 					thisEvent.EventType = NO_EVENT;
 					break;
 					
-				case TRANSMIT_REQUEST_EVENT:		//transmissions are made by storing the desired payload into the transciever struct calling this function with this event while in this state
-					clientInfo.payloadToSend[0] = 1;
-					clientInfo.payloadToSend_length = 1;
-					rf95.send(clientInfo.payloadToSend, clientInfo.payloadToSend_length);
-					clientInfo.transciever_state = RECIEVING; //this is set to start the event checker, thereby putting the chip into reciever mode as soon as transmission ends
+				case RF_RECIEVE_EVENT:		
+					Serial.print("Got Message..."); //here for testing
+					info_recieved.payloadLength = RH_RF95_MAX_MESSAGE_LEN; //this is needed to indicate that the entire payload may be copied
+					rf95.recv(info_recieved.raw_payload, &info_recieved.payloadLength); //get the payload from the module 
+					info_recieved.messageID = info_recieved.raw_payload[0];
 					
-					for (i = 0; i < clientInfo.payloadToSend_length; i++){ //keep a copy of the most recent sent payload.
-						clientInfo.previousPayload[i] = clientInfo.payloadToSend[i];
-					}
-					clientInfo.previousPayload_length = clientInfo.payloadToSend_length;
+					if (info_recieved.messageID == CONFIGURE_DATE_TIME){ 
+						info_recieved.day = info_recieved.raw_payload[1]; //save the data sent in the global struct
+						info_recieved.month = info_recieved.raw_payload[2];
+						info_recieved.year = info_recieved.raw_payload[3];
+						info_recieved.hour = info_recieved.raw_payload[4];
+						info_recieved.minute = info_recieved.raw_payload[5];
+						Serial.print("ConfigureDateTime:"); //here for testing
+						Serial.print(info_recieved.day); //here for testing
+						Serial.print(info_recieved.month);
+						Serial.print(info_recieved.year);
+						Serial.print(info_recieved.hour);
+						Serial.println(info_recieved.minute);
+						
+						serverInfo.payloadToSend[0] = CONFIGURE_DATE_TIME_ACK;	//transmit the ack
+						serverInfo.payloadToSend_length = 1;
+						rf95.send(serverInfo.payloadToSend, serverInfo.payloadToSend_length);
+						//memcpy(serverInfo.previousPayload, serverInfo.payloadToSend, serverInfo.payloadToSend_length); //copies the sent payload into previousPayload. THIS IS ONLY NEEDED WHEN TRANSMITTING MEASUREMENT DATA
+						//serverInfo.previousPayload_length = serverInfo.payloadToSend_length; // copy the length 
+						//Do something in state machine?
+						
+					} else if (info_recieved.messageID == MEASUREMENT_REQUEST){
+						info_recieved.data_transmit_indicator = info_recieved.raw_payload[1]; 
+						//?determine if the the on demand measurment is going to be accepted somehow. Also do something with this indicator. I think we should give up on real-time transmission as were short on time.
+						Serial.print("Measurement Request"); //here for testing
+						Serial.println(info_recieved.data_transmit_indicator);
+
+						serverInfo.payloadToSend[0] = MEASUREMENT_REQUEST_ACK;	//transmit the ack
+						serverInfo.payloadToSend[1] = 1; //? this set value should represent if the on-demand measurement will be taken
+						serverInfo.payloadToSend_length = 2;
+						rf95.send(serverInfo.payloadToSend, serverInfo.payloadToSend_length);
+						
+						
+					} else if (info_recieved.messageID == CONFIGURE_TOTAL_MEASUREMENTS){
+						info_recieved.new_total_measurements = info_recieved.raw_payload[1]; //?might need to do something here. Depends how main state machine is set up. 
+						fieldInfo.total_measurements = info_recieved.new_total_measurements;
+						Serial.print("ConfigureTotalMeasurments"); //here for testing
+						Serial.println(fieldInfo.total_measurements);
+						
+						if ((fieldInfo.total_measurements - fieldInfo.num_measurements_taken) > NUM_CYCLES_MAX){
+							serverInfo.payloadToSend[1] = 0;
+						} else{
+							serverInfo.payloadToSend[1] = fieldInfo.total_measurements - fieldInfo.num_measurements_taken;
+						}
+						serverInfo.payloadToSend[0] = CONFIGURE_TOTAL_MEASUREMENTS_ACK;
+						serverInfo.payloadToSend_length = 2;
+						rf95.send(serverInfo.payloadToSend, serverInfo.payloadToSend_length);
+						
+					} else if (info_recieved.messageID == CONFIGURE_CYCLE_PERIOD){
+						info_recieved.new_min_between_measurements = ((uint16_t)info_recieved.raw_payload[1]<<8) | (info_recieved.raw_payload[2]); // there is a shift by 8 because shorts are sent Big Endian. '|' logical OR to recover the 16 bit value
+						fieldInfo.min_between_measurements = info_recieved.new_min_between_measurements; //? do something here probably
+						Serial.print("ConfigureCyclePeriod"); //here for testing
+						Serial.println(fieldInfo.min_between_measurements);
+						
+						serverInfo.payloadToSend[0] = CONFIGURE_CYCLE_PERIOD_ACK;
+						serverInfo.payloadToSend_length = 1;
+						rf95.send(serverInfo.payloadToSend, serverInfo.payloadToSend_length);
 					
-					if (clientInfo.payloadIsData == TRUE){
-							SetTimer(2, RETRY_PERIOD_MAX);
-							nextState = State2_GettingData;
+					} else if (info_recieved.messageID == POWER_OFF_REQUEST) {
+						info_recieved.time_till_powerOff = ((uint16_t)info_recieved.raw_payload[1]<<8) | (info_recieved.raw_payload[2]);
+						fieldInfo.time_till_powerOff = info_recieved.time_till_powerOff; // ?theres probably some stuff that needs to happen here. Set timer? calculate the real time to power off?
+						Serial.print("Power Off Request"); //here for testing
+						Serial.println(fieldInfo.time_till_powerOff);
+						
+						serverInfo.payloadToSend[0] = POWER_OFF_REQUEST_ACK;
+						serverInfo.payloadToSend[1] = fieldInfo.time_till_powerOff >> 8;
+						serverInfo.payloadToSend[2] = fieldInfo.time_till_powerOff & 0xff;
+						serverInfo.payloadToSend_length = 3;
+						rf95.send(serverInfo.payloadToSend, serverInfo.payloadToSend_length);
+						
+					} else if (info_recieved.messageID == UPDATE_STATUS_REQUEST){
+						Serial.println("UpdateStatusRequest"); //here for testing						
+						
+						serverInfo.payloadToSend[0] = UPDATE_STATUS_REQUEST_ACK;
+						//?update the parameter fieldInfo.time_left_battery with the time left
+						serverInfo.payloadToSend[1] = fieldInfo.time_left_battery >> 8;
+						serverInfo.payloadToSend[2] = fieldInfo.time_left_battery & 0xff;
+						serverInfo.payloadToSend[3] = fieldInfo.num_measurements_taken;
+						
+						j = 4;
+						for (i = 0; i < fieldInfo.num_measurements_taken; i++){ // iterate through timestamps and store them in the payload.
+							serverInfo.payloadToSend[j++] = fieldInfo.timestamps[0][i]; // store the hour
+							serverInfo.payloadToSend[j++] = fieldInfo.timestamps[1][i]; // store the minute 
+						}
+						fieldInfo.time_till_next_measurment = 1; //?needs to actually be determined. 
+						serverInfo.payloadToSend[j++] = fieldInfo.time_till_next_measurment >> 8;
+						serverInfo.payloadToSend[j++] = fieldInfo.time_till_next_measurment & 0xff;
+						serverInfo.payloadToSend_length = j;
+						rf95.send(serverInfo.payloadToSend, serverInfo.payloadToSend_length);
+						
+					} else if (info_recieved.messageID == DATA_TRANSMISSION_REQUEST){
+						Serial.print("TransmitDataRequest"); //here for testing
+						
+						info_recieved.requested_measurement_number = info_recieved.raw_payload[1];
+						Serial.println(info_recieved.requested_measurement_number); //here for testing
+						serverInfo.payloadToSend[0] = DATA_TRANSMISSION_INITIAL;//?load up the payload according to definition in MessageIDs.h
+						//?this is going to require alot of work. Need to define how files are stored. I think we should have a place to store how many samples were taken for each cycle. Thatll make it easy to calculate how many packets will need to be sent. 
+						serverInfo.totalDataPackets = 2; //?load the total number of packets
+						serverInfo.currentDataPacket = 1;
+						serverInfo.payloadToSend[10] = serverInfo.totalDataPackets;
+						serverInfo.payloadToSend[11] = serverInfo.currentDataPacket;
+						serverInfo.payloadToSend_length = 12;//?calculate the payload length. 
+						rf95.send(serverInfo.payloadToSend, serverInfo.payloadToSend_length);
+						if (serverInfo.totalDataPackets > 1){
+							nextState = State1_TransmittingData;
 							makeTransition = TRUE;
+						}
+						memcpy(serverInfo.previousPayload, serverInfo.payloadToSend, serverInfo.payloadToSend_length); //copies the sent payload into previousPayload.
+						serverInfo.previousPayload_length = serverInfo.payloadToSend_length; // copy the length
+						
+					}else if (info_recieved.messageID == DATA_TRANSMISSION_NACK){
+						Serial.println("DataTransmissionNack");
+						
+						rf95.send(serverInfo.previousPayload, serverInfo.previousPayload_length);
 					}else{
-						SetTimer(2, RETRY_PERIOD_MIN);
-						nextState = State1_WaitingForACK;
-						makeTransition = TRUE;
+						Serial.print("Failed to identify message id");
+						Serial.println(info_recieved.messageID);
 					}
+					break;
+					
+				case LINK_SETUP_EVENT:
+					nextState = State2_TestingLink;
+					makeTransition = TRUE;
 					break;
 					
 				default:
@@ -95,239 +204,97 @@ Event Run_ClientFSM(Event thisEvent) {
 			}
 			break;
 
-		case State1_WaitingForACK: //If the packet being sent is a control/configuration, the client waits for an ack and decodes the response message. If a timeout ocurrs, a rentransmission will be sent a finite number of times. 
+
+		case State1_TransmittingData: 
 			switch (thisEvent.EventType) {
 				case ENTRY_EVENT:
-						clientInfo.retry_number = 0;
+						Serial.println("Entered Data Transmit State");
 					break;
 					
 				case RF_RECIEVE_EVENT:				
-					Serial.print("Recieved...");
+					Serial.print("Got message: ");
+					info_recieved.payloadLength = RH_RF95_MAX_MESSAGE_LEN; //this is needed to indicate that the entire payload may be copied
 					rf95.recv(info_recieved.raw_payload, &info_recieved.payloadLength);
-					clientInfo.transciever_state = TRANSMITTING; //set back to transmitter. All this does is disable the event checker so the chip stays in idle mode.  
 					info_recieved.messageID = info_recieved.raw_payload[0];
 					
-
-					if(info_recieved.messageID == ID_INVALID){              //Here is where the decoding happens. Each of these cases will likely send an event to the main state machine. To understand what each message indicates, look in MessageIDs.h
-						Serial.println("ID_INVALID");
-						//send event to main state machine? 
+					if (info_recieved.messageID == DATA_TRANSMISSION_NACK){
+						Serial.println("DataTransmissionNack");
 						
-					}else if (info_recieved.messageID == CONFIGURE_DATE_TIME_ACK){
-						Serial.println("Configure_date_time");
-						//send event to main state machine?
-						nextState = State0_Idle;
-						makeTransition = TRUE;
-					}else if (info_recieved.messageID == MEASUREMENT_REQUEST_ACK){
-						Serial.print("measurment_request, ");
-						info_recieved.measurement_confirmed = info_recieved.raw_payload[1];
-						Serial.println(info_recieved.measurement_confirmed);
-						nextState = State0_Idle;
-						makeTransition = TRUE;
-						//send event to main state machine? 
+						rf95.send(serverInfo.previousPayload, serverInfo.previousPayload_length);
 						
-					}else if (info_recieved.messageID == CONFIGURE_TOTAL_MEASUREMENTS_ACK){
-						Serial.print("conifgure_total_measurments, ");
-						info_recieved.remaining_cycles = info_recieved.raw_payload[1];
-						Serial.println(info_recieved.remaining_cycles);
-						nextState = State0_Idle;
-						makeTransition = TRUE;
-						//send event to main state machine? 
+					} else if (info_recieved.messageID == DATA_TRANSMISSION_ACK){ 
+						Serial.println("DataTransmissionAck");
+					
+						serverInfo.payloadToSend[0] = DATA_TRANSMISSION;//?load up the payload according to definition in MessageIDs.h 
+						serverInfo.currentDataPacket++;
+						serverInfo.payloadToSend_length = 3;//?calculate the payload length. 
+						rf95.send(serverInfo.payloadToSend, serverInfo.payloadToSend_length);
+						memcpy(serverInfo.previousPayload, serverInfo.payloadToSend, serverInfo.payloadToSend_length); //copies the sent payload into previousPayload.
+						serverInfo.previousPayload_length = serverInfo.payloadToSend_length; // copy the length
 						
-					}else if (info_recieved.messageID == CONFIGURE_CYCLE_PERIOD_ACK){
-						Serial.println("conifgure_cycle_period");
-						nextState = State0_Idle;
-						makeTransition = TRUE;
-						//send event to main state machine? 
-						
-					}else if (info_recieved.messageID == POWER_OFF_REQUEST_ACK){
-						Serial.print("power_off_request, ");
-						info_recieved.time_till_powerOff = ((uint16_t)info_recieved.raw_payload[1]<<8) | (info_recieved.raw_payload[2]); // there is a shift by 8 because shorts are sent Big Endian. '|' logical OR to recover the 16 bit value
-						Serial.println(info_recieved.time_till_powerOff);
-						nextState = State0_Idle;
-						makeTransition = TRUE;
-						//send event to main state machine? 				
-						
-					}else if (info_recieved.messageID == UPDATE_STATUS_REQUEST_ACK){
-						Serial.print("update_status, ");
-						info_recieved.time_left_battery = ((uint16_t)info_recieved.raw_payload[1]<<8) | (info_recieved.raw_payload[2]);
-						info_recieved.num_measurments_taken = info_recieved.raw_payload[3];
-						Serial.print(info_recieved.time_left_battery);
-						Serial.print(", ");
-						Serial.print(info_recieved.num_measurments_taken);
-						Serial.print(", ");
-						
-						j = 4; //this is used as a payload pointer
-						for (i = 0; i < info_recieved.num_measurments_taken; i++){ //this loop iterates through the all the timestamps and stores the hours/minutes into the global array
-							info_recieved.timestamps[0][i] = info_recieved.raw_payload[j++];	   // 'i' is used to iterate through the samples, and 'j' is used to hold the current pointer to the payload
-							info_recieved.timestamps[1][i] = info_recieved.raw_payload[j++];
-							
-							Serial.print(info_recieved.timestamps[0][i]);
-							Serial.print(":");
-							Serial.print(info_recieved.timestamps[1][i]);
-							Serial.print(", ");
+						if (serverInfo.currentDataPacket >= serverInfo.totalDataPackets){ //sending last packet of transaction. Move back to listening state. 
+							nextState = State0_Listening;
+							makeTransition = TRUE;
 						}
 						
-						info_recieved.time_till_nextCycle = ((uint16_t)info_recieved.raw_payload[j]<<8) + (info_recieved.raw_payload[j+1]);
-						Serial.println(info_recieved.time_till_nextCycle);
-	
-						nextState = State0_Idle;
+					} else {
+						Serial.println("failure");
+						
+						//?this means there was some serious failure in the communication protocol
+						nextState = State0_Listening;
 						makeTransition = TRUE;
-						//send event to main state machine? 
-					}else	{
-						Serial.println("ID_INVALID");
-						info_recieved.messageID = ID_INVALID;
-						//send event to main state machine? 	
 					}
-					break;
 					
-				case TIMEOUT:
-					Serial.println("Timeout");
-					clientInfo.transciever_state = TRANSMITTING;
-					if (clientInfo.retry_number < ALLOWED_RETRIES){
-						rf95.send(clientInfo.previousPayload, clientInfo.previousPayload_length);
-						clientInfo.transciever_state = RECIEVING;
-						SetTimer(2, RETRY_PERIOD_MIN);
-						clientInfo.retry_number++;
-						clientInfo.total_retries++;
-					} else{
-						//notify user somehow?
-						clientInfo.retry_number = 0;
-						nextState = State0_Idle;
-						makeTransition = TRUE;
-					}
 					break;
+			
 					
 				default:
 					break;
 			}				
 			break;	
-
-
-
-		case State2_GettingData: 	//if the client is requesting data, packets will continue being sent by the server with acks from the client as repeated starts. Timeouts and retries apply here as well. The first message from the field unit contains metadata 
-			switch(thisEvent.EventType){
-				case ENTRY_EVENT:
-					clientInfo.retry_number = 0;
-					Serial.print("Recieving Data..."); //here for testing
+			
+		case State2_TestingLink:	//This state is used when setting up the RF connection. A complementary state is on the client side, allowing for the RSSI to be checked by the user.
+			switch(thisEvent.EventType){ //To use this state, a LINK_SETUP_EVENT should be passed to this function. This will send out a ping message, and if a pong is recieved the RSSI will be stored
+				case ENTRY_EVENT:		 //in the serverInfo global struct. There are no timeouts so it is up to the main code to determine if a pong cannot be retrieved. To retry a ping, LINK_SETUP_EVENT
+					Serial.println("Entered TestingLink"); //can be sent again. To leave this setup mode the fuction needs to be ran with a END_LINK_SETUP_EVENT event. 
+					
+					serverInfo.payloadToSend[0] = PING;
+					serverInfo.payloadToSend_length = 1;
+					rf95.send(serverInfo.payloadToSend, serverInfo.payloadToSend_length);
 					break;
 					
-				case RF_RECIEVE_EVENT:	
-
-					Serial.println("Recieved");
+				case RF_RECIEVE_EVENT:
+					Serial.print("Got Pong...");
+					info_recieved.payloadLength = RH_RF95_MAX_MESSAGE_LEN; //this is needed to indicate that the entire payload may be copied
 					rf95.recv(info_recieved.raw_payload, &info_recieved.payloadLength);
-					clientInfo.transciever_state = TRANSMITTING; //set back to transmitter. All this does is disable the event checker so the chip stays in idle mode.  
-					info_recieved.messageID = info_recieved.raw_payload[0];
-
-					if (info_recieved.messageID == DATA_TRANSMISSION_INITIAL){//decode first payload which contains metadata 
-						//for now going to skip the timestamp data because we should already have that information through update.? 
-						info_recieved.sample_period = ((uint16_t)info_recieved.raw_payload[6]<<8) + (info_recieved.raw_payload[7]);
-						info_recieved.flux_estimate = ((uint16_t)info_recieved.raw_payload[8]<<8) + (info_recieved.raw_payload[9]);
-						info_recieved.data_packets_total = info_recieved.raw_payload[10];
-						info_recieved.data_packet_current = info_recieved.raw_payload[11];
-						info_recieved.num_sample_points = info_recieved.raw_payload[12]; //get number of samples for this packet. 
-							
-						j = 13; //pointer for payload index
-						for (i = 0; i < info_recieved.num_sample_points; i++){ //loop to get all sample points
-							info_recieved.recent_temp[i] = info_recieved.raw_payload[j++];
-							info_recieved.recent_humidity[i] = info_recieved.raw_payload[j++];
-							info_recieved.recent_CO2[i] = ((uint16_t)info_recieved.raw_payload[j]<<8) + (info_recieved.raw_payload[j+1]);
-							j = j + 2;
-							info_recieved.recent_pressure[i] = ((uint32_t)info_recieved.raw_payload[j]<<24) + ((uint32_t)info_recieved.raw_payload[j+1]<<16) + ((uint32_t)info_recieved.raw_payload[j+2]<<8) + ((uint32_t)info_recieved.raw_payload[j+3]);
-							j = j + 4;
-							info_recieved.recent_light[i] = ((uint32_t)info_recieved.raw_payload[j]<<24) + ((uint32_t)info_recieved.raw_payload[j+1]<<16) + ((uint32_t)info_recieved.raw_payload[j+2]<<8) + ((uint32_t)info_recieved.raw_payload[j+3]);
-							j = j + 4;
-						}
-						//DO SOMETHING NOW THAT THE DATA HAS BEEN STORED?
+					info_recieved.messageID = info_recieved.raw_payload[0];		
 						
-						if (info_recieved.data_packets_total == info_recieved.data_packet_current){ //if for some reason only one packet is going to be sent, return to idle
-							Serial.println("Got first data packet");
-							nextState = State0_Idle;
-							makeTransition = TRUE;	
-						} else {
-							clientInfo.payloadToSend[0] = DATA_TRANSMITTION_ACK; //load the payload to send an ack back to the field unit
-							clientInfo.payloadToSend_length = 1;
-							rf95.send(clientInfo.payloadToSend, clientInfo.payloadToSend_length);
-							clientInfo.transciever_state = RECIEVING; //this is set to start the event checker, thereby putting the chip into reciever mode as soon as transmission ends
-							SetTimer(2, RETRY_PERIOD_MAX);
-							clientInfo.retry_number = 0;
-						}
-						
-						for (i = 0; i < clientInfo.payloadToSend_length; i++){ //keep a copy of the most recent sent payload.
-						clientInfo.previousPayload[i] = clientInfo.payloadToSend[i];
-						}
-						clientInfo.previousPayload_length = clientInfo.payloadToSend_length;
-						
-					} else if (info_recieved.messageID == DATA_TRANSMISSION){ //if the recieved message is not the first packet of measurment data, store data in the info_recieved struct. Send an ack if its not the last packet.
-						info_recieved.data_packets_total = info_recieved.raw_payload[1];
-						info_recieved.data_packet_current = info_recieved.raw_payload[2];
-						info_recieved.num_sample_points = info_recieved.raw_payload[3]; //get number of samples for this packet. 
-							
-						j = 4; //pointer for payload index
-						for (i = 0; i < info_recieved.num_sample_points; i++){ //loop to get all sample points
-							info_recieved.recent_temp[i] = info_recieved.raw_payload[j++];
-							info_recieved.recent_humidity[i] = info_recieved.raw_payload[j++];
-							info_recieved.recent_CO2[i] = ((uint16_t)info_recieved.raw_payload[j]<<8) + (info_recieved.raw_payload[j+1]);
-							j = j + 2;
-							info_recieved.recent_pressure[i] = ((uint32_t)info_recieved.raw_payload[j]<<24) + ((uint32_t)info_recieved.raw_payload[j+1]<<16) + ((uint32_t)info_recieved.raw_payload[j+2]<<8) + ((uint32_t)info_recieved.raw_payload[j+3]);
-							j = j + 4;
-							info_recieved.recent_light[i] = ((uint32_t)info_recieved.raw_payload[j]<<24) + ((uint32_t)info_recieved.raw_payload[j+1]<<16) + ((uint32_t)info_recieved.raw_payload[j+2]<<8) + ((uint32_t)info_recieved.raw_payload[j+3]);
-							j = j + 4;
-						}
-
-						if (info_recieved.data_packets_total == info_recieved.data_packet_current){ //check if this is the last packet. If it is, dont send ack and go back to idle
-							nextState = State0_Idle;
-							makeTransition = TRUE;	
-						} else {
-							clientInfo.payloadToSend[0] = DATA_TRANSMITTION_ACK; //load the payload to send an ack back to the field unit
-							clientInfo.payloadToSend_length = 1;
-							rf95.send(clientInfo.payloadToSend, clientInfo.payloadToSend_length);
-							clientInfo.transciever_state = RECIEVING; //this is set to start the event checker, thereby putting the chip into reciever mode as soon as transmission ends
-							SetTimer(2, RETRY_PERIOD_MAX);
-							clientInfo.retry_number = 0;
-							
-							for (i = 0; i < clientInfo.payloadToSend_length; i++){ //keep a copy of the most recent sent payload.
-							clientInfo.previousPayload[i] = clientInfo.payloadToSend[i];
-							}
-							clientInfo.previousPayload_length = clientInfo.payloadToSend_length;
-						}
-						
-					} else{ //if the message ID is invalid for this state, go back to idle and warn the user? 
-						//warn user?
-						Serial.println("MessageID not allowed");
-						nextState = State0_Idle;
-						makeTransition = TRUE;	
+					if (info_recieved.messageID == PONG){
+						serverInfo.lastRSSI = rf95.lastRssi(); //save RSSI in info struct
+						Serial.println(serverInfo.lastRSSI);						
 					}
 					
-					break;
-					
-				case TIMEOUT:
-					Serial.println("Data Timeout");
-					clientInfo.transciever_state = TRANSMITTING;
-					if (clientInfo.retry_number < ALLOWED_RETRIES){ //check if retry count is exceeded. If not retransmit the most recent packet and restart the timer. 
-						rf95.send(clientInfo.previousPayload, clientInfo.previousPayload_length);
-						clientInfo.transciever_state = RECIEVING;
-						SetTimer(2, RETRY_PERIOD_MAX);
-						clientInfo.retry_number++;
-						clientInfo.total_retries++;
-					} else{ //retry count has been exceeded
-						//notify user somehow as the retries failed?
-						clientInfo.retry_number = 0;
-						nextState = State0_Idle;
-						makeTransition = TRUE;
-					}
-					break;
-					
-				case EXIT_EVENT:
-					clientInfo.payloadIsData = FALSE; //set this flag low as it has been handled. 
-					clientInfo.retry_number = 0;
-					clientInfo.transciever_state = TRANSMITTING;
-					break;
-					
-				default:
 					break;
 				
+				case LINK_SETUP_EVENT:
+					serverInfo.payloadToSend[0] = PING;
+					serverInfo.payloadToSend_length = 1;
+					rf95.send(serverInfo.payloadToSend, serverInfo.payloadToSend_length);
+					
+					break;
+				
+				case END_LINK_SETUP_EVENT:
+					//?change back to listening
+					nextState = State0_Listening;
+					makeTransition = TRUE;
+					break;
+				
+				default:
+					break;
 			}
-			break;			
+			
+			break;
+	
 			
 		default:
 			break;
@@ -336,10 +303,10 @@ Event Run_ClientFSM(Event thisEvent) {
 	if (makeTransition == TRUE) { // making a state transition, send EXIT and ENTRY
 		// recursively call the current state with an exit event
 		thisEvent.EventType = EXIT_EVENT;
-		Run_ClientFSM(thisEvent);
+		Run_ServerFSM(thisEvent);
 		CurrentState = nextState;
 		thisEvent.EventType = ENTRY_EVENT;
-		Run_ClientFSM(thisEvent);
+		Run_ServerFSM(thisEvent);
 		thisEvent.EventType = NO_EVENT;
 	}
 	return thisEvent;

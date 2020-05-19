@@ -1,11 +1,11 @@
-#ifndef CLIENT_FSM
-#define CLIENT_FSM 
+#ifndef SERVER_FSM
+#define SERVER_FSM 
 
 /*******************************************************************************
  * PUBLIC #INCLUDES                                                            *
  ******************************************************************************/
 
-#include "ClientConfigure.h"   // defines events
+#include "ServerConfigure.h"   // defines events
 #include "Arduino.h"
 
 
@@ -13,8 +13,8 @@
  * PUBLIC FUNCTION PROTOTYPES                                                  *
  ******************************************************************************/
 
-uint8_t Init_ClientFSM(void);
+uint8_t Init_ServerFSM(void);
 
-Event Run_ClientFSM(Event thisEvent);
+Event Run_ServerFSM(Event thisEvent);
 
-#endif /* CLIENT_FSM_H */
+#endif /* SERVER_FSM_H */

@@ -36,6 +36,8 @@ typedef enum {
 	TIMEOUT,
 	RF_RECIEVE_EVENT,
 	TRANSMIT_REQUEST_EVENT,
+	LINK_SETUP_EVENT,
+	END_LINK_SETUP_EVENT,
 	} eventTypes;
 
 //struct to hold event types and parameter.
@@ -58,6 +60,7 @@ typedef struct RF_module_info{
 	uint8_t payloadToSend_length;
 	uint8_t previousPayload[256];
 	uint8_t previousPayload_length;
+	int8_t lastRSSI;
 } RF_module_info;
 
 
@@ -73,12 +76,12 @@ typedef struct Recieved_info{
 	uint8_t num_measurments_taken;
 	uint8_t timestamps[2][NUM_CYCLES_MAX]; //2D array to store the timestamps of each measurment. timestamps[0][x] has the hour, timestamps[1][x] has the corresponding minute
 	uint16_t time_till_nextCycle;
-	uint16_t sample_period;
+	uint16_t sample_period; //the time in milliseconds between samples
 	uint16_t flux_estimate;
 	uint8_t data_packets_total;
 	uint8_t data_packet_current;
 	uint8_t num_sample_points; //how many points of data are being transmitted in the current packet
-	uint8_t recent_temp[32];
+	int8_t recent_temp[32];
 	uint8_t recent_humidity[32];
 	uint16_t recent_CO2[32];
 	uint32_t recent_pressure[32];
