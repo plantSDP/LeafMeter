@@ -21,8 +21,9 @@ typedef enum {
     State3_HumFail,					// humidity too high, warn user to alleviate and prompt humidity reread
     State4_HumCheck,				// humidity rereading, display results
     State5_SettingPeriod,			// prompt user to set period between measurements
-	State6_SettingRF,				// prompt user to set RF option
-	State7_LifetimeDisplay,			// calculate and display expected lifetime
+	State6_SettingNumCycles,		// prompt user to set number of measurement cycles
+	State7_SettingRF,				// prompt user to set RF option
+	State8_LifetimeDisplay,			// calculate and display expected lifetime
 } InitSubHSMStates;
 
 // Holds the current state
@@ -224,11 +225,11 @@ Event Run_SubHSM_Init(Event thisEvent) {
 			switch (thisEvent.EventType) {
 				case ENTRY_EVENT:
 					// Display prompt
-					sprintf(myString, "Min btwn meas,");
-					lcd.setCursor(0, 0); // set the cursor to column 0, line 0
+					sprintf(myString, "Min btwn meas:");
+					lcd.setCursor(0, 0);  // set the cursor to column 0, line 0
 					lcd.print(myString);  // Print a message to the LCD
 					sprintf(myString, "          %3d        ", period);
-					lcd.setCursor(0, 1); // set the cursor to column 0, line 0
+					lcd.setCursor(0, 1);  // set the cursor to column 0, line 1
 					lcd.print(myString);  // Print a message to the LCD
 					// BTN1 || BTN2 increments
 				    lcd.setCursor(12, 1);
@@ -242,10 +243,10 @@ Event Run_SubHSM_Init(Event thisEvent) {
 						}
 						// update display
 						sprintf(myString, "Min btwn meas,");
-						lcd.setCursor(0, 0); // set the cursor to column 0, line 0
+						lcd.setCursor(0, 0);  // set the cursor to column 0, line 0
 						lcd.print(myString);  // Print a message to the LCD
 						sprintf(myString, "          %3d     ", period);
-						lcd.setCursor(0, 1); // set the cursor to column 0, line 0
+						lcd.setCursor(0, 1);  // set the cursor to column 0, line 1
 						lcd.print(myString);  // Print a message to the LCD
 						lcd.setCursor(12, 1);
 
@@ -260,11 +261,12 @@ Event Run_SubHSM_Init(Event thisEvent) {
 						lcd.setCursor(0, 0);  // set the cursor to column 0, line 0
 						lcd.print(myString);  // Print a message to the LCD
 						sprintf(myString, "          %3d     ", period);
-						lcd.setCursor(0, 1);  // set the cursor to column 0, line 0
+						lcd.setCursor(0, 1);  // set the cursor to column 0, line 1
 						lcd.print(myString);  // Print a message to the LCD
 						lcd.setCursor(12, 1);
+						
 					} else if (thisEvent.EventParam == BTN3) {		// Continue
-						nextState = State6_SettingRF;
+						nextState = State6_SettingNumCycles;
 						makeTransition = TRUE;
 
 					} else if (thisEvent.EventParam == BTN4) {		// Back
@@ -281,17 +283,82 @@ Event Run_SubHSM_Init(Event thisEvent) {
 					break;
 			}								
 			break;
+			
+		case State6_SettingNumCycles:
+			switch (thisEvent.EventType) {
+				case ENTRY_EVENT:
+					// Display prompt
+					sprintf(myString, "# of meas:      ");
+					lcd.setCursor(0, 0);  // set the cursor to column 0, line 0
+					lcd.print(myString);  // Print a message to the LCD
+					sprintf(myString, "          %3d   ", numCycles);
+					lcd.setCursor(0, 1);  // set the cursor to column 0, line 1
+					lcd.print(myString);  // Print a message to the LCD
+					// BTN1 || BTN2 increments
+				    lcd.setCursor(12, 1);
+					lcd.blink();
+					break;
+				case BTN_EVENT:
+					if (thisEvent.EventParam == BTN1) {
+						// increment numCycles
+						if (numCycles < 11){
+							numCycles = numCycles + 1;
+						}
+						// update display
+						sprintf(myString, "# of meas:      ");
+						lcd.setCursor(0, 0);  // set the cursor to column 0, line 0
+						lcd.print(myString);  // Print a message to the LCD
+						sprintf(myString, "          %3d   ", numCycles);
+						lcd.setCursor(0, 1);  // set the cursor to column 0, line 1
+						lcd.print(myString);  // Print a message to the LCD
+						lcd.setCursor(12, 1);
+
+					} else if (thisEvent.EventParam == BTN2) {
+						// decrement numCycles
+						if (numCycles > 1){
+							numCycles = numCycles - 1;
+						}
+						
+						// update display
+						sprintf(myString, "# of meas:      ");
+						lcd.setCursor(0, 0);  // set the cursor to column 0, line 0
+						lcd.print(myString);  // Print a message to the LCD
+						sprintf(myString, "          %3d   ", numCycles);
+						lcd.setCursor(0, 1);  // set the cursor to column 0, line 1
+						lcd.print(myString);  // Print a message to the LCD
+						lcd.setCursor(12, 1);
+						
+					} else if (thisEvent.EventParam == BTN3) {		// Continue
+						nextState = State7_SettingRF;
+						makeTransition = TRUE;
+
+					} else if (thisEvent.EventParam == BTN4) {		// Back
+						nextState = State5_SettingPeriod;
+						makeTransition = TRUE;
+
+					}
+					thisEvent.EventType = NO_EVENT;
+					break;
+				case EXIT_EVENT:
+					lcd.noBlink();
+					break;
+				default:
+					break;
 				
-		case State6_SettingRF:
+			
+			}
+			break;
+				
+		case State7_SettingRF:
 			switch (thisEvent.EventType) {
 				case ENTRY_EVENT:
 					// Display prompt
 					sprintf(myString, "Set RF option:");
-					lcd.setCursor(0, 0); // set the cursor to column 0, line 0
+					lcd.setCursor(0, 0);  // set the cursor to column 0, line 0
 					lcd.print(myString);  // Print a message to the LCD
 					
 					sprintf(myString, "NO       YES          ");
-					lcd.setCursor(0, 1); // set the cursor to column 0, line 0
+					lcd.setCursor(0, 1);  // set the cursor to column 0, line 1
 					lcd.print(myString);  // Print a message to the LCD
 					
 					lcd.setCursor(0, 1);
@@ -302,11 +369,11 @@ Event Run_SubHSM_Init(Event thisEvent) {
 					if (thisEvent.EventParam == BTN1) {
 						rfOption = 1;
 						sprintf(myString, "Set RF option:");
-						lcd.setCursor(0, 0); // set the cursor to column 0, line 0
+						lcd.setCursor(0, 0);  // set the cursor to column 0, line 0
 						lcd.print(myString);  // Print a message to the LCD
 					
 						sprintf(myString, "NO       YES          ");
-						lcd.setCursor(0, 1); // set the cursor to column 0, line 0
+						lcd.setCursor(0, 1);  // set the cursor to column 0, line 1
 						lcd.print(myString);  // Print a message to the LCD
 						
 						lcd.setCursor(9, 1);
@@ -318,19 +385,19 @@ Event Run_SubHSM_Init(Event thisEvent) {
 						lcd.print(myString);  // Print a message to the LCD
 					
 						sprintf(myString, "NO       YES          ");
-						lcd.setCursor(0, 1); // set the cursor to column 0, line 0
+						lcd.setCursor(0, 1); // set the cursor to column 0, line 1
 						lcd.print(myString);  // Print a message to the LCD
 						
 						lcd.setCursor(0, 1);
 
 					} else if (thisEvent.EventParam == BTN3) {		// Continue
 					    lcd.noBlink();
-						nextState = State7_LifetimeDisplay;
+						nextState = State8_LifetimeDisplay;
 						makeTransition = TRUE;
 
 					} else if (thisEvent.EventParam == BTN4) {		// Back
 					    lcd.noBlink();
-						nextState = State5_SettingPeriod;
+						nextState = State6_SettingNumCycles;
 						makeTransition = TRUE;
 
 					}
@@ -339,34 +406,31 @@ Event Run_SubHSM_Init(Event thisEvent) {
 				default:
 					break;
 			}					
-				
 			break;
 				
-		case State7_LifetimeDisplay:
+		case State8_LifetimeDisplay:
 			switch (thisEvent.EventType) {
 				case ENTRY_EVENT:
 					// Calculate lifetime
 					// Display lifetime
 					sprintf(myString, "Est. Lifetime:        ");
-					lcd.setCursor(0, 0); // set the cursor to column 0, line 0
+					lcd.setCursor(0, 0);  // set the cursor to column 0, line 0
 					lcd.print(myString);  // Print a message to the LCD
 					sprintf(myString, "    x [Hours]     ");
-					lcd.setCursor(0, 1); // set the cursor to column 0, line 0
+					lcd.setCursor(0, 1);  // set the cursor to column 0, line 1
 					lcd.print(myString);  // Print a message to the LCD
 					break;
 				case BTN_EVENT:
 					if (thisEvent.EventParam == BTN4) {
-						nextState = State6_SettingRF;
+						nextState = State7_SettingRF;
 						makeTransition = TRUE;
 						thisEvent.EventType = NO_EVENT;
 					}
-					
 					break;
-						
 				default:
 					break;
 			}									
-			break;	
+			break;
 			
 		default:
 			break;

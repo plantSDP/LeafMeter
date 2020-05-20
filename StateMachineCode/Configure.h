@@ -33,18 +33,18 @@ extern BME280 pressureSensor;			// for pressure sensor I2C
 extern Adafruit_TSL2591 lightSensor;	// for light sensor I2C
 
 // Button EventParam Definitions used by the HSM
-#define NO_PRESS	0
-#define BTN1		1
-#define BTN2		2
-#define BTN3		4
-#define BTN4		8
+#define NO_PRESS	0b0
+#define BTN1		0b1
+#define BTN2		0b10
+#define BTN3		0b100
+#define BTN4		0b1000
 
 // Timer EventParam Definitions used by the HSM
 #define TIMER_0_PARAM 			0b1		
 #define TIMER_1_PARAM 			0b10	 
 
 
-// Humidity thresholds used by HSM
+// Humidity thresholds used by HSM, measured in RH
 #define HUM_DANGER_THRESHOLD 	90
 #define HUM_WARNING_THRESHOLD 	80
 static unsigned int hum = 0;		// holds humidity measurement
@@ -55,18 +55,21 @@ static unsigned int hum = 0;		// holds humidity measurement
 #define RF_NO 	0
 static int rfOption = RF_NO;		// sets rfOption, default is NO (0)
 
-// Active and Waiting Durations
+// Active and Waiting Periods
 #define ACTIVE_DURATION 600000		// duration of active cycle in [ms] (default 600000[ms] = 10[min])
 static int period = 60;				// holds value for period in between measurements in [min], default is 60[min]
 
-// Listing of all possible events for the state machine. Add new events here.
+// Number of measurement cycles
+static int numCycles = 1;			// holds value for number of measurement cycles, default is 1
+
+// Listing of all possible event types for the state machine. Add new events here.
 typedef enum {
-	NO_EVENT,						// Used when events are consumed
+	NO_EVENT,						// Used when events are consumed or when no event occurs
 	
-	ENTRY_EVENT,					// Used on transition from one state to another
+	ENTRY_EVENT,					// Used on transition from one state to another, mainly for on-transition behavior
 	EXIT_EVENT,
 	
-	INIT_EVENT,						// Used once on state machine initialization
+	INIT_EVENT,						// Used once on state machine initialization, all state machines transition out of the initial pseudostate with this event
 	
 	BTN_EVENT,						// Used when any button status changes are detected
 	TIMEOUT							// Used when any timer expires

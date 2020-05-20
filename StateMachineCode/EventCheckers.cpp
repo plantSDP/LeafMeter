@@ -19,9 +19,11 @@ static uint8_t buttonVals[4];			// Button debouncing array, each array address h
 // active timer flags
 static uint8_t timer0state = 0; 	
 static uint8_t timer1state = 0;
+static uint8_t timer2state = 0;
 
-static Metro timer0 = Metro(1000); // default timer tic at 1ms
+static Metro timer0 = Metro(1000);		// default timer tic at 1ms
 static Metro timer1 = Metro(1000); 
+static Metro timer2 = Metro(1000);
 
 
 
@@ -43,17 +45,16 @@ uint8_t InitEventCheckers(void){
 /*
 Debounces the buttons and generates the corresponding EventType, along with the bitmasked button states via EventParam
 
-Returns an Event with EventType BTN_EVENT and corresponding EventParam on button press or release
+Return - Event with EventType BTN_EVENT and corresponding EventParam on button press or release
 */
 Event ButtonCheckDebounce(void){
 	// this 16-bit int holds the new event parameter, for the BTN_EVENT this is the state of the four buttons
 	uint16_t newButtonStates = 0;
 	
-	// get new button state, discard oldest button state by shifting, store in buttonVals array
+	// Get new button state, discard oldest button state by shifting, store in buttonVals array
 	// each array address holds 8 previous button states for a single button via an 8-bit integer
 	
 	// add other buttons here
-	
 	buttonVals[3] = buttonVals[3] << 1 | digitalRead(BTN4_PIN);		// BTN4
 	buttonVals[2] = buttonVals[2] << 1 | digitalRead(BTN3_PIN);		// BTN3
 	buttonVals[1] = buttonVals[1] << 1 | digitalRead(BTN2_PIN);		// BTN2
@@ -96,8 +97,8 @@ Event ButtonCheckDebounce(void){
 	}
 	
 	
-	// Finally, if there is any change to button states, return BTN_EVENT & set EventParam to newButtonStates
-	// If no change, return NO_EVENT & set EventPram to oldButtonStates (default 0).
+	// If there is any change to button states, return EventType BTN_EVENT & set EventParam to newButtonStates
+	// If there is no change, return EventType NO_EVENT & set EventPram to oldButtonStates (default 0).
 	Event returnBtnEvent;
 	if (oldButtonStates != newButtonStates){
 		returnBtnEvent.EventType = BTN_EVENT;
@@ -109,8 +110,6 @@ Event ButtonCheckDebounce(void){
 	oldButtonStates = newButtonStates;
 	
 	return returnBtnEvent;
-		
-	
 }
 
 
@@ -123,7 +122,7 @@ Parameters
 	timer - the number of the timer to set 
 	interval - time in ms for the interval
 	
-Return - one or zero based on success
+Return - 1 or 0 based on success
 */
 uint8_t SetTimer(uint8_t timer, unsigned int interval){
 	
@@ -142,6 +141,14 @@ uint8_t SetTimer(uint8_t timer, unsigned int interval){
 			timer1.interval(interval); 
 			timer1.reset();
 			timer1state = 1;
+			return 1;
+		}
+	} else if (timer == 2){
+		if (timer2state == 0){
+			//start the interval
+			timer2.interval(interval); 
+			timer2.reset();
+			timer2state = 1;
 			return 1;
 		}
 	}
@@ -171,6 +178,15 @@ Event TimerExpireCheck(void){
 			timer1state = 0;
 			returnEvent.EventType = TIMEOUT;
 			returnEvent.EventParam = 0b10;
+			return returnEvent;
+		}
+	} 
+	
+	if (timer2state == 1){
+		if (timer2.check() == 1){
+			timer2state = 0;
+			returnEvent.EventType = TIMEOUT;
+			returnEvent.EventParam = 0b100;
 			return returnEvent;
 		}
 	} 

@@ -133,13 +133,13 @@ Event RunHSM(Event thisEvent){
 			// Button event detected
 			if (thisEvent.EventType == BTN_EVENT){
 				
-				// continue to next state
+				// continue to next state, DateTime
 				if (thisEvent.EventParam == BTN3){
 					Init_SubHSM_DateTime();
 					nextState = DateTime;
 					makeTransition = TRUE;
 					
-				// return to previous state
+				// return to previous state, LeakChecking
 				} else if (thisEvent.EventType == BTN4){
 					Init_SubHSM_Leak();
 					nextState = LeakChecking;
@@ -179,9 +179,16 @@ Event RunHSM(Event thisEvent){
 			thisEvent = Run_SubHSM_Active(thisEvent); // Runs the sub-state machine for Active
 		
 			switch(thisEvent.EventType) {
-				// On entry, init active duration timer
+				// On entry, init active duration timer, display message
 				case ENTRY_EVENT:
 					SetTimer(0, ACTIVE_DURATION);
+					
+					sprintf(myString, "MEAS IN PROG    ");
+					lcd.setCursor(0, 0); // set the cursor to column 0, line 0
+					lcd.print(myString);  // Print a message to the LCD
+					sprintf(myString, "BTN3 TO CANCEL  ");
+					lcd.setCursor(0, 1); // set the cursor to column 0, line 1
+					lcd.print(myString);  // Print a message to the LCD
 					break;
 					
 				// On active duration timeout, transition to waiting
@@ -192,19 +199,34 @@ Event RunHSM(Event thisEvent){
 						makeTransition = TRUE;
 					}
 					break;
+					
+				case BTN_EVENT:
+					if (thisEvent.EventParam == BTN3) {
+						Init_SubHSM_Wait();
+						nextStte = Waiting;
+						makeTransition = TRUE;
+					}
+					break;
+					
 				default:
 					break;
 			}
-		
 			break;
 
 		case Waiting:
 			thisEvent = Run_SubHSM_Wait(thisEvent); // Runs the sub-state machine for Waiting
 			
 			switch(thisEvent.EventType) {
-				// On entry, init wait duration timer
+				// On entry, init wait duration timer, display message
 				case ENTRY_EVENT:
 					SetTimer(0, period*60000);
+					
+					sprintf(myString, "WAITING         ");
+					lcd.setCursor(0, 0);  // set the cursor to column 0, line 0
+					lcd.print(myString);  // Print a message to the LCD
+					sprintf(myString, "                ");
+					lcd.setCursor(0, 1);  // set the cursor to column 0, line 1
+					lcd.print(myString);  // Print a message to the LCD
 					break;
 					
 				// On wait duration timeout, transition to active
