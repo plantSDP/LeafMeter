@@ -11,6 +11,10 @@
 typedef enum {
     ID_INVALID = 0, 					// Invalid Packet, used as an error return from functions 
 	
+	PING,								// No payload. To be used to test connectivity [SENT BY FIELD]
+	
+	PONG,								// No payload. To be used to test connectivity [SENT BY REMOTE]
+	
     CONFIGURE_DATE_TIME, 				// Contains the day (char), month (char), year (char), hour (char), minute (char) [SENT BY REMOTE]
 	
     CONFIGURE_DATE_TIME_ACK, 			// No payload but indicates the messsage was recieved [SENT BY FIELD]
@@ -44,7 +48,9 @@ typedef enum {
 	DATA_TRANSMISSION,					/* Contains total packets to be sent (char), current packet number (char), number of samples in the packet (char), 
 										   temperature (char), humidity (char), CO2 ppm(short),  pressure (int), lux (int), repeat last 5 till end of payload [SENT BY FIELD]*/
 	
-	DATA_TRANSMITTION_ACK, 				// Contains the packet number recieved (char). The expected reponse for DATA_TRANSMISSION_INITIAL and DATA_TRANSMISSION [SENT BY REMOTE]
+	DATA_TRANSMISSION_ACK, 				// The expected reponse for DATA_TRANSMISSION_INITIAL and DATA_TRANSMISSION [SENT BY REMOTE]
+	
+	DATA_TRANSMISSION_NACK,				// The message to be sent if DATA_TRANSMISSION_INITIAL or DATA_TRANSMISSION is not recieved in time. [SENT BY REMOTE]
 						
 } MessageIDs;
 

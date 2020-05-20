@@ -1,6 +1,5 @@
-#include "ClientConfigure.h"
 #include "Arduino.h"
-#include "EventChecker.h"
+#include "ServerEventChecker.h"
 #include <Metro.h> //this library is used to create timers
 
 
@@ -102,17 +101,16 @@ Event RfMessageCheck(void){
 	Event returnEvent;
 	returnEvent.EventType = NO_EVENT;
 	
-	if (clientInfo.transciever_state == RECIEVING){
-		if (rf95.available()){
-			currentCheck = TRUE;
-		}else{
-			currentCheck = FALSE;
-		}
-		if (currentCheck == TRUE && previousCheck == FALSE){
-			returnEvent.EventType = RF_RECIEVE_EVENT;
-			returnEvent.EventParam = 0;
-		}	
+	if (rf95.available()){
+		currentCheck = TRUE;
+	}else{
+		currentCheck = FALSE;
 	}
+	if (currentCheck == TRUE && previousCheck == FALSE){
+		returnEvent.EventType = RF_RECIEVE_EVENT;
+		returnEvent.EventParam = 0;
+	}	
+	
 		
 	previousCheck = currentCheck;
 	return returnEvent;

@@ -1,6 +1,6 @@
 #ifndef EVENTCHECK_H
 #define EVENTCHECK_H
-#include "ClientConfigure.h"
+#include "ServerConfigure.h"
 #include "Arduino.h"
 
 
