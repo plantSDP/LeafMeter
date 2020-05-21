@@ -1,7 +1,6 @@
 // Includes
 #include "InitSubHSM.h"
 #include "Arduino.h"
-#include "Configure.h"
 #include "EventCheckers.h"
 
 //===================================================================================================================
@@ -120,14 +119,15 @@ Event Run_SubHSM_Init(Event thisEvent) {
 							makeTransition = TRUE;	
 						}
 					} else if (thisEvent.EventParam == TIMER_1_PARAM) {	
-						sprintf(myString, "timer 1");
-						Serial.println(myString);					
+						// sprintf(myString, "timer 1");
+						// Serial.println(myString);
 						if (Cozir_Init() == 0){
 							nextState = State0_Failure;
 							makeTransition = TRUE;
 						} else {
+							// Request data from Cozir
 							Cozir_Request_Data();
-							SetTimer(0, 100); //It takes around 70-100ms for the Cozir to send data 
+							SetTimer(0, 100); 		// It takes around 70-100ms for the Cozir to send data after a request
 						}
 					}
 					thisEvent.EventType = NO_EVENT;
@@ -143,18 +143,18 @@ Event Run_SubHSM_Init(Event thisEvent) {
 					if (hum > HUM_WARNING_THRESHOLD) {
 						// Display warning
 						sprintf(myString, "HUM WARNING, %d      ", hum);
-						lcd.setCursor(0, 0); // set the cursor to column 0, line 0
+						lcd.setCursor(0, 0);  // set the cursor to column 0, line 0
 						lcd.print(myString);  // Print a message to the LCD	
 						sprintf(myString, "BTN3 CONTINUE           ");
-						lcd.setCursor(0, 1); // set the cursor to column 0, line 0
+						lcd.setCursor(0, 1);  // set the cursor to column 0, line 1
 						lcd.print(myString);  // Print a message to the LCD							
 					} else {
 						// Display ok
 						sprintf(myString, "HUM OK, %d          ", hum);
-						lcd.setCursor(0, 0); // set the cursor to column 0, line 0
+						lcd.setCursor(0, 0);  // set the cursor to column 0, line 0
 						lcd.print(myString);  // Print a message to the LCD
 					    sprintf(myString, "   BTN3 CONTINUE      ");
-						lcd.setCursor(0, 1); // set the cursor to column 0, line 0
+						lcd.setCursor(0, 1);  // set the cursor to column 0, line 1
 						lcd.print(myString);  // Print a message to the LCD
 					}
 				break; 

@@ -47,22 +47,6 @@ uint8_t Init_SubHSM_DateTime(void){
 	}
 }
 
-// MM/DD/YY
-static uint8_t month1 = 0;
-static uint8_t month2 = 1;
-
-static uint8_t day1   = 0;
-static uint8_t day2   = 1;
-
-static uint8_t year1  = 2;
-static uint8_t year2  = 0;
-
-// HH:MM
-static uint8_t hour1  = 0;
-static uint8_t hour2  = 0;
-
-static uint8_t min1   = 0;
-static uint8_t min2   = 0;
 Event Run_SubHSM_DateTime(Event thisEvent) {
 	
 	uint8_t makeTransition = FALSE; // use to flag transition
@@ -124,7 +108,7 @@ Event Run_SubHSM_DateTime(Event thisEvent) {
 					// Update Display
 					PrintDate();
 					// blink cursor location
-					lcd.setCursor(1, 1); 
+					lcd.setCursor(1, 1);
 					break;
 				case BTN_EVENT:
 					if (thisEvent.EventParam == BTN1) {
@@ -489,19 +473,24 @@ Event Run_SubHSM_DateTime(Event thisEvent) {
 			break;
 	}
 		
-	if (makeTransition == TRUE) { // making a state transition, send EXIT and ENTRY
-		// recursively call the current state with an exit event
+	if (makeTransition == TRUE) { // making a state transition, send EXIT and ENTRY events to allow for special on-transition behavior
+		// recursively call the current state machine with an exit event before changing states for exit behavior
 		thisEvent.EventType = EXIT_EVENT;
-		Run_SubHSM_DateTime(thisEvent);
+		Run_SubHSM_Init(thisEvent);
+		
 		CurrentState = nextState;
+		
+		// recursively call the current state machine with an entry event after changing states for exit behavior
 		thisEvent.EventType = ENTRY_EVENT;
-		Run_SubHSM_DateTime(thisEvent);
+		Run_SubHSM_Init(thisEvent);
+		thisEvent.EventType = NO_EVENT;
 	}
 	return thisEvent;
 }
 
-
+//====================================
 // Private functions
+//====================================
 
 // Prints the date in MM/DD/YY form.
 void PrintDate(void) {

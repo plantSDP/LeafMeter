@@ -4,11 +4,6 @@
 #include "EventCheckers.h"
 
 // Private Definitions
-#define HUM_DANGER_THRESHOLD 90
-#define HUM_WARNING_THRESHOLD 80
-
-#define PRESSURE_TEST_THRESHOLD 10 // just a placeholder for now
-
 #define TEST_TIMER 0
 #define DATA_TIMER 1
 
@@ -40,9 +35,6 @@ uint8_t Init_SubHSM_Leak(void){
 	}
 }
 
-
-static int hum = 0;
-static int pressure = 0;
 Event Run_SubHSM_Leak(Event thisEvent) {
 	
 	uint8_t makeTransition = FALSE; // use to flag transition
@@ -61,6 +53,12 @@ Event Run_SubHSM_Leak(Event thisEvent) {
 			switch (thisEvent.EventType) {
 				case ENTRY_EVENT:
 					// Display "continue with leak check" prompt
+					sprintf(myString, "LEAK CHECK      ");
+					lcd.setCursor(0, 0);  // set the cursor to column 0, line 0
+					lcd.print(myString);  // Print a message to the LCD
+					sprintf(myString, "   BTN3 CONTINUE");
+					lcd.setCursor(0, 1);  // set the cursor to column 0, line 1
+					lcd.print(myString);  // Print a message to the LCD
 					break;
 				case BTN_EVENT:
 					if (thisEvent.EventParam == BTN3) {		// Continue
@@ -84,7 +82,7 @@ Event Run_SubHSM_Leak(Event thisEvent) {
 					// Read pressure sensor
 					break;
 				case TIMEOUT:
-					nextState = State2_Pressurizing;	// transitions back into itself on a data timer timeout, so new pressure can be read
+					nextState = State2_Pressurizing;	// transitions back into itself on a data timer timeout, so new data can be read
 					makeTransition = TRUE;				// not sure if this works
 					break;
 				// Transition to State3 when pressure is greater than threshold. This number is defined above.
@@ -191,13 +189,17 @@ Event Run_SubHSM_Leak(Event thisEvent) {
 			break;
 	}
 		
-	if (makeTransition == TRUE) { // making a state transition, send EXIT and ENTRY
-		// recursively call the current state with an exit event
+	if (makeTransition == TRUE) { // making a state transition, send EXIT and ENTRY events to allow for special on-transition behavior
+		// recursively call the current state machine with an exit event before changing states for exit behavior
 		thisEvent.EventType = EXIT_EVENT;
-		Run_SubHSM_Leak(thisEvent);
+		Run_SubHSM_Init(thisEvent);
+		
 		CurrentState = nextState;
+		
+		// recursively call the current state machine with an entry event after changing states for exit behavior
 		thisEvent.EventType = ENTRY_EVENT;
-		Run_SubHSM_Leak(thisEvent);
+		Run_SubHSM_Init(thisEvent);
+		thisEvent.EventType = NO_EVENT;
 	}
 	return thisEvent;
 }

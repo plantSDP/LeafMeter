@@ -5,7 +5,7 @@
  * PUBLIC #INCLUDES                                                            *
  ******************************************************************************/
 
-#include "Configure.h"   // defines events
+#include "Configure.h"   // defines architecture
 #include "Arduino.h"
 
 
