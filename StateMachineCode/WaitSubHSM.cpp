@@ -243,6 +243,62 @@ Event Run_SubHSM_Wait(Event thisEvent) {
 			break;
 		
 		case State5_ConfigRF:
+			switch (thisEvent.EventType) {
+				case ENTRY_EVENT:
+					// Display prompt
+					sprintf(myString, "Set RF option:");
+					lcd.setCursor(0, 0);  // set the cursor to column 0, line 0
+					lcd.print(myString);  // Print a message to the LCD
+					
+					sprintf(myString, "NO       YES          ");
+					lcd.setCursor(0, 1);  // set the cursor to column 0, line 1
+					lcd.print(myString);  // Print a message to the LCD
+					
+					lcd.setCursor(0, 1);
+					lcd.blink();
+					// BTN1 yes, BTN2 no, default is no
+					break;
+				case BTN_EVENT:
+					if (thisEvent.EventParam == BTN1) {
+						rfOption = 1;
+						sprintf(myString, "Set RF option:");
+						lcd.setCursor(0, 0);  // set the cursor to column 0, line 0
+						lcd.print(myString);  // Print a message to the LCD
+					
+						sprintf(myString, "NO       YES          ");
+						lcd.setCursor(0, 1);  // set the cursor to column 0, line 1
+						lcd.print(myString);  // Print a message to the LCD
+						
+						lcd.setCursor(9, 1);
+
+					} else if (thisEvent.EventParam == BTN2) {
+						rfOption = 0;
+						sprintf(myString, "Set RF option:");
+						lcd.setCursor(0, 0); // set the cursor to column 0, line 0
+						lcd.print(myString);  // Print a message to the LCD
+					
+						sprintf(myString, "NO       YES          ");
+						lcd.setCursor(0, 1); // set the cursor to column 0, line 1
+						lcd.print(myString);  // Print a message to the LCD
+						
+						lcd.setCursor(0, 1);
+
+					} else if (thisEvent.EventParam == BTN3) {		// Continue
+					    lcd.noBlink();
+						nextState = State6_M1;
+						makeTransition = TRUE;
+
+					} else if (thisEvent.EventParam == BTN4) {		// Back
+					    lcd.noBlink();
+						nextState = State4_ConfigNumCycles;
+						makeTransition = TRUE;
+
+					}
+					thisEvent.EventType = NO_EVENT;
+					break;
+				default:
+					break;
+			}
 			break;
 		
 		case State6_M1:
