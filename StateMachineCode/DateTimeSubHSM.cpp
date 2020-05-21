@@ -492,7 +492,7 @@ Event Run_SubHSM_DateTime(Event thisEvent) {
 // Private functions
 //====================================
 
-// Prints the date in MM/DD/YY form.
+// Prints the date to the LCD screen in MM/DD/YY form.
 void PrintDate(void) {
 	sprintf(myString, "Enter MM/DD/YY      ");
 	lcd.setCursor(0, 0); // set the cursor to column 0, line 0
@@ -502,7 +502,7 @@ void PrintDate(void) {
 	lcd.print(myString);  // Print a message to the LCD
 }
 
-// Prints the time in HH:MM form.
+// Prints the time to the LCD screen in HH:MM form.
 void PrintTime(void) {
 	sprintf(myString, "Enter time HH:MM");
 	lcd.setCursor(0, 0); // set the cursor to column 0, line 0

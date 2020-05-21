@@ -302,6 +302,45 @@ Event Run_SubHSM_Wait(Event thisEvent) {
 			break;
 		
 		case State6_M1:
+			switch (thisEvent.EventType) {
+				case ENTRY_EVENT:
+					// Update Display
+					PrintDate();
+					// blink cursor location
+					lcd.setCursor(0, 1);
+					// turn blinking on
+					lcd.blink();
+					break;
+				case BTN_EVENT:
+					if (thisEvent.EventParam == BTN1) {
+						// increment digit
+						if (month1 == 0) {
+							month1 = 1;
+							if (month2 > 2) {
+								month2 = 2;
+							}
+						} else if (month1 == 1) {
+							month1 = 0;
+							if (month2 == 0) {
+								month2 = 1;
+							}
+						}
+						// update display
+						PrintDate();
+						// blink cursor location
+						lcd.setCursor(0, 1);				
+					} else if (thisEvent.EventParam == BTN2) {			// Switch digits
+						nextState = State2_MonthDigit2;
+						makeTransition = TRUE;
+					} else if (thisEvent.EventParam == BTN3) {			// Continue to Day digit 1
+						nextState = State3_DayDigit1;
+						makeTransition = TRUE;
+					}
+					thisEvent.EventType = NO_EVENT;					
+					break;
+				default:
+					break;
+			}
 			break;
 		
 		case State7_M2:
@@ -497,3 +536,27 @@ Event Run_SubHSM_Wait(Event thisEvent) {
 	return thisEvent;
 }
 #endif
+
+//====================================
+// Private functions
+//====================================
+
+// Prints the date to the LCD screen in MM/DD/YY form.
+void PrintDate(void) {
+	sprintf(myString, "Enter MM/DD/YY      ");
+	lcd.setCursor(0, 0); // set the cursor to column 0, line 0
+	lcd.print(myString);  // Print a message to the LCD
+	sprintf(myString, "%1d%1d/%1d%1d/%1d%1d      ", month1, month2, day1, day2, year1, year2);
+	lcd.setCursor(0, 1); // set the cursor to column 0, line 0
+	lcd.print(myString);  // Print a message to the LCD
+}
+
+// Prints the time to the LCD screen in HH:MM form.
+void PrintTime(void) {
+	sprintf(myString, "Enter time HH:MM");
+	lcd.setCursor(0, 0); // set the cursor to column 0, line 0
+	lcd.print(myString);  // Print a message to the LCD
+	sprintf(myString, "%1d%1d:%1d%1d           ", hour1, hour2, min1, min2);
+	lcd.setCursor(0, 1); // set the cursor to column 0, line 0
+	lcd.print(myString);  // Print a message to the LCD
+}
