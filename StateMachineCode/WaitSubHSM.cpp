@@ -83,26 +83,33 @@ Event Run_SubHSM_Wait(Event thisEvent) {
 			break;
 
 		case State1_RecordingData:
-			// record data to SD card
+			
+			switch (thisEvent.EventType) {
+				case ENTRY_EVENT:
+					// record data to SD card, transition to idle
+					break;
+				// case TIMEOUT:
+				// 	break;
+				default:
+					break;
+			}
 			break;
 		
 		case State2_Idle:
-			// Display message to LCD
+			// listen for RF, if enabled
+			// respond to RF, if received
 			switch (thisEvent.EventType) {
 				case ENTRY_EVENT:
-					// Display prompt
+					// Display status on LCD
 					sprintf(myString, "Idling          ");
 					lcd.setCursor(0, 0);  // set the cursor to column 0, line 0
 					lcd.print(myString);  // Print a message to the LCD
 					sprintf(myString, "                ");
 					lcd.setCursor(0, 1);  // set the cursor to column 0, line 1
 					lcd.print(myString);  // Print a message to the LCD
-					// BTN1 || BTN2 increments
-				    lcd.setCursor(12, 1);
-					lcd.blink();
 					break;
 				case BTN_EVENT:
-					if (thisEvent.EventParam == BTN3) {
+					if (thisEvent.EventParam == BTN3) {			// on BTN3 event, go to local configuration chain
 						nextState = State3_ConfigPeriod;
 						makeTransition = TRUE;
 					}
@@ -110,12 +117,9 @@ Event Run_SubHSM_Wait(Event thisEvent) {
 				default:
 					break;
 			}
-
-			// listen for RF, if enabled
-			// respond to RF, if received
-			// on BTN3, go to local configuration chain
 			break;
 		
+		// local config
 		case State3_ConfigPeriod:
 			switch (thisEvent.EventType) {
 				case ENTRY_EVENT:
@@ -330,10 +334,13 @@ Event Run_SubHSM_Wait(Event thisEvent) {
 						// blink cursor location
 						lcd.setCursor(0, 1);				
 					} else if (thisEvent.EventParam == BTN2) {			// Switch digits
-						nextState = State2_MonthDigit2;
+						nextState = State7_M2;
 						makeTransition = TRUE;
 					} else if (thisEvent.EventParam == BTN3) {			// Continue to Day digit 1
-						nextState = State3_DayDigit1;
+						nextState = State8_D1;
+						makeTransition = TRUE;
+					} else if (thisEvent.EventParam == BTN4) {			// Back to Config RF
+						nextState = State5_ConfigRF;
 						makeTransition = TRUE;
 					}
 					thisEvent.EventType = NO_EVENT;					
@@ -344,30 +351,376 @@ Event Run_SubHSM_Wait(Event thisEvent) {
 			break;
 		
 		case State7_M2:
+			switch (thisEvent.EventType) {
+				case ENTRY_EVENT:
+					// Update Display
+					PrintDate();
+					// blink cursor location
+					lcd.setCursor(1, 1);
+					break;
+				case BTN_EVENT:
+					if (thisEvent.EventParam == BTN1) {
+						// increment digit
+						if (month1 == 1) {
+							if (month2 < 2) {
+								month2 = month2 + 1;
+							} else if (month2 == 2){
+								month2 = 0;
+							}
+						} else if (month1 == 0) {
+							if (month2 < 9) {
+								month2 = month2 + 1;
+							} else if (month2 == 9) {
+								month2 = 1;
+							}
+						}
+						// update display
+						PrintDate();
+						// blink cursor location
+						lcd.setCursor(1, 1);
+					} else if (thisEvent.EventParam == BTN2) {			// Switch digits
+						nextState = State6_M1;
+						makeTransition = TRUE;
+					} else if (thisEvent.EventParam == BTN3) {			// Continue to Day digit 1
+						nextState = State8_D1;
+						makeTransition = TRUE;
+					} else if (thisEvent.EventParm == BTN4) {			// Back to Config RF
+						nextState = State5_ConfigRF;
+						makeTransition = TRUE;
+					}
+					thisEvent.EventType = NO_EVENT;
+					break;
+				default:
+					break;
+			}
 			break;
 
 		case State8_D1:
+			switch (thisEvent.EventType) {
+				case ENTRY_EVENT:
+					// Update Display
+					PrintDate();
+					// blink cursor location
+					lcd.setCursor(3, 1);
+					break;
+				case BTN_EVENT:
+					if (thisEvent.EventParam == BTN1) {
+						// increment digit
+						if (day1 < 3) {
+							day1 = day1 + 1;
+							if (day1 == 3) {
+								if (day2 > 1) {
+									day2 = 1;
+								}
+							}
+						} else if (day1 == 3) {
+							day1 = 0;
+							if (day2 == 0) {
+								day2 = 1;
+							}
+						}
+						// update display
+						PrintDate();
+					
+						lcd.setCursor(3, 1); // blink cursor location
+					} else if (thisEvent.EventParam == BTN2) {			// Switch digits
+						nextState = State9_D2;
+						makeTransition = TRUE;
+					} else if (thisEvent.EventParam == BTN3) {			// Continue to Year digit 1
+						nextState = State10_Y1;
+						makeTransition = TRUE;
+					} else if (thisEvent.EventParam == BTN4) {			// Back to Month digit 1
+						nextState = State6_M1;
+						makeTransition = TRUE;
+					}
+					thisEvent.EventType = NO_EVENT;					
+					break;
+				default:
+					break;
+			}
 			break;
 		
 		case State9_D2:
+			switch (thisEvent.EventType) {
+				case ENTRY_EVENT:
+					// Update Display
+					PrintDate();
+					// blink cursor location
+					lcd.setCursor(4, 1);					
+					break;
+				case BTN_EVENT:
+					if (thisEvent.EventParam == BTN1) {
+						// increment digit
+						if (day1 == 3) {
+							if (day2 == 0) {
+								day2 = 1;
+							} else if (day2 == 1){
+								day2 = 0;
+							}
+						} else if (day1 == 0) {
+							if (day2 < 9) {
+								day2 = day2 + 1;
+							} else if (day2 == 9) {
+								day2 = 1;
+							}
+						} else {
+							if (day2 < 9) {
+								day2 = day2 + 1;
+							} else if (day2 == 9) {
+								day2 = 0;
+							}							
+						}							
+						// update display
+						PrintDate();
+						// blink cursor location
+						lcd.setCursor(4, 1);							
+					} else if (thisEvent.EventParam == BTN2) {			// Switch digits
+						nextState = State8_D1;
+						makeTransition = TRUE;
+					} else if (thisEvent.EventParam == BTN3) {			// Continue to Year digit 1
+						nextState = State10_Y1;
+						makeTransition = TRUE;
+					} else if (thisEvent.EventParam == BTN4) {			// Back to Month digit 1
+						nextState = State6_M1;
+						makeTransition = TRUE;
+					}
+					thisEvent.EventType = NO_EVENT;					
+					break;
+				default:
+					break;
+			}
 			break;
 		
 		case State10_Y1:
+			switch (thisEvent.EventType) {
+				case ENTRY_EVENT:
+					// Update Display
+					PrintDate();
+					// blink cursor location
+					lcd.setCursor(6, 1);
+					break;
+				case BTN_EVENT:
+					if (thisEvent.EventParam == BTN1) {
+						// increment digit
+						if (year1 < 9) {
+							year1 = year1 + 1;
+						} else if (year1 == 9) {
+							year1 = 0;
+						}
+						// update display
+						PrintDate();
+						// blink cursor location
+						lcd.setCursor(6, 1);						
+					} else if (thisEvent.EventParam == BTN2) {			// Switch digits
+						nextState = State11_Y2;
+						makeTransition = TRUE;
+					} else if (thisEvent.EventParam == BTN3) {			// Continue to Hour digit 1
+						nextState = State12_H1;
+						makeTransition = TRUE;
+					} else if (thisEvent.EventParam == BTN4) {			// Back to Day digit 1
+						nextState = State8_D1;
+						makeTransition = TRUE;
+					}
+					thisEvent.EventType = NO_EVENT;
+					break;
+				default:
+					break;
+			}
 			break;
 		
 		case State11_Y2:
+			switch (thisEvent.EventType) {
+				case ENTRY_EVENT:
+					// Update Display
+					PrintDate();
+					// blink cursor location
+					lcd.setCursor(7, 1);
+					break;
+				case BTN_EVENT:
+					if (thisEvent.EventParam == BTN1) {
+						// increment digit
+						if (year1 < 9) {
+							year2 = year1 + 1;
+						} else if (year1 == 9) {
+							year2 = 0;
+						}						
+						// update display
+						PrintDate();
+						// blink cursor location
+						lcd.setCursor(7, 1);						
+					} else if (thisEvent.EventParam == BTN2) {			// Switch digits
+						nextState = State10_Y1;
+						makeTransition = TRUE;
+					} else if (thisEvent.EventParam == BTN3) {			// Continue to Hour digit 1
+						nextState = State12_H1;
+						makeTransition = TRUE;
+					} else if (thisEvent.EventParam == BTN4) {			// Back to Day digit 1
+						nextState = State8_D1;
+						makeTransition = TRUE;
+					}
+					thisEvent.EventType = NO_EVENT;
+					break;
+				default:
+					break;
+			}
 			break;
 
 		case State12_H1:
+			switch (thisEvent.EventType) {
+				case ENTRY_EVENT:
+					// Update Display
+					PrintTime();
+					// blink cursor location
+					lcd.setCursor(0, 1);
+					break;
+				case BTN_EVENT:
+					if (thisEvent.EventParam == BTN1) {
+						// increment digit
+						if (hour1 < 2) {
+							hour1 = hour1 + 1;
+							if (hour1 == 2) {
+								if (hour2 > 4) {
+									hour2 = 4;
+								}
+							}
+						} else if (hour1 == 2) {
+							hour1 = 0;
+						}
+						// update display
+					PrintTime();
+					// blink cursor location
+					lcd.setCursor(0, 1);
+					} else if (thisEvent.EventParam == BTN2) {			// Switch digits
+						nextState = State13_H2;
+						makeTransition = TRUE;
+					} else if (thisEvent.EventParam == BTN3) {			// Continue to Minute digit 1
+						nextState = State14_min1;
+						makeTransition = TRUE;
+					} else if (thisEvent.EventParam == BTN4) {			// Back to Year digit 1
+						nextState = State10_Y1;
+						makeTransition = TRUE;
+					}
+					thisEvent.EventType = NO_EVENT;
+					break;
+				default:
+					break;
+			}
 			break;
 
 		case State13_H2:
+			switch (thisEvent.EventType) {
+				case ENTRY_EVENT:
+					// Update Display
+					PrintTime();
+					// blink cursor location
+					lcd.setCursor(1, 1);
+					break;
+				case BTN_EVENT:
+					if (thisEvent.EventParam == BTN1) {
+						// increment digit
+						if (hour1 == 2) {
+							if (hour2 < 4) {
+								hour2 = hour2 + 1; 
+							} else if (hour2 == 4) {
+								hour2 = 0;
+							}
+						} else {
+							if (hour2 < 9) {
+								hour2 = hour2 + 1;
+							} else if (hour2 == 9) {
+								hour2 = 0;
+							}
+						}
+						// update display
+						PrintTime();
+						// blink cursor location
+						lcd.setCursor(1, 1);
+					} else if (thisEvent.EventParam == BTN2) {			// Switch digits
+						nextState = State12_H1;
+						makeTransition = TRUE;
+					} else if (thisEvent.EventParam == BTN3) {			// Continue to Minute digit 1
+						nextState = State14_min1;
+						makeTransition = TRUE;
+					} else if (thisEvent.EventParam == BTN4) {			// Back to Year digit 1
+						nextState = State10_Y1;
+						makeTransition = TRUE;
+					}
+					thisEvent.EventType = NO_EVENT;
+					break;
+				default:
+					break;
+			}
 			break;
 
 		case State14_min1:
+			switch (thisEvent.EventType) {
+				case ENTRY_EVENT:
+					// Update Display
+					PrintTime();
+					// blink cursor location
+					lcd.setCursor(3, 1);
+					break;
+				case BTN_EVENT:
+					if (thisEvent.EventParam == BTN1) {
+						// increment digit
+						if (min1 < 5) {
+							min1 = min1 + 1;
+						} else if (min1 == 5) {
+							min1 = 0;
+						}
+						// update display
+						PrintTime();
+						// blink cursor location
+						lcd.setCursor(3, 1);
+					} else if (thisEvent.EventParam == BTN2) {			// Switch digits
+						nextState = State15_min2;
+						makeTransition = TRUE;
+					} else if (thisEvent.EventParam == BTN4) {			// Back to Hour digit 1
+						nextState = State12_H1;
+						makeTransition = TRUE;
+					}
+					thisEvent.EventType = NO_EVENT;
+					break;
+				default:
+					break;
+			}
 			break;
 
 		case State15_min2:
+			switch (thisEvent.EventType) {
+				case ENTRY_EVENT:
+					// Update Display
+					PrintTime();
+					// blink cursor location
+					lcd.setCursor(4, 1);
+					break;
+				case BTN_EVENT:
+					if (thisEvent.EventParam == BTN1) {
+						// increment digit
+						if (min2 < 9) {
+							min2 = min2 + 1;
+						} else if (min2 == 9) {
+							min2 = 0;
+						}
+						// update display
+						PrintTime();
+						// blink cursor location
+						lcd.setCursor(4, 1);
+					} else if (thisEvent.EventParam == BTN2) {			// Switch digits
+						nextState = State14_min1;
+						makeTransition = TRUE;
+					} else if (thisEvent.EventParam == BTN3) {			// finished with configuration, continue to idle
+						nextState = State2_Idle;
+						makeTransition = TRUE;
+					} else if (thisEvent.EventParam == BTN4) {			// Back to Hour digit 1
+						nextState = State12_H1;
+						makeTransition = TRUE;
+					}
+					thisEvent.EventType = NO_EVENT;
+					break;
+				default:
+					break;
+			}
 			break;
 
 		default:
@@ -525,13 +878,17 @@ Event Run_SubHSM_Wait(Event thisEvent) {
 			break;
 	}
 		
-	if (makeTransition == TRUE) { // making a state transition, send EXIT and ENTRY
-		// recursively call the current state with an exit event
+	if (makeTransition == TRUE) { // making a state transition, send EXIT and ENTRY events to allow for special on-transition behavior
+		// recursively call the current state machine with an exit event before changing states for exit behavior
 		thisEvent.EventType = EXIT_EVENT;
-		Run_SubHSM_Wait(thisEvent);
+		Run_SubHSM_Init(thisEvent);
+		
 		CurrentState = nextState;
+		
+		// recursively call the current state machine with an entry event after changing states for exit behavior
 		thisEvent.EventType = ENTRY_EVENT;
-		Run_SubHSM_Wait(thisEvent);
+		Run_SubHSM_Init(thisEvent);
+		thisEvent.EventType = NO_EVENT;
 	}
 	return thisEvent;
 }

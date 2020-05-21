@@ -345,8 +345,8 @@ Event Run_SubHSM_DateTime(Event thisEvent) {
 					} else if (thisEvent.EventParam == BTN3) {			// Continue to Minute digit 1
 						nextState = State9_MinuteDigit1;
 						makeTransition = TRUE;
-					} else if (thisEvent.EventParam == BTN4) {			// Back to Year digit 2
-						nextState = State6_YearDigit2;
+					} else if (thisEvent.EventParam == BTN4) {			// Back to Year digit 1
+						nextState = State5_YearDigit1;
 						makeTransition = TRUE;
 					}
 					thisEvent.EventType = NO_EVENT;
@@ -390,8 +390,8 @@ Event Run_SubHSM_DateTime(Event thisEvent) {
 					} else if (thisEvent.EventParam == BTN3) {			// Continue to Minute digit 1
 						nextState = State9_MinuteDigit1;
 						makeTransition = TRUE;
-					} else if (thisEvent.EventParam == BTN4) {			// Back to Year digit 2
-						nextState = State6_YearDigit2;
+					} else if (thisEvent.EventParam == BTN4) {			// Back to Year digit 1
+						nextState = State5_YearDigit1;
 						makeTransition = TRUE;
 					}
 					thisEvent.EventType = NO_EVENT;
