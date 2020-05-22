@@ -99,17 +99,16 @@ Event Run_SubHSM_Init(Event thisEvent) {
 					sprintf(myString, "Starting...");
 					lcd.setCursor(0, 0); // set the cursor to column 0, line 0
 					lcd.print(myString);  // Print a message to the LCD
+
 					// Init timer
-					SetTimer(1, 10000); // cozir warmup 10 sec
+					SetTimer(1, 10000); // cozir warmup, 10 sec
 					
 					// Open valves
 					// Run Pump
-					// request Cozir Data
-					
 					thisEvent.EventType = NO_EVENT;
 					break;
 				case TIMEOUT:
-					if (thisEvent.EventParam == TIMER_0_PARAM) {		// If Timer 0 has timed out, Cozir has sent data
+					if (thisEvent.EventParam == TIMER_0_PARAM) {			// If Timer 0 has timed out, Cozir has sent initial hum data after the three sensor initializations
 						Cozir_NewDataAvailable();
 						hum = Cozir_Get_Rh();
 						if (hum < HUM_DANGER_THRESHOLD) {
@@ -119,16 +118,22 @@ Event Run_SubHSM_Init(Event thisEvent) {
 							nextState = State3_HumFail;
 							makeTransition = TRUE;	
 						}
-					} else if (thisEvent.EventParam == TIMER_1_PARAM) {	
-						// sprintf(myString, "timer 1");
-						// Serial.println(myString);
-						if (Cozir_Init() == 0){
-							nextState = State0_Failure;
-							makeTransition = TRUE;
-						} else {
-							// Request data from Cozir
+					} else if (thisEvent.EventParam == TIMER_1_PARAM) {		// if Timer 1 has timed out, 10sec cozir warmup is done
+						if ((Cozir_Init()) && (lightSensor.begin()) && (pressureSensor.begin())) {	// initializations for the three sensors
+							// Request humidity data from Cozir
 							Cozir_Request_Data();
 							SetTimer(0, 100); 		// It takes around 70-100ms for the Cozir to send data after a request
+
+							// tsl startup settings
+							lightSensor.setGain(TSL2591_GAIN_LOW);
+							lightSensor.setTiming(TSL2591_INTEGRATIONTIME_100MS);
+
+							// bme280 startup settings
+							pressureSensor.setNormalMode();
+
+						} else {
+							nextState = State0_Failure;						// if any sensors fail, transition to failure state
+							makeTransition = TRUE;
 						}
 					}
 					thisEvent.EventType = NO_EVENT;

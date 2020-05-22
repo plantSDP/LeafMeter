@@ -7,6 +7,8 @@
 #define TIMER_DATA 1
 #define TIMER_DATA_PARAM 0b10			// Timer 0 is in use as the active duration, so Timer 1 is used for data sampling
 
+
+
 // List states here:
 typedef enum {
     InitPSubState,
@@ -62,6 +64,8 @@ Event Run_SubHSM_Active(Event thisEvent) {
 			switch (thisEvent.EventType) {
 				case ENTRY_EVENT:
 					// Close valves, run pump
+					measurementData = "";		// clear measurement data string
+					
 					nextState = State2_TakingMeasurement1;
 					makeTransition = TRUE;
 					break;
@@ -76,13 +80,8 @@ Event Run_SubHSM_Active(Event thisEvent) {
 					// init timer
 					SetTimer(TIMER_DATA, SAMPLING_FREQ); 	// sampling frequency timer
 
-					// Init Cozir and request data
-					if (CozirInit()) {
-						CozirRequestData();	// it takes around 70-100 ms for cozir to send this data. The min sampling freq is 500 ms, so this shouldn't be a prob
-					} else {
-						nextState = State0_Failure;
-						makeTransition = TRUE;
-					}
+					CozirRequestData();	// it takes around 70-100 ms for cozir to send this data. The min sampling freq is 500 ms, so this shouldn't be a prob
+
 					thisEvent.EventType = NO_EVENT;
 					break;
 				case TIMEOUT:
@@ -100,10 +99,24 @@ Event Run_SubHSM_Active(Event thisEvent) {
 		case State3_TakingMeasurement2:
 			switch (thisEvent.EventType) {
 				case ENTRY_EVENT:
-					// init timer
-					// read data
-					// temporarily store data
+					Cozir_NewDataAvailable();
+					bme280Sensor.readSensor();
 
+					// read data
+					co2 = Cozir_Get_Co2();
+
+					hum = pressureSensor.getHumidity_RH();
+					temp = pressureSensor.getTemperature_C();
+					pressure = pressureSensor.getPressure_Pa();
+
+					lux = GetLux(lightSensor.getFullLuminosity());
+
+					// temporarily store data
+					string buffer;
+					sprintf(buffer, "%d,\t%d,\t%d,\t%d,\t%u \n", co2, hum, temp, pressure, lux);
+
+					measurementData = measurementData + buffer
+					
 					thisEvent.EventType = NO_EVENT;
 					break;
 				case TIMEOUT:
@@ -135,3 +148,24 @@ Event Run_SubHSM_Active(Event thisEvent) {
 	}
 	return thisEvent;
 }
+
+//=============================
+// Private Functions
+//=============================
+
+/*
+Calculates lux value for luminosity input from light sensor
+Requires a uint32_t luminosity parameter
+Returns a uint16_t lux value
+*/
+uint16_t GetLux(uint32_t lum) {
+	//lum comes from tsl.getFullLuminosity();
+	uint16_t ir, full, lux;
+  	
+	ir = lum >> 16;
+  	full = lum & 0xFFFF;
+  	lux = tsl.calculateLux(full,ir);
+	
+	return lux;
+}
+  

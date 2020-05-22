@@ -12,6 +12,9 @@
 // This library is created by the Plant CO2 Flux Meter Team 2019-20
 #include "CozirLib.h"				// Co2 sensor
 
+// This library provides access to the string class and additional string functionality
+#include <string>
+
 //====================================================================================================================
 // Configure.h holds global definitions, structs, objects, needed by other parts of the framework (HSM, EventCheckers)
 //====================================================================================================================
@@ -29,6 +32,8 @@
 // Global Objects
 extern char myString[50]; 				// for screen printing I2C
 extern LiquidCrystal_I2C lcd;
+
+extern string measurementData;			// for holding one measurement cycle's data
 
 extern BME280 pressureSensor;			// for pressure sensor I2C
 extern Adafruit_TSL2591 lightSensor;	// for light sensor I2C
@@ -66,14 +71,17 @@ static int period = 60;				// holds value for period in between measurements in 
 static int numCycles = 1;			// holds value for number of measurement cycles, default is 1
 
 // Global microclimate variables
-static unsigned int hum = 0;		// holds humidity measurement from Cozir, default is 0
-static unsigned int temp = 0;		// holds temperature mesurement from Cozir, default is 0
-static unsigned int light = 0;		// holds light measurement from TSL2591, default is 0
-static unsigned int pressure = 0;	// holds pressure measurement from BME280, default is 0
+static unsigned int co2 = 0;		// holds CO2 measurement in ppm from Cozir, default is 0
+
+static int hum = 0;					// holds humidity measurement in RH from BME280, default is 0
+static int temp = 0;				// holds temperature mesurement in C from BME280, default is 0
+static int pressure = 0;			// holds pressure measurement in Pa from BME280, default is 0
+
+static unsigned int lux = 0;		// holds light measurement in lux from TSL2591, default is 0
+
 
 // Global date & time variables
-// MM/DD/YY, default 01/01/20
-static uint8_t month1 = 0;
+static uint8_t month1 = 0;	// MM/DD/YY, default 01/01/20
 static uint8_t month2 = 1;
 
 static uint8_t day1   = 0;
@@ -82,8 +90,7 @@ static uint8_t day2   = 1;
 static uint8_t year1  = 2;
 static uint8_t year2  = 0;
 
-// HH:MM millitary time, default 00:00
-static uint8_t hour1  = 0;
+static uint8_t hour1  = 0;	// HH:MM millitary time, default 00:00
 static uint8_t hour2  = 0;
 
 static uint8_t min1   = 0;
@@ -111,6 +118,5 @@ typedef struct Events{
 	eventTypes EventType;
 	int EventParam;
 }Event;
-
 
 #endif		// closes the header shield
