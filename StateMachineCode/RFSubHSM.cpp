@@ -46,6 +46,7 @@ Event Run_SubHSM_RF(Event thisEvent) {
 			switch (thisEvent.EventType) {
 				case ENTRY_EVENT:
 					// Display "continue with RF connectivity check" prompt
+					thisEvent.EventType = NO_EVENT;
 					break;
 				case BTN_EVENT:
 					if (thisEvent.EventParam == BTN3) {			// Continue
@@ -63,6 +64,8 @@ Event Run_SubHSM_RF(Event thisEvent) {
 				case ENTRY_EVENT:
 					// Perform RF connectivity check here
 					// Init a timer
+
+					thisEvent.EventType = NO_EVENT;
 					break;
 				case TIMEOUT:
 					nextState = State3_DisplayingResult;
@@ -78,6 +81,8 @@ Event Run_SubHSM_RF(Event thisEvent) {
 				case ENTRY_EVENT:
 					// Open valves
 					// Display results
+
+					thisEvent.EventType = NO_EVENT;
 					break;
 				case BTN_EVENT:
 					if (thisEvent.EventParam == BTN4) {			// Back
@@ -94,13 +99,17 @@ Event Run_SubHSM_RF(Event thisEvent) {
 			break;
 	}
 		
-	if (makeTransition == TRUE) { // making a state transition, send EXIT and ENTRY
-		// recursively call the current state with an exit event
+	if (makeTransition == TRUE) { // making a state transition, send EXIT and ENTRY events to allow for special on-transition behavior
+		// recursively call the current state machine with an exit event before changing states for exit behavior
 		thisEvent.EventType = EXIT_EVENT;
-		Run_SubHSM_RF(thisEvent);
+		Run_SubHSM_Init(thisEvent);
+		
 		CurrentState = nextState;
+		
+		// recursively call the current state machine with an entry event after changing states for entry behavior
 		thisEvent.EventType = ENTRY_EVENT;
-		Run_SubHSM_RF(thisEvent);
+		Run_SubHSM_Init(thisEvent);
+		thisEvent.EventType = NO_EVENT;	// Transitions are only triggered by events being handled, so the return must be NO_EVENT
 	}
 	return thisEvent;
 }

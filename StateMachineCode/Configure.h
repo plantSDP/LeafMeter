@@ -1,8 +1,5 @@
-// IDE and compiler: Arduino
-
 #ifndef CONFIGURE_H			// header shield, protects against multiple #includes
 #define CONFIGURE_H
-
 
 #include "Arduino.h"				// contains declarations for hardware mapping pins, etc. for Arduino microprocessors
 #include "LiquidCrystal_I2C.h"		// lcd screen library, specifically I2C
@@ -37,31 +34,33 @@ extern BME280 pressureSensor;			// for pressure sensor I2C
 extern Adafruit_TSL2591 lightSensor;	// for light sensor I2C
 
 // Button EventParam Definitions used by the HSM
-#define NO_PRESS	0b0
-#define BTN1		0b1
-#define BTN2		0b10
-#define BTN3		0b100
-#define BTN4		0b1000
+#define NO_PRESS			0b0
+#define BTN1				0b1
+#define BTN2				0b10
+#define BTN3				0b100
+#define BTN4				0b1000
 
 // Timer EventParam Definitions used by the HSM
-#define TIMER_0_PARAM 			0b1	
-#define TIMER_1_PARAM 			0b10
+#define TIMER_0_PARAM 		0b1	
+#define TIMER_1_PARAM 		0b10
+#define TIMER_2_PARAM		0b100
 
 // Humidity thresholds used by HSM, measured in RH
 #define HUM_DANGER_THRESHOLD 	90
 #define HUM_WARNING_THRESHOLD 	80
 
 // Pressure thresholds used by HSM, measured in Pa
-#define PRESSURE_TEST_THRESHOLD 10 // just a placeholder for now
+#define PRESSURE_TEST_THRESHOLD 10 	// just a placeholder for now
 
 // RF options used by HSM
 #define RF_YES 	1
 #define RF_NO 	0
 static int rfOption = RF_NO;		// sets rfOption, default is NO (0)
 
-// Active and Waiting Periods
+// Active and Waiting Periods, Sampling Frequency
 #define ACTIVE_DURATION 600000		// duration of active cycle in [ms] (default 600000[ms] = 10[min])
 static int period = 60;				// holds value for period in between measurements in [min], default is 60[min] but can be user-defined
+#define SAMPLING_FREQ 550			// sampling frequency in [ms]
 
 // Number of measurement cycles
 static int numCycles = 1;			// holds value for number of measurement cycles, default is 1
@@ -114,4 +113,4 @@ typedef struct Events{
 }Event;
 
 
-#endif
+#endif		// closes the header shield

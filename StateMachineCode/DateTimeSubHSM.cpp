@@ -69,6 +69,8 @@ Event Run_SubHSM_DateTime(Event thisEvent) {
 					lcd.setCursor(0, 1);
 					// turn blinking on
 					lcd.blink();
+
+					thisEvent.EventType = NO_EVENT;
 					break;
 				case BTN_EVENT:
 					if (thisEvent.EventParam == BTN1) {
@@ -109,6 +111,8 @@ Event Run_SubHSM_DateTime(Event thisEvent) {
 					PrintDate();
 					// blink cursor location
 					lcd.setCursor(1, 1);
+
+					thisEvent.EventType = NO_EVENT;
 					break;
 				case BTN_EVENT:
 					if (thisEvent.EventParam == BTN1) {
@@ -151,6 +155,8 @@ Event Run_SubHSM_DateTime(Event thisEvent) {
 					PrintDate();
 					// blink cursor location
 					lcd.setCursor(3, 1);
+
+					thisEvent.EventType = NO_EVENT;
 					break;
 				case BTN_EVENT:
 					if (thisEvent.EventParam == BTN1) {
@@ -195,7 +201,9 @@ Event Run_SubHSM_DateTime(Event thisEvent) {
 					// Update Display
 					PrintDate();
 					// blink cursor location
-					lcd.setCursor(4, 1);					
+					lcd.setCursor(4, 1);
+
+					thisEvent.EventType = NO_EVENT;					
 					break;
 				case BTN_EVENT:
 					if (thisEvent.EventParam == BTN1) {
@@ -247,6 +255,8 @@ Event Run_SubHSM_DateTime(Event thisEvent) {
 					PrintDate();
 					// blink cursor location
 					lcd.setCursor(6, 1);
+
+					thisEvent.EventType = NO_EVENT;
 					break;
 				case BTN_EVENT:
 					if (thisEvent.EventParam == BTN1) {
@@ -284,6 +294,8 @@ Event Run_SubHSM_DateTime(Event thisEvent) {
 					PrintDate();
 					// blink cursor location
 					lcd.setCursor(7, 1);
+
+					thisEvent.EventType = NO_EVENT;
 					break;
 				case BTN_EVENT:
 					if (thisEvent.EventParam == BTN1) {
@@ -321,6 +333,8 @@ Event Run_SubHSM_DateTime(Event thisEvent) {
 					PrintTime();
 					// blink cursor location
 					lcd.setCursor(0, 1);
+
+					thisEvent.EventType = NO_EVENT;
 					break;
 				case BTN_EVENT:
 					if (thisEvent.EventParam == BTN1) {
@@ -363,6 +377,8 @@ Event Run_SubHSM_DateTime(Event thisEvent) {
 					PrintTime();
 					// blink cursor location
 					lcd.setCursor(1, 1);
+
+					thisEvent.EventType = NO_EVENT;
 					break;
 				case BTN_EVENT:
 					if (thisEvent.EventParam == BTN1) {
@@ -408,6 +424,8 @@ Event Run_SubHSM_DateTime(Event thisEvent) {
 					PrintTime();
 					// blink cursor location
 					lcd.setCursor(3, 1);
+
+					thisEvent.EventType = NO_EVENT;
 					break;
 				case BTN_EVENT:
 					if (thisEvent.EventParam == BTN1) {
@@ -442,6 +460,8 @@ Event Run_SubHSM_DateTime(Event thisEvent) {
 					PrintTime();
 					// blink cursor location
 					lcd.setCursor(4, 1);
+
+					thisEvent.EventType = NO_EVENT;
 					break;
 				case BTN_EVENT:
 					if (thisEvent.EventParam == BTN1) {
@@ -480,10 +500,10 @@ Event Run_SubHSM_DateTime(Event thisEvent) {
 		
 		CurrentState = nextState;
 		
-		// recursively call the current state machine with an entry event after changing states for exit behavior
+		// recursively call the current state machine with an entry event after changing states for entry behavior
 		thisEvent.EventType = ENTRY_EVENT;
 		Run_SubHSM_Init(thisEvent);
-		thisEvent.EventType = NO_EVENT;
+		thisEvent.EventType = NO_EVENT;	// Transitions are only triggered by events being handled, so the return must be NO_EVENT
 	}
 	return thisEvent;
 }

@@ -170,7 +170,7 @@ Event TimerExpireCheck(void){
 			returnEvent.EventParam = 0b1;
 			return returnEvent;
 		}
-	} 
+	}
 	
 	
 	if (timer1state == 1){

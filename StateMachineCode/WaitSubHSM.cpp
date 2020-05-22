@@ -77,7 +77,7 @@ Event Run_SubHSM_Wait(Event thisEvent) {
 	switch (CurrentState) {
 		case InitPSubState:								// If current state is initial Pseudo State
 			if (thisEvent.EventType == INIT_EVENT){		// only respond to INIT_EVENT
-				nextState = State1_Pressurizing;		// transition to first state
+				nextState = State1_RecordingData;		// transition to first state
 				makeTransition = TRUE;
 			}
 			break;
@@ -87,6 +87,8 @@ Event Run_SubHSM_Wait(Event thisEvent) {
 			switch (thisEvent.EventType) {
 				case ENTRY_EVENT:
 					// record data to SD card, transition to idle
+
+					thisEvent.EventType = NO_EVENT;
 					break;
 				// case TIMEOUT:
 				// 	break;
@@ -104,9 +106,11 @@ Event Run_SubHSM_Wait(Event thisEvent) {
 					sprintf(myString, "Idling          ");
 					lcd.setCursor(0, 0);  // set the cursor to column 0, line 0
 					lcd.print(myString);  // Print a message to the LCD
-					sprintf(myString, "                ");
+					sprintf(myString, "BTN3 CONFIG     ");
 					lcd.setCursor(0, 1);  // set the cursor to column 0, line 1
 					lcd.print(myString);  // Print a message to the LCD
+
+					thisEvent.EventType = NO_EVENT;
 					break;
 				case BTN_EVENT:
 					if (thisEvent.EventParam == BTN3) {			// on BTN3 event, go to local configuration chain
@@ -133,6 +137,8 @@ Event Run_SubHSM_Wait(Event thisEvent) {
 					// BTN1 || BTN2 increments
 				    lcd.setCursor(12, 1);
 					lcd.blink();
+
+					thisEvent.EventType = NO_EVENT;
 					break;
 				case BTN_EVENT:
 					if (thisEvent.EventParam == BTN1) {
@@ -177,6 +183,7 @@ Event Run_SubHSM_Wait(Event thisEvent) {
 					break;
 				case EXIT_EVENT:
 					lcd.noBlink();
+					thisEvent.EventType = NO_EVENT;
 					break;
 				default:
 					break;
@@ -196,6 +203,8 @@ Event Run_SubHSM_Wait(Event thisEvent) {
 					// BTN1 || BTN2 increments
 				    lcd.setCursor(12, 1);
 					lcd.blink();
+
+					thisEvent.EventType = NO_EVENT;
 					break;
 				case BTN_EVENT:
 					if (thisEvent.EventParam == BTN1) {
@@ -240,6 +249,7 @@ Event Run_SubHSM_Wait(Event thisEvent) {
 					break;
 				case EXIT_EVENT:
 					lcd.noBlink();
+					thisEvent.EventType = NO_EVENT;
 					break;
 				default:
 					break;
@@ -261,6 +271,8 @@ Event Run_SubHSM_Wait(Event thisEvent) {
 					lcd.setCursor(0, 1);
 					lcd.blink();
 					// BTN1 yes, BTN2 no, default is no
+
+					thisEvent.EventType = NO_EVENT;
 					break;
 				case BTN_EVENT:
 					if (thisEvent.EventParam == BTN1) {
@@ -314,6 +326,8 @@ Event Run_SubHSM_Wait(Event thisEvent) {
 					lcd.setCursor(0, 1);
 					// turn blinking on
 					lcd.blink();
+
+					thisEvent.EventType = NO_EVENT;
 					break;
 				case BTN_EVENT:
 					if (thisEvent.EventParam == BTN1) {
@@ -357,6 +371,8 @@ Event Run_SubHSM_Wait(Event thisEvent) {
 					PrintDate();
 					// blink cursor location
 					lcd.setCursor(1, 1);
+
+					thisEvent.EventType = NO_EVENT;
 					break;
 				case BTN_EVENT:
 					if (thisEvent.EventParam == BTN1) {
@@ -402,6 +418,8 @@ Event Run_SubHSM_Wait(Event thisEvent) {
 					PrintDate();
 					// blink cursor location
 					lcd.setCursor(3, 1);
+
+					thisEvent.EventType = NO_EVENT;
 					break;
 				case BTN_EVENT:
 					if (thisEvent.EventParam == BTN1) {
@@ -446,7 +464,9 @@ Event Run_SubHSM_Wait(Event thisEvent) {
 					// Update Display
 					PrintDate();
 					// blink cursor location
-					lcd.setCursor(4, 1);					
+					lcd.setCursor(4, 1);	
+
+					thisEvent.EventType = NO_EVENT;				
 					break;
 				case BTN_EVENT:
 					if (thisEvent.EventParam == BTN1) {
@@ -498,6 +518,8 @@ Event Run_SubHSM_Wait(Event thisEvent) {
 					PrintDate();
 					// blink cursor location
 					lcd.setCursor(6, 1);
+
+					thisEvent.EventType = NO_EVENT;
 					break;
 				case BTN_EVENT:
 					if (thisEvent.EventParam == BTN1) {
@@ -535,6 +557,8 @@ Event Run_SubHSM_Wait(Event thisEvent) {
 					PrintDate();
 					// blink cursor location
 					lcd.setCursor(7, 1);
+
+					thisEvent.EventType = NO_EVENT;
 					break;
 				case BTN_EVENT:
 					if (thisEvent.EventParam == BTN1) {
@@ -572,6 +596,8 @@ Event Run_SubHSM_Wait(Event thisEvent) {
 					PrintTime();
 					// blink cursor location
 					lcd.setCursor(0, 1);
+
+					thisEvent.EventType = NO_EVENT;
 					break;
 				case BTN_EVENT:
 					if (thisEvent.EventParam == BTN1) {
@@ -614,6 +640,8 @@ Event Run_SubHSM_Wait(Event thisEvent) {
 					PrintTime();
 					// blink cursor location
 					lcd.setCursor(1, 1);
+
+					thisEvent.EventType = NO_EVENT;
 					break;
 				case BTN_EVENT:
 					if (thisEvent.EventParam == BTN1) {
@@ -659,6 +687,8 @@ Event Run_SubHSM_Wait(Event thisEvent) {
 					PrintTime();
 					// blink cursor location
 					lcd.setCursor(3, 1);
+
+					thisEvent.EventType = NO_EVENT;
 					break;
 				case BTN_EVENT:
 					if (thisEvent.EventParam == BTN1) {
@@ -693,6 +723,8 @@ Event Run_SubHSM_Wait(Event thisEvent) {
 					PrintTime();
 					// blink cursor location
 					lcd.setCursor(4, 1);
+
+					thisEvent.EventType = NO_EVENT;
 					break;
 				case BTN_EVENT:
 					if (thisEvent.EventParam == BTN1) {
@@ -734,12 +766,12 @@ Event Run_SubHSM_Wait(Event thisEvent) {
 		
 		CurrentState = nextState;
 		
-		// recursively call the current state machine with an entry event after changing states for exit behavior
+		// recursively call the current state machine with an entry event after changing states for entry behavior
 		thisEvent.EventType = ENTRY_EVENT;
 		Run_SubHSM_Init(thisEvent);
-		thisEvent.EventType = NO_EVENT;
+		thisEvent.EventType = NO_EVENT;	// Transitions are only triggered by events being handled, so the return must be NO_EVENT
 	}
-	return thisEvent;	
+	return thisEvent;
 }
 
 
@@ -885,10 +917,10 @@ Event Run_SubHSM_Wait(Event thisEvent) {
 		
 		CurrentState = nextState;
 		
-		// recursively call the current state machine with an entry event after changing states for exit behavior
+		// recursively call the current state machine with an entry event after changing states for entry behavior
 		thisEvent.EventType = ENTRY_EVENT;
 		Run_SubHSM_Init(thisEvent);
-		thisEvent.EventType = NO_EVENT;
+		thisEvent.EventType = NO_EVENT;	// Transitions are only triggered by events being handled, so the return must be NO_EVENT
 	}
 	return thisEvent;
 }

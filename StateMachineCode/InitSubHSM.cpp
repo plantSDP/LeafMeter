@@ -100,15 +100,16 @@ Event Run_SubHSM_Init(Event thisEvent) {
 					lcd.setCursor(0, 0); // set the cursor to column 0, line 0
 					lcd.print(myString);  // Print a message to the LCD
 					// Init timer
-					SetTimer(1, 10000); // cozir warmup
+					SetTimer(1, 10000); // cozir warmup 10 sec
 					
 					// Open valves
 					// Run Pump
 					// request Cozir Data
 					
+					thisEvent.EventType = NO_EVENT;
 					break;
 				case TIMEOUT:
-					if (thisEvent.EventParam == TIMER_0_PARAM) {
+					if (thisEvent.EventParam == TIMER_0_PARAM) {		// If Timer 0 has timed out, Cozir has sent data
 						Cozir_NewDataAvailable();
 						hum = Cozir_Get_Rh();
 						if (hum < HUM_DANGER_THRESHOLD) {
@@ -157,13 +158,13 @@ Event Run_SubHSM_Init(Event thisEvent) {
 						lcd.setCursor(0, 1);  // set the cursor to column 0, line 1
 						lcd.print(myString);  // Print a message to the LCD
 					}
-				break; 
+					thisEvent.EventType = NO_EVENT;
+					break; 
 				case BTN_EVENT:
 					if (thisEvent.EventParam == BTN3) {			// Continue
 						nextState = State5_SettingPeriod;
 						makeTransition = TRUE;
 					}
-					thisEvent.EventType = NO_EVENT;
 					break;
 				default:
 					break;
@@ -180,11 +181,12 @@ Event Run_SubHSM_Init(Event thisEvent) {
 					sprintf(myString, "BTN3 CONTINUE         ");
 					lcd.setCursor(0, 1); // set the cursor to column 0, line 0
 					lcd.print(myString);  // Print a message to the LCD
+
+					thisEvent.EventType = NO_EVENT;
 					break;
 				case BTN_EVENT:
 					nextState = State4_HumCheck;				// Continue
 					makeTransition = TRUE;
-					thisEvent.EventType = NO_EVENT;
 					break;
 				default:
 					break;					
@@ -203,6 +205,8 @@ Event Run_SubHSM_Init(Event thisEvent) {
 					
 					SetTimer(0, 5000);		// Init timer
 					Cozir_Request_Data();	// Read hum
+
+					thisEvent.EventType = NO_EVENT;
 					break;						
 				case TIMEOUT:
 					Cozir_NewDataAvailable();
@@ -214,7 +218,6 @@ Event Run_SubHSM_Init(Event thisEvent) {
 						nextState = State3_HumFail;
 						makeTransition = TRUE;	
 					}
-					thisEvent.EventType = NO_EVENT;
 					break;
 				default:
 					break;
@@ -234,6 +237,8 @@ Event Run_SubHSM_Init(Event thisEvent) {
 					// BTN1 || BTN2 increments
 				    lcd.setCursor(12, 1);
 					lcd.blink();
+
+					thisEvent.EventType = NO_EVENT;
 					break;
 				case BTN_EVENT:
 					if (thisEvent.EventParam == BTN1) {
@@ -278,6 +283,7 @@ Event Run_SubHSM_Init(Event thisEvent) {
 					break;
 				case EXIT_EVENT:
 					lcd.noBlink();
+					thisEvent.EventType = NO_EVENT;
 					break;
 				default:
 					break;
@@ -297,6 +303,8 @@ Event Run_SubHSM_Init(Event thisEvent) {
 					// BTN1 || BTN2 increments
 				    lcd.setCursor(12, 1);
 					lcd.blink();
+
+					thisEvent.EventType = NO_EVENT;
 					break;
 				case BTN_EVENT:
 					if (thisEvent.EventParam == BTN1) {
@@ -341,11 +349,10 @@ Event Run_SubHSM_Init(Event thisEvent) {
 					break;
 				case EXIT_EVENT:
 					lcd.noBlink();
+					thisEvent.EventType = NO_EVENT;
 					break;
 				default:
 					break;
-				
-			
 			}
 			break;
 				
@@ -364,6 +371,8 @@ Event Run_SubHSM_Init(Event thisEvent) {
 					lcd.setCursor(0, 1);
 					lcd.blink();
 					// BTN1 yes, BTN2 no, default is no
+
+					thisEvent.EventType = NO_EVENT;
 					break;
 				case BTN_EVENT:
 					if (thisEvent.EventParam == BTN1) {
@@ -419,6 +428,8 @@ Event Run_SubHSM_Init(Event thisEvent) {
 					sprintf(myString, "    x [Hours]     ");
 					lcd.setCursor(0, 1);  // set the cursor to column 0, line 1
 					lcd.print(myString);  // Print a message to the LCD
+
+					thisEvent.EventType = NO_EVENT;
 					break;
 				case BTN_EVENT:
 					if (thisEvent.EventParam == BTN4) {
@@ -429,7 +440,7 @@ Event Run_SubHSM_Init(Event thisEvent) {
 					break;
 				default:
 					break;
-			}									
+			}
 			break;
 			
 		default:
@@ -443,10 +454,10 @@ Event Run_SubHSM_Init(Event thisEvent) {
 		
 		CurrentState = nextState;
 		
-		// recursively call the current state machine with an entry event after changing states for exit behavior
+		// recursively call the current state machine with an entry event after changing states for entry behavior
 		thisEvent.EventType = ENTRY_EVENT;
 		Run_SubHSM_Init(thisEvent);
-		thisEvent.EventType = NO_EVENT;
+		thisEvent.EventType = NO_EVENT;	// Transitions are only triggered by events being handled, so the return must be NO_EVENT
 	}
 	return thisEvent;
 }
