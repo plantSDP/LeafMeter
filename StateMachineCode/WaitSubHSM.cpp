@@ -46,8 +46,14 @@ typedef enum {
 // Holds the current state
 static WaitSubHSMStates CurrentState = InitPSubState;
 
-// This function runs the state machine with an INIT_EVENT
-// Returns TRUE if succesful, FALSE if failed
+
+/*
+This function initializes the state machine with an INIT_EVENT. 
+In regards to the state machine, it transitions the machine out of the initial pseudostate and performs one-time setup functions
+
+Parameters: none
+Return: TRUE on success, FALSE on failure
+*/
 uint8_t Init_SubHSM_Wait(void){
 	Event thisEvent;
 	thisEvent.EventType = INIT_EVENT;
@@ -59,7 +65,6 @@ uint8_t Init_SubHSM_Wait(void){
 		return FALSE;
 	}
 }
-
 
 // This macro runs the version of this substate without the pressure test 
 // To run the pressure test version, uncomment the #define in Configure.h
@@ -741,7 +746,8 @@ Event Run_SubHSM_Wait(Event thisEvent) {
 					} else if (thisEvent.EventParam == BTN2) {			// Switch digits
 						nextState = State14_min1;
 						makeTransition = TRUE;
-					} else if (thisEvent.EventParam == BTN3) {			// finished with configuration, continue to idle
+					} else if (thisEvent.EventParam == BTN3) {			// finished with configuration, sync RTC & continue to idle
+						SyncRTC(min1, min2, hour1, hour2, day1, day2, month1, month2, year1, year2);
 						nextState = State2_Idle;
 						makeTransition = TRUE;
 					} else if (thisEvent.EventParam == BTN4) {			// Back to Hour digit 1
@@ -753,8 +759,7 @@ Event Run_SubHSM_Wait(Event thisEvent) {
 				default:
 					break;
 			}
-			break;
-
+			break;		
 		default:
 			break;
 	}
@@ -773,7 +778,6 @@ Event Run_SubHSM_Wait(Event thisEvent) {
 	}
 	return thisEvent;
 }
-
 
 // the code below implements the pressure test, but is unfinished -JN 5/10/20
 #else
@@ -948,4 +952,24 @@ void PrintTime(void) {
 	sprintf(myString, "%1d%1d:%1d%1d           ", hour1, hour2, min1, min2);
 	lcd.setCursor(0, 1); // set the cursor to column 0, line 0
 	lcd.print(myString);  // Print a message to the LCD
+}
+
+// Synchronizes the RTC, requires the 10 date/time values determined by the user
+void SyncRTC(uint8_t min1, uint8_t min2, uint8_t hour1, uint8_t hour2, 
+			 uint8_t day1, uint8_t day2, uint8_t month1, uint8_t month2, 
+			 uint8_t year1, uint8_t year2) {
+	
+	min 	= (min1*10) + min2;
+	hour 	= (hour1*10) + hour2;
+	day 	= (day1*10) + day2;
+	month	= (month1*10) + month2;
+	year 	= 2000 + (year1*10) + year2;
+
+	rtcDateTimeStruct.min 	= min;		// minute
+	rtcDateTimeStruct.hour 	= hour;		// hour
+	rtcDateTimeStruct.mday 	= day;		// day of the month
+	rtcDateTimeStruct.mon 	= month;	// month
+	rtcDateTimeStruct.year 	= year;		// year
+
+	DS3231_set(rtcDateTimeStruct);		// sync the RTC
 }

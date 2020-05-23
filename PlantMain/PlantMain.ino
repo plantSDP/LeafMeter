@@ -3,8 +3,7 @@
 #include "Configure.h"
 
 // HSM & its substates
-#include <PlantMeterHSM.h>		// top level of the HSM
-#include "PlantMeterHSM.h"
+#include "PlantMeterHSM.h"  // top level of the HSM
 
 #include <ActiveSubHSM.h>
 #include <DateTimeSubHSM.h>
@@ -35,13 +34,18 @@ char myString[50];
 void setup() {
   // put your setup code here, to run once:
   
+  // Teensy LED
   pinMode(13,OUTPUT);
-  digitalWrite(13,HIGH);
-  lcd.init();  		// initialize the lcd
+  digitalWrite(13,HIGH); // HIGH means LED on
+
+
+  DS3231_init(DS3231_CONTROL_INTCN);  // initialize RTC module
+
+  lcd.init();  		  // initialize the lcd
   lcd.backlight();  // open the backlight for the lcd
   
-  InitEventCheckers();
-  InitHSM();
+  InitEventCheckers();  // Initialize event checkers, sets hardware pins for buttons
+  InitHSM();            // Initialize HSM, transitions out of pseudostate and performs one-time startup functions
 }
 
 void loop() {

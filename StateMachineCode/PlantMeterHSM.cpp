@@ -191,6 +191,10 @@ Event RunHSM(Event thisEvent){
 						makeTransition = TRUE;
 					}
 					break;
+				case EXIT_EVENT:
+					SyncRTC(min1, min2, hour1, hour2, day1, day2, month1, month2, year1, year2);
+					thisEvent.EventType = NO_EVENT;		// exit event handled, return NO_EVENT
+					break;
 				default:
 					break;
 			}
@@ -289,5 +293,29 @@ Event RunHSM(Event thisEvent){
 		thisEvent.EventType = NO_EVENT; // Transitions are only triggered by events being handled, so the return must be NO_EVENT
 	}
 	return thisEvent;
+}
+
+//===============================
+// Private Functions
+//===============================
+
+// Synchronizes the RTC, requires the 10 date/time values determined by the user
+void SyncRTC(uint8_t min1, uint8_t min2, uint8_t hour1, uint8_t hour2, 
+			 uint8_t day1, uint8_t day2, uint8_t month1, uint8_t month2, 
+			 uint8_t year1, uint8_t year2) {
+	
+	min 	= (min1*10) + min2;
+	hour 	= (hour1*10) + hour2;
+	day 	= (day1*10) + day2;
+	month	= (month1*10) + month2;
+	year 	= 2000 + (year1*10) + year2;
+
+	rtcDateTimeStruct.min 	= min;		// minute
+	rtcDateTimeStruct.hour 	= hour;		// hour
+	rtcDateTimeStruct.mday 	= day;		// day of the month
+	rtcDateTimeStruct.mon 	= month;	// month
+	rtcDateTimeStruct.year 	= year;		// year
+
+	DS3231_set(rtcDateTimeStruct);		// sync the RTC
 }
 

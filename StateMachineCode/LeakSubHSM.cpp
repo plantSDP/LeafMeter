@@ -32,7 +32,13 @@ typedef enum {
 // Holds the current state
 static LeakSubHSMStates CurrentState = InitPSubState;
 
-// This function runs the state machine with an INIT_EVENT
+/*
+This function initializes the state machine with an INIT_EVENT. 
+In regards to the state machine, it transitions the machine out of the initial pseudostate and performs one-time setup functions
+
+Parameters: none
+Return: TRUE on success, FALSE on failure
+*/
 uint8_t Init_SubHSM_Leak(void){
 	Event thisEvent;
 	thisEvent.EventType = INIT_EVENT;
@@ -81,16 +87,10 @@ Event Run_SubHSM_Leak(Event thisEvent) {
 
 					thisEvent.EventType = NO_EVENT;
 					break;
-				case BTN_EVENT:
-					if (thisEvent.EventParam == BTN3) {		// Continue
-						nextState = State2_Pressurizing;
-						makeTransition = TRUE;
-					}
-					break;
 				default:
 					break;
 			}				
-			break;			
+			break;
 
 		default:
 			break;

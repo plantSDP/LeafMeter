@@ -19,22 +19,28 @@ void PrintTime(void);
 // List states here:
 typedef enum {
     InitPSubState,
-    State1_MonthDigit1,
-    State2_MonthDigit2,
-	State3_DayDigit1,
-	State4_DayDigit2,
-    State5_YearDigit1,
-	State6_YearDigit2,
-	State7_HourDigit1,
-	State8_HourDigit2,
-	State9_MinuteDigit1,
-	State10_MinuteDigit2,
+    State1_MonthDigit1,			// config of the month tens-digit
+    State2_MonthDigit2,			// config of the month ones-digit
+	State3_DayDigit1,			// config of the day tens-digit
+	State4_DayDigit2,			// config of the day ones-digit
+    State5_YearDigit1,			// config of the year tens-digit
+	State6_YearDigit2,			// config of the year ones-digit
+	State7_HourDigit1,			// config of the hour tens-digit
+	State8_HourDigit2,			// config of the hour ones-digit
+	State9_MinuteDigit1,		// config of the minute tens-digit
+	State10_MinuteDigit2,		// config of the minute ones-digit AND RTC sync on exit
 } DateTimeSubHSMStates;
 
 // Holds current state
 static DateTimeSubHSMStates CurrentState = InitPSubState;
 
-// This function runs the state machine with an INIT_EVENT
+/*
+This function initializes the state machine with an INIT_EVENT. 
+In regards to the state machine, it transitions the machine out of the initial pseudostate and performs one-time setup functions
+
+Parameters: none
+Return: TRUE on success, FALSE on failure
+*/
 uint8_t Init_SubHSM_DateTime(void){
 	Event thisEvent;
 	thisEvent.EventType = INIT_EVENT;
@@ -47,6 +53,12 @@ uint8_t Init_SubHSM_DateTime(void){
 	}
 }
 
+/*
+This function contains the nested switch statement that implements the state machine.
+It requires an Event as a parameter.
+If the event is consumed/handled in the state machine, then the function returns NO_EVENT
+If the event is not consumed/handled, then the event is returned unchanged.
+*/
 Event Run_SubHSM_DateTime(Event thisEvent) {
 	
 	uint8_t makeTransition = FALSE; // use to flag transition
