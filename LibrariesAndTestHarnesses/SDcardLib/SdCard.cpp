@@ -10,7 +10,7 @@ File myFile;
 const int chipSelect = 4;//wont work if this is changed. 
 char myFileNameAndPath[35];//used to store the string for the file name and path
 static char folderName[16];//name of the directory to be made / used 
-static uint8_t fileStatus = ClOSED;
+static uint8_t fileStatus = CLOSED;
 /*
 * Initializes SD card for use
 * returns 0 on failure, 1 on success
@@ -74,5 +74,5 @@ uint8_t  SDcard_WriteString(char addedString[]){
 		return 1;
 	}
 	return 0;
-	 
+
  }
