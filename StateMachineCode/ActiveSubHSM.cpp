@@ -90,7 +90,7 @@ Event Run_SubHSM_Active(Event thisEvent) {
 					// init timer
 					SetTimer(TIMER_DATA, SAMPLING_FREQ); 	// sampling frequency timer
 
-					CozirRequestData();	// it takes around 70-100 ms for cozir to send this data. The min sampling freq is 500 ms, so this shouldn't be a prob
+					Cozir_Request_Data();	// it takes around 70-100 ms for cozir to send this data. The min sampling freq is 500 ms, so this shouldn't be a prob
 
 					thisEvent.EventType = NO_EVENT;
 					break;
@@ -107,16 +107,17 @@ Event Run_SubHSM_Active(Event thisEvent) {
 			break;
 
 		case State3_TakingMeasurement2:
+			File dataFile;
 			switch (thisEvent.EventType) {
 				case ENTRY_EVENT:
 					Cozir_NewDataAvailable();
-					bme280Sensor.readSensor();
+					pressureSensor.readSensor();
 
 					// read data
 					co2 = Cozir_Get_Co2();
+					hum = Cozir_Get_Rh();
+					temp = Cozir_Get_Temp();
 
-					hum = pressureSensor.getHumidity_RH();
-					temp = pressureSensor.getTemperature_C();
 					pres = pressureSensor.getPressure_Pa();
 
 					lux = GetLux(lightSensor.getFullLuminosity());
@@ -135,9 +136,9 @@ Event Run_SubHSM_Active(Event thisEvent) {
 					
 					// create data string for SD card .txt file
 					char dataString[50];
-					sprintf(dataString, "%04d\t%02d\t%03d\t%06d\t%06u\n", co2, hum, temp, pressure, lux);
+					sprintf(dataString, "%04d\t%02d\t%03d\t%06d\t%06u\n", co2, hum, temp, pres, lux);
 
-					File dataFile = SD.open(fileName, FILE_WRITE);
+					dataFile = SD.open(fileName, FILE_WRITE);
 					// if the file is available, write the data string to it:
 					if (dataFile) {
 						dataFile.println(dataString);
@@ -159,7 +160,6 @@ Event Run_SubHSM_Active(Event thisEvent) {
 					break;
 			}
 			break;
-		
 		default:
 			break;
 	}
@@ -183,19 +183,4 @@ Event Run_SubHSM_Active(Event thisEvent) {
 // Private Functions
 //=============================
 
-/*
-Calculates lux value for luminosity input from light sensor
-Requires a uint32_t luminosity parameter
-Returns a uint16_t lux value
-*/
-uint16_t GetLux(uint32_t lum) {
-	//lum comes from tsl.getFullLuminosity();
-	uint16_t ir, full, lux;
-  	
-	ir = lum >> 16;
-  	full = lum & 0xFFFF;
-  	lux = tsl.calculateLux(full,ir);
-	
-	return lux;
-}
   

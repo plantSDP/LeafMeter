@@ -407,7 +407,7 @@ Event Run_SubHSM_Wait(Event thisEvent) {
 					} else if (thisEvent.EventParam == BTN3) {			// Continue to Day digit 1
 						nextState = State8_D1;
 						makeTransition = TRUE;
-					} else if (thisEvent.EventParm == BTN4) {			// Back to Config RF
+					} else if (thisEvent.EventParam == BTN4) {			// Back to Config RF
 						nextState = State5_ConfigRF;
 						makeTransition = TRUE;
 					}

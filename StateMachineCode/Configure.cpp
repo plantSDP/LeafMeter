@@ -2,11 +2,11 @@
 
 // Global Variable definitions
 
-int rfOption = RF_NO;       // sets rfOption, default is NO (0)
+uint8_t rfOption = RF_NO;       // sets rfOption, default is NO (0)
 
-int period = 60;            // holds value for period in between measurements in [min], default is 60[min] but can be user-defined
-int numCycles = 1;          // holds value for number of measurement cycles, default is 1
-int numSamples = 0;         // holds value of the number of samples taken in a single active meas cycle, default is 0
+uint8_t period = 60;            // holds value for period in between measurements in [min], default is 60[min] but can be user-defined
+uint8_t numCycles = 1;          // holds value for number of measurement cycles, default is 1
+uint8_t numSamples = 0;         // holds value of the number of samples taken in a single active meas cycle, default is 0
 
 unsigned int co2 = 0;		// holds CO2 measurement in ppm from CozIR, default is 0
 unsigned int hum = 0;		// holds humidity measurement in RH from CozIR, default is 0
@@ -75,4 +75,20 @@ void SyncRTC(uint8_t min1, uint8_t min2, uint8_t hour1, uint8_t hour2, uint8_t d
 	rtcDateTimeStruct.year 	= year;		// year
 
 	DS3231_set(rtcDateTimeStruct);		// sync the RTC
+}
+
+/*
+Calculates lux value for luminosity input from light sensor
+Requires a uint32_t luminosity parameter
+Returns a uint16_t lux value
+*/
+uint16_t GetLux(uint32_t lum) {
+	//lum comes from tsl.getFullLuminosity();
+	uint16_t ir, full, lux;
+  	
+	ir = lum >> 16;
+  	full = lum & 0xFFFF;
+  	lux = lightSensor.calculateLux(full,ir);
+	
+	return lux;
 }

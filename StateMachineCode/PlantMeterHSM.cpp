@@ -197,8 +197,10 @@ Event RunHSM(Event thisEvent){
 			break;
 
 		case Active:
-			thisEvent = Run_SubHSM_Active(thisEvent); // Always send events to sub-statemachine first 
-		
+			thisEvent = Run_SubHSM_Active(thisEvent); // Always send events to sub-statemachine first
+
+			File metaDataFile;
+
 			switch(thisEvent.EventType) {
 				// On entry, init active duration timer, display message
 				case ENTRY_EVENT:
@@ -222,38 +224,34 @@ Event RunHSM(Event thisEvent){
 
 					thisEvent.EventType = NO_EVENT;		// Entry event consumed
 					break;
-					
 				// On active duration timeout, transition to waiting
 				case TIMEOUT:
 					if (thisEvent.EventParam == TIMER_ACTIVE_DURATION_PARAM) {
 						// if no more remaining cycles, return to initing
 						if (numCycles > 1) {
 							Init_SubHSM_Init(1); 		// reset and init substate machine, all cycles done
-							nextState == Initing;
+							nextState = Initing;
 							makeTransition = TRUE;
 						} else {
 							numCycles = numCycles - 1;	// decrement number of cycles by 1
 
-							Init_SubHSM_Waiting(1);		// reset and init waiting substate
+							Init_SubHSM_Wait(1);		// reset and init waiting substate
 							nextState = Waiting;
 							makeTransition = TRUE;
 						}
 					}
 					break;
-					
 				case BTN_EVENT:
 					if (thisEvent.EventParam == BTN3) {
-						Init_SubHSM_Waiting(1);			// reset and init waiting substate machine, start a new idle cycle
+						Init_SubHSM_Wait(1);			// reset and init waiting substate machine, start a new idle cycle
 
 						nextState = Waiting;
 						makeTransition = TRUE;
 					}
 					break;
-				
 				case EXIT_EVENT:
-					// create new metadata file string
-					metaFileName = "Meta";
-					//sprintf(metaFileName, "%s%s", meta, fileName);
+					// create new metadata file string by first making a string "Meta", then concatenating the fileName onto it 
+					sprintf(metaFileName, "Meta");
 					strcat(metaFileName, fileName);
 
 					// create new metadata string
@@ -266,9 +264,9 @@ Event RunHSM(Event thisEvent){
 											 period, numSamples);
 
 
-					File dataFile = SD.open(metaFileName, FILE_WRITE);
+					metaDataFile = SD.open(metaFileName, FILE_WRITE);
 					// if the file is available, write the data string to it:
-					if (dataFile) {
+					if (metaDataFile) {
 						dataFile.println(metaDataString);
 						dataFile.close();
 						// print to the serial port too:
@@ -279,7 +277,6 @@ Event RunHSM(Event thisEvent){
 
 					thisEvent.EventType = NO_EVENT;
 					break;
-					
 				default:
 					break;
 			}

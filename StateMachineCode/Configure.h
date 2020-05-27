@@ -69,11 +69,11 @@ extern Adafruit_TSL2591 lightSensor;	// Instantiates global TSL2591 class
 // RF options used by HSM
 #define RF_YES 	1
 #define RF_NO 	0
-extern int rfOption;		// sets rfOption, default is NO (0)
+extern uint8_t rfOption;			// sets rfOption, default is NO (0)
 
 // Active and Waiting Periods, Sampling Frequency
 #define ACTIVE_DURATION 600000		// duration of active cycle in [ms], default 600000[ms] = 10[min]
-extern int period;					// holds value for period in between measurements in [min], default is 60[min] but can be user-defined
+extern uint8_t period;				// holds value for period in between measurements in [min], default is 60[min] but can be user-defined
 #define SAMPLING_FREQ 550			// sampling frequency in [ms], the minimum is 500[ms]
 #define MAX_SAMPLES_PER_CYCLE 120	// ACTIVE_DURATION / MIN_SAMPLING_FREQ
 
@@ -153,5 +153,12 @@ void PrintTime(void);
 
 // Syncs the RTC. Requires 8bit values for each minute, hour, day, month, and year digits.
 void SyncRTC(uint8_t min1, uint8_t min2, uint8_t hour1, uint8_t hour2, uint8_t day1, uint8_t day2, uint8_t month1, uint8_t month2, uint8_t year1, uint8_t year2);
+
+/*
+Calculates lux value for luminosity input from light sensor
+Requires a uint32_t luminosity parameter
+Returns a uint16_t lux value
+*/
+uint16_t GetLux(uint32_t lum);
 
 #endif		// closes the header shield
