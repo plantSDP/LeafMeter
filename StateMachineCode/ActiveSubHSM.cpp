@@ -5,7 +5,7 @@
 #define TIMER_DATA 1
 #define TIMER_DATA_PARAM 0b10			// Timer 0 is in use as the active duration, so Timer 1 is used for data sampling
 
-
+File dataFile;				// used to open a new datafile on the SD card
 
 // List states here:
 typedef enum {
@@ -107,7 +107,6 @@ Event Run_SubHSM_Active(Event thisEvent) {
 			break;
 
 		case State3_TakingMeasurement2:
-			File dataFile;
 			switch (thisEvent.EventType) {
 				case ENTRY_EVENT:
 					Cozir_NewDataAvailable();

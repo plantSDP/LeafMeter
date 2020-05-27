@@ -21,7 +21,9 @@
 #define TIMER_ACTIVE_DURATION_PARAM 0b1
 
 #define TIMER_WAIT_DURATION 0				// Timer 0 is used as the wait duration timer
-#define TIMER_WAIT_DURATION_PARAM 0b1		
+#define TIMER_WAIT_DURATION_PARAM 0b1
+
+File metaDataFile;		// used to open a new metadata file in the SD card
 
 // This enum lists the names of all states in this state machine
 typedef enum {
@@ -199,8 +201,6 @@ Event RunHSM(Event thisEvent){
 		case Active:
 			thisEvent = Run_SubHSM_Active(thisEvent); // Always send events to sub-statemachine first
 
-			File metaDataFile;
-
 			switch(thisEvent.EventType) {
 				// On entry, init active duration timer, display message
 				case ENTRY_EVENT:
@@ -267,12 +267,12 @@ Event RunHSM(Event thisEvent){
 					metaDataFile = SD.open(metaFileName, FILE_WRITE);
 					// if the file is available, write the data string to it:
 					if (metaDataFile) {
-						dataFile.println(metaDataString);
-						dataFile.close();
+						metaDataFile.println(metaDataString);
+						metaDataFile.close();
 						// print to the serial port too:
 						// Serial.println(myString);
 					} else {
-						dataFile.close();
+						metaDataFile.close();
 					}
 
 					thisEvent.EventType = NO_EVENT;
