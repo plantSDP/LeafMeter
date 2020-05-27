@@ -36,7 +36,7 @@
 #define NO_RF_TEST		 // turns off RF testing, affects RFSubHSM
 						 // as of 5/10/2020, RF testing has not been implemented fully, and if NO_RF_TEST is undefined the resulting code is unstable
 
-// Global Hardware Objects
+// Global Objects
 extern char myString[50]; 				// Instantiates a string for storing messages to be printed to LCD screen
 extern LiquidCrystal_I2C lcd;			// Instantiates global LCD screen class
 

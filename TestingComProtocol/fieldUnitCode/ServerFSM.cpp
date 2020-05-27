@@ -1,9 +1,9 @@
-//This file is meant to be used for the remote controller. It handles the logic for sending and and recieving messages over the 915Mhz link to the field unit. 
-//When messages are recieved, the information encoded in the payload is decoded and stored in members of a global struct 'recievedInfo' which is defined in ClientConfigure.h. 
-//To send messages, first the desired payload and the length should be stored in the global struct 'clientInfo'. If the message is a measurment data request, the member 'payloadIsData' should be set to TRUE. 
-//call the function 'Run_ClientFSM()' with a 'TRANSMIT_REQUEST_EVENT' to send this payload. The packet will only be sent if the current state of the remote controller is not in the middle of handling a transaction. 
-//currently there is no way to queue packets to be sent. 
-//THIS IS THE COMMENT FOR CLIENTFSM? NEEDS TO BE UPDATED?
+// This file is meant to be used for the field unit. It handles the logic for sending and and recieving messages over the 915Mhz link. 
+// When messages are recieved, the information encoded in the payload is decoded and stored in members of a global struct 'recievedInfo' which is defined in ClientConfigure.h. 
+// To send messages, first the desired payload and the length should be stored in the global struct 'clientInfo'. If the message is a measurment data request, the member 'payloadIsData' should be set to TRUE. 
+// call the function 'Run_ClientFSM()' with a 'TRANSMIT_REQUEST_EVENT' to send this payload. The packet will only be sent if the current state of the remote controller is not in the middle of handling a transaction. 
+// currently there is no way to queue packets to be sent. 
+// THIS IS THE COMMENT FOR CLIENTFSM? NEEDS TO BE UPDATED?
 
 // Includes
 #include "ServerFSM.h"

@@ -750,7 +750,7 @@ Event Run_SubHSM_Wait(Event thisEvent) {
 					} else if (thisEvent.EventParam == BTN2) {			// Switch digits
 						nextState = State14_min1;
 						makeTransition = TRUE;
-					} else if (thisEvent.EventParam == BTN3) {			// finished with configuration, sync RTC & continue to idle
+					} else if (thisEvent.EventParam == BTN3) {			// finished with configuration, sync RTC & continue back to idle
 						SyncRTC(min1, min2, hour1, hour2, day1, day2, month1, month2, year1, year2);
 						nextState = State2_Idle;
 						makeTransition = TRUE;
@@ -760,6 +760,7 @@ Event Run_SubHSM_Wait(Event thisEvent) {
 					}
 					thisEvent.EventType = NO_EVENT;
 					break;
+				
 				default:
 					break;
 			}
