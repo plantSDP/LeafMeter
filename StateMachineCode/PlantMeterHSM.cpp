@@ -1,6 +1,4 @@
-// Our Architecture Includes
-#include "Configure.h"
-
+// Hierarchical State Machine Architecture Includes
 #include "PlantMeterHSM.h"
 
 #include "InitSubHSM.h"
@@ -10,8 +8,6 @@
 #include "ActiveSubHSM.h"
 #include "WaitSubHSM.h"
 
-// LCD screen include
-#include <LiquidCrystal_I2C.h>
 
 //====================================================================================================
 // PlantMeterHSM implements the top-level HSM for the field unit via two functions: InitHSM and RunHSM
@@ -264,10 +260,7 @@ Event RunHSM(Event thisEvent){
 					char metaDataString[400];
 
 					// currently: species, location, UTC, avg microclimate data, co2 flux are not implemented as of 5/24/20
-					sprintf(metaDataString, "Species:\nLocation:\n
-											 Date:%02d/%02d/%04d\nLocalStartTime:%02d:%02d:%02d\nUTC:\n
-											 AvgHum:\nAvgTemp:\nAvgLux:\nCo2Flux:\n
-											 SamplePeriod:%d\nNumSamples%d\n",
+					sprintf(metaDataString, "Species:\nLocation:\nDate:%02d/%02d/%04d\nLocalStartTime:%02d:%02d:%02d\nUTC:\nAvgHum:\nAvgTemp:\nAvgLux:\nCo2Flux:\nSamplePeriod:%d\nNumSamples%d\n",
 											 rtcDateTimeStruct.mday, rtcDateTimeStruct.mon, rtcDateTimeStruct.year, 
 											 rtcDateTimeStruct.hour, rtcDateTimeStruct.min, rtcDateTimeStruct.sec,
 											 period, numSamples);

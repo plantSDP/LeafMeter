@@ -2,7 +2,7 @@
 #define PLANT_HSM
 
 #include "Configure.h"
-#include "Arduino.h"
+#include "EventCheckers.h"
 
 /*
 * Used to initialize the HSM by running it with an INIT_EVENT 

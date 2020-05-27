@@ -1,7 +1,5 @@
 // Includes
 #include "DateTimeSubHSM.h"
-#include "Arduino.h"
-#include "EventCheckers.h"
 
 // Private Definitions
 #define MONTH_1 0

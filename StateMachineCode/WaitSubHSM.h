@@ -6,8 +6,7 @@
  ******************************************************************************/
 
 #include "Configure.h"   // defines events
-#include "Arduino.h"
-
+#include "EventCheckers.h"
 
 /*******************************************************************************
  * PUBLIC FUNCTION PROTOTYPES                                                  *

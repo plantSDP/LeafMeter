@@ -1,7 +1,5 @@
 // Includes
 #include "LeakSubHSM.h"
-#include "Arduino.h"
-#include "EventCheckers.h"
 
 // Private Definitions
 #define TEST_TIMER 0

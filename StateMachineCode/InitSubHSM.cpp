@@ -1,7 +1,5 @@
 // Includes
 #include "InitSubHSM.h"
-#include "Arduino.h"
-#include "EventCheckers.h"
 
 //===================================================================================================================
 // InitSubHSM implements the top-level HSM for the field unit via two functions: Init_SubHSM_Init and Run_SubHSM_Init

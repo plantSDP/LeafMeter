@@ -1,7 +1,5 @@
 // Includes
 #include "ActiveSubHSM.h"
-#include "Arduino.h"
-#include "EventCheckers.h"
 
 // Private Definitions
 #define TIMER_DATA 1

@@ -1,7 +1,5 @@
 // Includes
 #include "WaitSubHSM.h"
-#include "Arduino.h"
-#include "EventCheckers.h"
 
 // Private Definitions
 #define TEST_TIMER 0

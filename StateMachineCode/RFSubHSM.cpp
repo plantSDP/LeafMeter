@@ -1,7 +1,5 @@
 // Includes
 #include "RFSubHSM.h"
-#include "Arduino.h"
-#include "EventCheckers.h"
 
 // Private Definitions
 

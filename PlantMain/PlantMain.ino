@@ -1,18 +1,18 @@
-// Our Architecture header includes
-#include <Configure.h>			// contains global definitions, objects, structs used by the rest of the architecture
+// Our Architecture header includes			
+// contains global definitions, objects, structs used by the rest of the architecture
 #include "Configure.h"
 
 // HSM & its substates
 #include "PlantMeterHSM.h"  // top level of the HSM
 
-#include <ActiveSubHSM.h>
-#include <DateTimeSubHSM.h>
-#include <EventCheckers.h>
-#include <InitSubHSM.h>
-#include <LeakSubHSM.h>
-#include <RFSubHSM.h>
-#include <WaitSubHSM.h>
+#include "ActiveSubHSM.h"
+#include "DateTimeSubHSM.h"
+#include "InitSubHSM.h"
+#include "LeakSubHSM.h"
+#include "RFSubHSM.h"
+#include "WaitSubHSM.h"
 
+// Button and HSM timer event checkers
 #include "EventCheckers.h"
 
 // Boilerplate includes for Arduino, Adafruit sensors, I2C communication, and LCD screen
