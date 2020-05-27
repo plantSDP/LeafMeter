@@ -95,7 +95,7 @@ Event RunHSM(Event thisEvent){
 			
 			switch (thisEvent.EventType) {
 				case ENTRY_EVENT:
-					Init_SubHSM_Init();					// one-time sub-state init call
+					Init_SubHSM_Init(0);				// one-time sub-state init call, 0 indicates no need to reset the substate
 					thisEvent.EventType = NO_EVENT;		// Entry event consumed
 					break;
 				case BTN_EVENT:
@@ -192,7 +192,7 @@ Event RunHSM(Event thisEvent){
 					}
 					break;
 				case EXIT_EVENT:
-					SyncRTC(min1, min2, hour1, hour2, day1, day2, month1, month2, year1, year2);
+					SyncRTC(min1, min2, hour1, hour2, day1, day2, month1, month2, year1, year2);	// sync the RTC with the current time
 					thisEvent.EventType = NO_EVENT;		// exit event handled, return NO_EVENT
 					break;
 				default:
@@ -206,9 +206,16 @@ Event RunHSM(Event thisEvent){
 			switch(thisEvent.EventType) {
 				// On entry, init active duration timer, display message
 				case ENTRY_EVENT:
-					Init_SubHSM_Active();				// one-time sub-state init call
+					Init_SubHSM_Active(0);				// one-time sub-state init call
+					
+					SetTimer(TIMER_ACTIVE_DURATION, ACTIVE_DURATION);
 
-					SetTimer(0, ACTIVE_DURATION);
+					// retrieve new date and time
+					DS3231_get(&rtcDateTimeStruct);
+
+					// create new, unique file name using current date & time MM/DD/YYYY-HH/mm/SS, 33 characters (null termination included)
+					sprintf(fileName, "Data_Date%02d_%02d_%04d-%02d_%02d_%02d.txt",
+					rtcDateTimeStruct.mon, rtcDateTimeStruct.mday, rtcDateTimeStruct.year, rtcDateTimeStruct.hour, rtcDateTimeStruct.min, rtcDateTimeStruct.sec);
 					
 					sprintf(myString, "MEAS IN PROG    ");
 					lcd.setCursor(0, 0); // set the cursor to column 0, line 0
@@ -222,18 +229,62 @@ Event RunHSM(Event thisEvent){
 					
 				// On active duration timeout, transition to waiting
 				case TIMEOUT:
-					if (thisEvent.EventParam == TIMER_0_PARAM) {
-						Init_SubHSM_Wait();
-						nextState = Waiting;
-						makeTransition = TRUE;
+					if (thisEvent.EventParam == TIMER_ACTIVE_DURATION_PARAM) {
+						// if no more remaining cycles, return to initing
+						if (numCycles > 1) {
+							Init_SubHSM_Init(1); 		// reset and init substate machine, all cycles done
+							nextState == Initing;
+							makeTransition = TRUE;
+						} else {
+							numCycles = numCycles - 1;	// decrement number of cycles by 1
+
+							Init_SubHSM_Waiting(1);		// reset and init waiting substate
+							nextState = Waiting;
+							makeTransition = TRUE;
+						}
 					}
 					break;
 					
 				case BTN_EVENT:
 					if (thisEvent.EventParam == BTN3) {
+						Init_SubHSM_Waiting(1);			// reset and init waiting substate machine, start a new idle cycle
+
 						nextState = Waiting;
 						makeTransition = TRUE;
 					}
+					break;
+				
+				case EXIT_EVENT:
+					// create new metadata file string
+					metaFileName = "Meta";
+					//sprintf(metaFileName, "%s%s", meta, fileName);
+					strcat(metaFileName, fileName);
+
+					// create new metadata string
+					char metaDataString[400];
+
+					// currently: species, location, UTC, avg microclimate data, co2 flux are not implemented as of 5/24/20
+					sprintf(metaDataString, "Species:\nLocation:\n
+											 Date:%02d/%02d/%04d\nLocalStartTime:%02d:%02d:%02d\nUTC:\n
+											 AvgHum:\nAvgTemp:\nAvgLux:\nCo2Flux:\n
+											 SamplePeriod:%d\nNumSamples%d\n",
+											 rtcDateTimeStruct.mday, rtcDateTimeStruct.mon, rtcDateTimeStruct.year, 
+											 rtcDateTimeStruct.hour, rtcDateTimeStruct.min, rtcDateTimeStruct.sec,
+											 period, numSamples);
+
+
+					File dataFile = SD.open(metaFileName, FILE_WRITE);
+					// if the file is available, write the data string to it:
+					if (dataFile) {
+						dataFile.println(metaDataString);
+						dataFile.close();
+						// print to the serial port too:
+						// Serial.println(myString);
+					} else {
+						dataFile.close();
+					}
+
+					thisEvent.EventType = NO_EVENT;
 					break;
 					
 				default:
@@ -247,7 +298,7 @@ Event RunHSM(Event thisEvent){
 			switch(thisEvent.EventType) {
 				// On entry, init wait duration timer, display message
 				case ENTRY_EVENT:
-					Init_SubHSM_Wait();				// one-time sub-state init call
+					Init_SubHSM_Wait(0);				// one-time sub-state init call
 
 					SetTimer(TIMER_WAIT_DURATION, period*60000);	// init wait duration timer with period. Must convert from [min] to [ms]
 					
@@ -264,7 +315,7 @@ Event RunHSM(Event thisEvent){
 				// On wait duration timeout, transition to active
 				case TIMEOUT:
 					if (thisEvent.EventParam == TIMER_WAIT_DURATION_PARAM) {
-						Init_SubHSM_Active();
+						Init_SubHSM_Active(1);		// reset and init active substate machine for a new active meas cycle
 						nextState = Active;
 						makeTransition = TRUE;
 					}

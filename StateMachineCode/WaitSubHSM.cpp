@@ -51,10 +51,14 @@ static WaitSubHSMStates CurrentState = InitPSubState;
 This function initializes the state machine with an INIT_EVENT. 
 In regards to the state machine, it transitions the machine out of the initial pseudostate and performs one-time setup functions
 
-Parameters: none
+Parameters: uint8_t resetFlag, if true: current state will be reset to the starting pseudostate, if false, current state is unchanged. Used to start a new waiting cycle
 Return: TRUE on success, FALSE on failure
 */
-uint8_t Init_SubHSM_Wait(void){
+uint8_t Init_SubHSM_Wait(uint8_t resetFlag){
+	if (resetFlag == TRUE) {				// used to reset the Waiting state machine to the starting pseudostate
+		currentState = InitPSubState;
+	}
+
 	Event thisEvent;
 	thisEvent.EventType = INIT_EVENT;
 	thisEvent.EventParam = 0;

@@ -3,6 +3,8 @@
 //#include "SdCard.h"
 #include <SD.h>
 
+#define TOTAL_TIME 36000000
+
 const int chipSelect = 4;
 
 char folderName[8] = "folder";
@@ -58,7 +60,7 @@ void loop() {
     sinceLastReading = 0;
     Cozir_Request_Data();
   }
-  if (curTime < 10800000) { // three hours converted to milliseconds
+  if (curTime < TOTAL_TIME) { // 3 hrs = 10,800,000 ms
     if(Cozir_NewDataAvailable() == 1){
       cozirData.co2 = Cozir_Get_Co2();
       holder = curTime;
@@ -82,5 +84,7 @@ void loop() {
         Serial.println("error opening data.txt");
       }
     }
+  } else if (curTime == TOTAL_TIME){
+    Serial.println("DONE");
   }
 }

@@ -13,7 +13,7 @@
  * PUBLIC FUNCTION PROTOTYPES                                                  *
  ******************************************************************************/
 
-uint8_t Init_SubHSM_Wait(void);
+uint8_t Init_SubHSM_Wait(uint8_t resetFlag);
 
 Event Run_SubHSM_Wait(Event thisEvent);
 

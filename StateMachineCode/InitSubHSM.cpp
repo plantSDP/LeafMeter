@@ -35,7 +35,11 @@ In regards to the state machine, it transitions the machine out of the initial p
 Parameters: none
 Return: TRUE on success, FALSE on failure
 */
-uint8_t Init_SubHSM_Init(void){
+uint8_t Init_SubHSM_Init(uint8_t resetFlag){
+	if (resetFlag == TRUE) {
+		CurrentState = InitPSubState;		// special modification to the init substate machine, used to reset the current state in when the device has completed all cycles
+	}
+
 	Event thisEvent;
 	thisEvent.EventType = INIT_EVENT;
 	thisEvent.EventParam = 0;
@@ -86,7 +90,7 @@ Event Run_SubHSM_Init(Event thisEvent) {
 			break;
 		
 		case State0_Failure:
-			sprintf(myString, "Sensor Failure");
+			sprintf(myString, "Failure      ");
 			lcd.setCursor(0, 0); // set the cursor to column 0, line 0
 			lcd.print(myString);  // Print a message to the LCD	
 			thisEvent.EventType = NO_EVENT;
@@ -96,8 +100,11 @@ Event Run_SubHSM_Init(Event thisEvent) {
 			switch (thisEvent.EventType) {
 				case ENTRY_EVENT:
 					// Display Hello
-					sprintf(myString, "Starting...");
+					sprintf(myString, "Co2 Flux Meter  ");
 					lcd.setCursor(0, 0); // set the cursor to column 0, line 0
+					lcd.print(myString);  // Print a message to the LCD
+					sprintf(myString, "Starting...     ");
+					lcd.setCursor(0, 1); // set the cursor to column 0, line 1
 					lcd.print(myString);  // Print a message to the LCD
 
 					// Init timer
@@ -119,7 +126,7 @@ Event Run_SubHSM_Init(Event thisEvent) {
 							makeTransition = TRUE;	
 						}
 					} else if (thisEvent.EventParam == TIMER_1_PARAM) {		// if Timer 1 has timed out, 10sec cozir warmup is done
-						if ((Cozir_Init()) && (lightSensor.begin()) && (pressureSensor.begin())) {	// initializations for the three sensors
+						if ((Cozir_Init()) && (lightSensor.begin()) && (pressureSensor.begin() && SD.begin(SD_CHIP_SELECT))) {	// initializations for the three sensors
 							// Request humidity data from Cozir
 							Cozir_Request_Data();
 							SetTimer(0, 100); 		// It takes around 70-100ms for the Cozir to send data after a request
@@ -156,7 +163,7 @@ Event Run_SubHSM_Init(Event thisEvent) {
 						lcd.print(myString);  // Print a message to the LCD							
 					} else {
 						// Display ok
-						sprintf(myString, "HUM OK, %d          ", hum);
+						sprintf(myString, "HUM OK, %dRH          ", hum);
 						lcd.setCursor(0, 0);  // set the cursor to column 0, line 0
 						lcd.print(myString);  // Print a message to the LCD
 					    sprintf(myString, "   BTN3 CONTINUE      ");
@@ -180,7 +187,7 @@ Event Run_SubHSM_Init(Event thisEvent) {
 			switch (thisEvent.EventType) {
 				case ENTRY_EVENT:
 					// Display failure, prompt any btn press for retry
-					sprintf(myString, "HUM DANGER, %d        ", hum);
+					sprintf(myString, "HUM DANGER, %dRH        ", hum);
 					lcd.setCursor(0, 0); // set the cursor to column 0, line 0
 					lcd.print(myString);  // Print a message to the LCD
 					sprintf(myString, "BTN3 CONTINUE         ");
@@ -209,7 +216,7 @@ Event Run_SubHSM_Init(Event thisEvent) {
 					lcd.print(myString);  					// Print a message to the LCD
 					
 					SetTimer(0, 5000);		// Init timer
-					Cozir_Request_Data();	// Read hum
+					Cozir_Request_Data();	// requests sensor for new data
 
 					thisEvent.EventType = NO_EVENT;
 					break;						

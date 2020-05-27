@@ -21,8 +21,18 @@ typedef enum {
 // Holds current state
 static ActiveSubHSMStates CurrentState = InitPSubState;
 
-// This function runs the state machine with an INIT_EVENT
-uint8_t Init_SubHSM_Active(void){
+/*
+This function initializes the state machine with an INIT_EVENT. 
+In regards to the state machine, it transitions the machine out of the initial pseudostate and performs one-time setup functions
+
+Parameters: uint8_t resetFlag, if true: current state will be reset to the starting pseudostate, if false, current state is unchanged. Used to start a new active cycle
+Return: TRUE on success, FALSE on failure
+*/
+uint8_t Init_SubHSM_Active(uint8_t resetFlag){
+	if (resetFlag == TRUE) {
+		CurrentState = InitPSubState;		// special modification for the Active sub-statemachine, used to reset the current state to the starting pseudostate.
+	}
+	
 	Event thisEvent;
 	thisEvent.EventType = INIT_EVENT;
 	thisEvent.EventParam = 0;
@@ -43,7 +53,7 @@ If the event is not consumed/handled, then the event is returned unchanged.
 Event Run_SubHSM_Active(Event thisEvent) {
 	
 	uint8_t makeTransition = FALSE; // use to flag transition
-	ActiveSubHSMStates nextState;
+	ActiveSubHSMStates nextState;	// use to indicate next state
 
 	switch (CurrentState) {
 		case InitPSubState:								// If current state is initial Pseudo State
@@ -64,8 +74,10 @@ Event Run_SubHSM_Active(Event thisEvent) {
 			switch (thisEvent.EventType) {
 				case ENTRY_EVENT:
 					// Close valves, run pump
-					measurementData = "";		// clear measurement data string
 					
+					dataArrayAddress = 0;	// reset the data array address for a new measurement cycle
+					numSamples = 0;			// reset the number of samples taken
+
 					nextState = State2_TakingMeasurement1;
 					makeTransition = TRUE;
 					break;
@@ -107,16 +119,36 @@ Event Run_SubHSM_Active(Event thisEvent) {
 
 					hum = pressureSensor.getHumidity_RH();
 					temp = pressureSensor.getTemperature_C();
-					pressure = pressureSensor.getPressure_Pa();
+					pres = pressureSensor.getPressure_Pa();
 
 					lux = GetLux(lightSensor.getFullLuminosity());
 
-					// temporarily store data
-					string buffer;
-					sprintf(buffer, "%d,\t%d,\t%d,\t%d,\t%u \n", co2, hum, temp, pressure, lux);
+					// record data into data arrays
+					co2Data[dataArrayAddress] = co2;
+					humData[dataArrayAddress] = hum;
+					tempData[dataArrayAddress] = temp;
+					presData[dataArrayAddress] = pres;
+					luxData[dataArrayAddress] = lux;
 
-					measurementData = measurementData + buffer
+					// increment data array address
+					if (dataArrayAddress < MAX_SAMPLES_PER_CYCLE) {
+						dataArrayAddress = dataArrayAddress + 1;
+					}
 					
+					// create data string for SD card .txt file
+					char dataString[50];
+					sprintf(dataString, "%04d\t%02d\t%03d\t%06d\t%06u\n", co2, hum, temp, pressure, lux);
+
+					File dataFile = SD.open(fileName, FILE_WRITE);
+					// if the file is available, write the data string to it:
+					if (dataFile) {
+						dataFile.println(dataString);
+						dataFile.close();
+						// print to the serial port too:
+						// Serial.println(myString);
+					}
+					numSamples = numSamples + 1;		// keep a record of how many samples are recorded to the .txt file
+
 					thisEvent.EventType = NO_EVENT;
 					break;
 				case TIMEOUT:

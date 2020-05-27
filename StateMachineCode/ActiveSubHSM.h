@@ -5,7 +5,7 @@
  * PUBLIC #INCLUDES                                                            *
  ******************************************************************************/
 
-#include "Configure.h"   // defines events
+#include "Configure.h"   // defines architecture
 #include "Arduino.h"
 
 
@@ -13,7 +13,7 @@
  * PUBLIC FUNCTION PROTOTYPES                                                  *
  ******************************************************************************/
 
-uint8_t Init_SubHSM_Active(void);
+uint8_t Init_SubHSM_Active(uint8_t resetFlag);
 
 Event Run_SubHSM_Active(Event thisEvent);
 

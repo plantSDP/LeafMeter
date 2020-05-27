@@ -35,8 +35,8 @@ void setup() {
   // put your setup code here, to run once:
   
   // Teensy LED
-  pinMode(13,OUTPUT);
-  digitalWrite(13,HIGH); // HIGH means LED on
+  // pinMode(13,OUTPUT);
+  // digitalWrite(13,HIGH); // HIGH means LED on
 
 
   DS3231_init(DS3231_CONTROL_INTCN);  // initialize RTC module
