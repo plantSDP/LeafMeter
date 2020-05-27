@@ -11,6 +11,7 @@
 
 #include "ds3231.h"					// library for the RTC
 
+#include "SPI.h"
 #include "SD.h"						// Arduino library for SD card, allows creation, writing, and deletion of folders and files
 
 // This library was modified from an existing sensor library

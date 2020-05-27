@@ -770,13 +770,13 @@ Event Run_SubHSM_Wait(Event thisEvent) {
 	if (makeTransition == TRUE) { // making a state transition, send EXIT and ENTRY events to allow for special on-transition behavior
 		// recursively call the current state machine with an exit event before changing states for exit behavior
 		thisEvent.EventType = EXIT_EVENT;
-		Run_SubHSM_Init(thisEvent);
+		Run_SubHSM_Wait(thisEvent);
 		
 		CurrentState = nextState;
 		
 		// recursively call the current state machine with an entry event after changing states for entry behavior
 		thisEvent.EventType = ENTRY_EVENT;
-		Run_SubHSM_Init(thisEvent);
+		Run_SubHSM_Wait(thisEvent);
 		thisEvent.EventType = NO_EVENT;	// Transitions are only triggered by events being handled, so the return must be NO_EVENT
 	}
 	return thisEvent;
