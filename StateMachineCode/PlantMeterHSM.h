@@ -5,8 +5,8 @@
 #include "Arduino.h"
 
 /*
-* Used to initialize the HSM. 
-* This function should be called at the startup of the system
+* Used to initialize the HSM by running it with an INIT_EVENT 
+* This function should be called at the startup of the system and is used to perform one-time setup functionality
 */
 uint8_t InitHSM(void);
 
