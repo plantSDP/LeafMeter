@@ -69,28 +69,28 @@ extern Adafruit_TSL2591 lightSensor;	// Instantiates global TSL2591 class
 // RF options used by HSM
 #define RF_YES 	1
 #define RF_NO 	0
-static int rfOption = RF_NO;		// sets rfOption, default is NO (0)
+extern int rfOption;		// sets rfOption, default is NO (0)
 
 // Active and Waiting Periods, Sampling Frequency
 #define ACTIVE_DURATION 600000		// duration of active cycle in [ms], default 600000[ms] = 10[min]
-static int period = 60;				// holds value for period in between measurements in [min], default is 60[min] but can be user-defined
+extern int period;					// holds value for period in between measurements in [min], default is 60[min] but can be user-defined
 #define SAMPLING_FREQ 550			// sampling frequency in [ms], the minimum is 500[ms]
 #define MAX_SAMPLES_PER_CYCLE 120	// ACTIVE_DURATION / MIN_SAMPLING_FREQ
 
 // Number of measurement cycles
-static uint8_t numCycles = 1;			// holds value for number of measurement cycles, default is 1
+extern uint8_t numCycles;			// holds value for number of measurement cycles, default is 1
 
 // Number of samples taken
-static uint8_t numSamples = 0;			// holds value of the number of samples taken in a single active meas cycle, default is 0
+extern uint8_t numSamples;			// holds value of the number of samples taken in a single active meas cycle, default is 0
 
 // Global microclimate variables
-static unsigned int co2 = 0;		// holds CO2 measurement in ppm from CozIR, default is 0
-static unsigned int hum = 0;		// holds humidity measurement in RH from CozIR, default is 0
-static int temp = 0;				// holds temperature mesurement in C from CozIR, default is 0
+extern unsigned int co2;		// holds CO2 measurement in ppm from CozIR, default is 0
+extern unsigned int hum;		// holds humidity measurement in RH from CozIR, default is 0
+extern int temp;				// holds temperature mesurement in C from CozIR, default is 0
 
-static int pres = 0;				// holds pressure measurement in Pa from BME280, default is 0
+extern int pres;				// holds pressure measurement in Pa from BME280, default is 0
 
-static unsigned int lux = 0;		// holds light measurement in lux from TSL2591, default is 0
+extern unsigned int lux;		// holds light measurement in lux from TSL2591, default is 0
 
 // Global microclimate data arrays
 extern unsigned int co2Data[MAX_SAMPLES_PER_CYCLE];			// these arrays hold microclimate data for one active measurement cycle
@@ -99,23 +99,23 @@ extern int tempData[MAX_SAMPLES_PER_CYCLE];
 extern int presData[MAX_SAMPLES_PER_CYCLE];
 extern unsigned int luxData[MAX_SAMPLES_PER_CYCLE];
 
-static uint8_t dataArrayAddress = 0;
+extern uint8_t dataArrayAddress;
 
 // Global date & time variables
-static uint8_t month1 = 0;	// MM/DD/YY, default 01/01/20
-static uint8_t month2 = 1;
+extern uint8_t month1;	// MM/DD/YY, default 01/01/20
+extern uint8_t month2;
 
-static uint8_t day1   = 0;
-static uint8_t day2   = 1;
+extern uint8_t day1;
+extern uint8_t day2;
 
-static uint8_t year1  = 2;
-static uint8_t year2  = 0;
+extern uint8_t year1;
+extern uint8_t year2;
 
-static uint8_t hour1  = 0;	// HH:MM millitary time, default 00:00
-static uint8_t hour2  = 0;
+extern uint8_t hour1;	// HH:MM millitary time, default 00:00
+extern uint8_t hour2;
 
-static uint8_t min1   = 0;
-static uint8_t min2   = 0;
+extern uint8_t min1;
+extern uint8_t min2;
 
 extern ts rtcDateTimeStruct;		// RTC struct, holds date and time values and is used for setting/retrieving this data from the RTC
 
@@ -144,5 +144,14 @@ typedef struct Events{
 	eventTypes EventType;
 	int EventParam;
 }Event;
+
+// Prints date in MM/DD/YY format to LCD screen
+void PrintDate(void);
+
+// Prints time in HH:MM format to LCD screen
+void PrintTime(void);
+
+// Syncs the RTC. Requires 8bit values for each minute, hour, day, month, and year digits.
+void SyncRTC(uint8_t min1, uint8_t min2, uint8_t hour1, uint8_t hour2, uint8_t day1, uint8_t day2, uint8_t month1, uint8_t month2, uint8_t year1, uint8_t year2);
 
 #endif		// closes the header shield
