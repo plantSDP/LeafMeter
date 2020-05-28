@@ -1,6 +1,9 @@
 #include "Configure.h"
 
-// Global Variable definitions
+// Global Variable/Array/Struct definitions, declarations are in the .h file
+
+char fileName[33];
+char metaFileName[38];
 
 uint8_t rfOption = RF_NO;       // sets rfOption, default is NO (0)
 
@@ -13,6 +16,14 @@ unsigned int hum = 0;		// holds humidity measurement in RH from CozIR, default i
 int temp = 0;				// holds temperature mesurement in C from CozIR, default is 0
 int pres = 0;				// holds pressure measurement in Pa from BME280, default is 0
 unsigned int lux = 0;		// holds light measurement in lux from TSL2591, default is 0
+
+unsigned int co2Data[MAX_SAMPLES_PER_CYCLE];			// these arrays hold microclimate data for one active measurement cycle
+unsigned int humData[MAX_SAMPLES_PER_CYCLE];			
+int tempData[MAX_SAMPLES_PER_CYCLE];
+int presData[MAX_SAMPLES_PER_CYCLE];
+unsigned int luxData[MAX_SAMPLES_PER_CYCLE];
+
+uint8_t dataArrayAddress;
 
 
 uint8_t month1 = 0;	// MM/DD/YY, default 01/01/20
@@ -29,6 +40,8 @@ uint8_t hour2 = 0;
 
 uint8_t min1 = 0;
 uint8_t min2 = 0;
+
+ts rtcDateTimeStruct; // RTC struct, holds date and time values and is used for setting/retrieving this data from the RTC
 
 //==============================
 // Public Function definitions

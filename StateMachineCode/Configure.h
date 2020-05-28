@@ -38,14 +38,14 @@
 						 // as of 5/10/2020, RF testing has not been implemented fully, and if NO_RF_TEST is undefined the resulting code is unstable
 
 // Global Objects
-extern char myString[50]; 				// Instantiates a string for storing messages to be printed to LCD screen
-extern LiquidCrystal_I2C lcd;			// Instantiates global LCD screen class
+extern char myString[50]; 				// Declares a string for storing messages to be printed to LCD screen
+extern LiquidCrystal_I2C lcd;			// Declares global LCD screen class
 
-extern char fileName[33];				// Instantiates a string for storing the unique data file name for each measurement period
-extern char metaFileName[38];			// Instantiates a string for storing the unique metadata file name for each measurement period
+extern char fileName[33];				// Declares a string for storing the unique data file name for each measurement period
+extern char metaFileName[38];			// Declares a string for storing the unique metadata file name for each measurement period
 
-extern BME280 pressureSensor;			// Instantiates global BME280 class
-extern Adafruit_TSL2591 lightSensor;	// Instantiates global TSL2591 class
+extern BME280 pressureSensor;			// Declares global BME280 class
+extern Adafruit_TSL2591 lightSensor;	// Declares global TSL2591 class
 
 // Button EventParam Definitions used by the HSM, used to differentiate BTN_EVENT
 #define NO_PRESS			0b0
@@ -69,7 +69,7 @@ extern Adafruit_TSL2591 lightSensor;	// Instantiates global TSL2591 class
 // RF options used by HSM
 #define RF_YES 	1
 #define RF_NO 	0
-extern uint8_t rfOption;			// sets rfOption, default is NO (0)
+extern uint8_t rfOption;			// delcaration: holds rfOption, default is NO (0)
 
 // Active and Waiting Periods, Sampling Frequency
 #define ACTIVE_DURATION 600000		// duration of active cycle in [ms], default 600000[ms] = 10[min]
@@ -78,12 +78,12 @@ extern uint8_t period;				// holds value for period in between measurements in [
 #define MAX_SAMPLES_PER_CYCLE 120	// ACTIVE_DURATION / MIN_SAMPLING_FREQ
 
 // Number of measurement cycles
-extern uint8_t numCycles;			// holds value for number of measurement cycles, default is 1
+extern uint8_t numCycles;			// declaration: holds value for number of measurement cycles, default is 1
 
 // Number of samples taken
-extern uint8_t numSamples;			// holds value of the number of samples taken in a single active meas cycle, default is 0
+extern uint8_t numSamples;			// declaration: holds value of the number of samples taken in a single active meas cycle, default is 0
 
-// Global microclimate variables
+// Global microclimate variables declaration
 extern unsigned int co2;		// holds CO2 measurement in ppm from CozIR, default is 0
 extern unsigned int hum;		// holds humidity measurement in RH from CozIR, default is 0
 extern int temp;				// holds temperature mesurement in C from CozIR, default is 0
@@ -92,7 +92,7 @@ extern int pres;				// holds pressure measurement in Pa from BME280, default is 
 
 extern unsigned int lux;		// holds light measurement in lux from TSL2591, default is 0
 
-// Global microclimate data arrays
+// Global microclimate data arrays declaration
 extern unsigned int co2Data[MAX_SAMPLES_PER_CYCLE];			// these arrays hold microclimate data for one active measurement cycle
 extern unsigned int humData[MAX_SAMPLES_PER_CYCLE];			
 extern int tempData[MAX_SAMPLES_PER_CYCLE];
@@ -101,7 +101,7 @@ extern unsigned int luxData[MAX_SAMPLES_PER_CYCLE];
 
 extern uint8_t dataArrayAddress;
 
-// Global date & time variables
+// Global date & time variables declaration
 extern uint8_t month1;	// MM/DD/YY, default 01/01/20
 extern uint8_t month2;
 
@@ -117,7 +117,7 @@ extern uint8_t hour2;
 extern uint8_t min1;
 extern uint8_t min2;
 
-extern ts rtcDateTimeStruct;		// RTC struct, holds date and time values and is used for setting/retrieving this data from the RTC
+extern ts rtcDateTimeStruct;		// declares RTC struct, holds date and time values and is used for setting/retrieving this data from the RTC
 
 // SD card global definitions
 #define SD_CHIP_SELECT 4

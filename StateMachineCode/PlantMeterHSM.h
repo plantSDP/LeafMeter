@@ -4,6 +4,14 @@
 #include "Configure.h"
 #include "EventCheckers.h"
 
+// Hierarchical State Machine Architecture Includes
+#include "InitSubHSM.h"
+#include "LeakSubHSM.h"
+#include "RFSubHSM.h"
+#include "DateTimeSubHSM.h"
+#include "ActiveSubHSM.h"
+#include "WaitSubHSM.h"
+
 /*
 * Used to initialize the HSM by running it with an INIT_EVENT 
 * This function should be called at the startup of the system and is used to perform one-time setup functionality
