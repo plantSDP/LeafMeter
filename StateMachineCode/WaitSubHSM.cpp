@@ -94,6 +94,8 @@ Event Run_SubHSM_Wait(Event thisEvent) {
 			switch (thisEvent.EventType) {
 				case ENTRY_EVENT:
 					// record data to SD card, transition to idle
+					nextState = State2_Idle;
+					makeTransition = TRUE;					
 
 					thisEvent.EventType = NO_EVENT;
 					break;

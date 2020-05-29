@@ -16,11 +16,11 @@
 #include "EventCheckers.h"
 
 // Boilerplate includes for Arduino, Adafruit sensors, I2C communication, and LCD screen
-#include "Arduino.h"
-#include <Adafruit_Sensor.h>
+//#include "Arduino.h"
+//#include <Adafruit_Sensor.h>
 //#include <Wire.h>
 #include "i2c_t3.h"
-#include <LiquidCrystal_I2C.h>
+//#include <LiquidCrystal_I2C.h>
 
 // Constructions
 LiquidCrystal_I2C lcd(0x27, 16, 2); // constructs an lcd class, set the LCD address to 0x27 for a 16 chars and 2 line display
@@ -78,8 +78,14 @@ void setup() {
   // pinMode(13,OUTPUT);
   // digitalWrite(13,HIGH); // HIGH means LED on
 
+  Serial.begin(9600);
+  while (!Serial) {
+    ; // wait for serial port to connect. Needed for Leonardo only
+  }
+  Serial.println("hello world");
 
-  //DS3231_init(DS3231_CONTROL_INTCN);  // initialize RTC module
+  Wire.begin();
+  DS3231_init(DS3231_CONTROL_INTCN);  // initialize RTC module
 
   lcd.init();  		  // initialize the lcd
   lcd.backlight();  // open the backlight for the lcd
@@ -94,6 +100,7 @@ void loop() {
   // Update button event status
   newEvent = ButtonCheckDebounce();
   if (newEvent.EventType != NO_EVENT){	// if new, send it to the state machine
+    Serial.println("BTN_EVENT");
     RunHSM(newEvent);
   }
   

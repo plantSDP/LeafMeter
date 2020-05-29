@@ -160,6 +160,7 @@ Event RunHSM(Event thisEvent){
 			
 			switch (thisEvent.EventType) {
 				case ENTRY_EVENT:
+					Serial.println("entered DATETIME");
 					Init_SubHSM_DateTime();				// one-time sub-state init call
 					thisEvent.EventType = NO_EVENT;
 					break;
@@ -181,6 +182,7 @@ Event RunHSM(Event thisEvent){
 					}
 					break;
 				case EXIT_EVENT:
+					Serial.println("leaving DATETIME");
 					SyncRTC(min1, min2, hour1, hour2, day1, day2, month1, month2, year1, year2);	// sync the RTC with the current time
 					thisEvent.EventType = NO_EVENT;		// exit event handled, return NO_EVENT
 					break;
@@ -195,6 +197,7 @@ Event RunHSM(Event thisEvent){
 			switch(thisEvent.EventType) {
 				// On entry, init active duration timer, display message
 				case ENTRY_EVENT:
+					Serial.println("in ACTIVE");
 					Init_SubHSM_Active(0);				// one-time sub-state init call
 					
 					SetTimer(TIMER_ACTIVE_DURATION, ACTIVE_DURATION);
@@ -203,9 +206,10 @@ Event RunHSM(Event thisEvent){
 					DS3231_get(&rtcDateTimeStruct);
 
 					// create new, unique file name using current date & time MM/DD/YYYY-HH/mm/SS, 33 characters (null termination included)
-					sprintf(fileName, "Data_Date%02d_%02d_%04d-%02d_%02d_%02d.txt",
+					sprintf(fileName, "Data_Date%02d_%02d_%02d-%02d_%02d_%02d.txt",
 					rtcDateTimeStruct.mon, rtcDateTimeStruct.mday, rtcDateTimeStruct.year, rtcDateTimeStruct.hour, rtcDateTimeStruct.min, rtcDateTimeStruct.sec);
-					
+					Serial.println(fileName);
+
 					sprintf(myString, "MEAS IN PROG    ");
 					lcd.setCursor(0, 0); // set the cursor to column 0, line 0
 					lcd.print(myString);  // Print a message to the LCD
@@ -249,7 +253,7 @@ Event RunHSM(Event thisEvent){
 					char metaDataString[400];
 
 					// currently: species, location, UTC, avg microclimate data, co2 flux are not implemented as of 5/24/20
-					sprintf(metaDataString, "Species:\nLocation:\nDate:%02d/%02d/%04d\nLocalStartTime:%02d:%02d:%02d\nUTC:\nAvgHum:\nAvgTemp:\nAvgLux:\nCo2Flux:\nSamplePeriod:%d\nNumSamples%d\n",
+					sprintf(metaDataString, "Species:\nLocation:\nDate:%02d/%02d/%02d\nLocalStartTime:%02d:%02d:%02d\nUTC:\nAvgHum:\nAvgTemp:\nAvgLux:\nCo2Flux:\nSamplePeriod:%d\nNumSamples%d\n",
 											 rtcDateTimeStruct.mday, rtcDateTimeStruct.mon, rtcDateTimeStruct.year, 
 											 rtcDateTimeStruct.hour, rtcDateTimeStruct.min, rtcDateTimeStruct.sec,
 											 period, numSamples);
@@ -260,6 +264,7 @@ Event RunHSM(Event thisEvent){
 					if (metaDataFile) {
 						metaDataFile.println(metaDataString);
 						metaDataFile.close();
+						Serial.println("wrote to metafile");
 						// print to the serial port too:
 						// Serial.println(myString);
 					} else {

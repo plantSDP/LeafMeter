@@ -136,14 +136,19 @@ Event Run_SubHSM_Active(Event thisEvent) {
 					// create data string for SD card .txt file
 					char dataString[50];
 					sprintf(dataString, "%04d\t%02d\t%03d\t%06d\t%06u\n", co2, hum, temp, pres, lux);
+					Serial.println(dataString);
 
 					dataFile = SD.open(fileName, FILE_WRITE);
 					// if the file is available, write the data string to it:
 					if (dataFile) {
 						dataFile.println(dataString);
 						dataFile.close();
+						Serial.println("wrote to datafile");
 						// print to the serial port too:
 						// Serial.println(myString);
+					} else {
+						dataFile.close();
+						Serial.println("failed to write to datafile")
 					}
 					numSamples = numSamples + 1;		// keep a record of how many samples are recorded to the .txt file
 
