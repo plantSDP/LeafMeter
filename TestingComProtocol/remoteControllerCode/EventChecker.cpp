@@ -1,4 +1,4 @@
-#include "ClientConfigure.h"
+#include "RemoteConfigure.h"
 #include "Arduino.h"
 #include "EventChecker.h"
 #include <Metro.h> //this library is used to create timers
@@ -119,6 +119,78 @@ Event RfMessageCheck(void){
 		
 }
 
+
+/*
+Checks for if a new message is available from the BLE module. If yes, the message and length are stored in the global variables BLEMessage and BLEMessage_length;
+*/
+Event BLEMessageCheck(void){
+	
+	uint8_t currentCheck = FALSE;
+	Event returnEvent;
+	returnEvent.EventType = NO_EVENT;
+	
+	uint8_t messageID; //used to hold the first byte stored in the UART buffer. This will be used to determine if an entire message has been retrieved
+	
+	
+	uint8_t numBytes = Serial1.available(); //determine if there is data in the buffer. If yes, look at the first byte to determine the messageID
+	if(numBytes > 0){
+		messageID = Serial1.peek(); //this does not remove the first byte from the software buffer
+		
+		if (messageID == CONFIGURE_DATE_TIME){ //check all message IDs and see if a full message had been sent based on the ID. If so, put the message in a global array 
+			if (numBytes >= 6){
+				Serial1.readBytes(BLEMessage, 6);
+				BLEMessage_length = 6;
+				currentCheck = TRUE;
+			}
+		} else if (messageID == MEASUREMENT_REQUEST){
+				if (numBytes >= 2){
+				Serial1.readBytes(BLEMessage, 2);
+				BLEMessage_length = 2;
+				currentCheck = TRUE;
+			}
+		}else if (messageID == CONFIGURE_TOTAL_MEASUREMENTS){
+				if (numBytes >= 2){
+				Serial1.readBytes(BLEMessage, 2);
+				BLEMessage_length = 2;
+				currentCheck = TRUE;
+			}
+		}else if (messageID == CONFIGURE_CYCLE_PERIOD){
+				if (numBytes >= 3){
+				Serial1.readBytes(BLEMessage, 3);
+				BLEMessage_length = 3;
+				currentCheck = TRUE;
+			}
+		}else if (messageID == POWER_OFF_REQUEST){
+				if (numBytes >= 3){
+				Serial1.readBytes(BLEMessage, 3);
+				BLEMessage_length = 3;
+				currentCheck = TRUE;
+			}
+		}else if (messageID == UPDATE_STATUS_REQUEST){
+				if (numBytes >= 1){
+				Serial1.readBytes(BLEMessage, 1);
+				BLEMessage_length = 1;
+				currentCheck = TRUE;
+			}
+		}else if (messageID == DATA_TRANSMISSION_REQUEST){
+				if (numBytes >= 2){
+				Serial1.readBytes(BLEMessage, 2);
+				BLEMessage_length = 2;
+				currentCheck = TRUE;
+			}
+		}
+	}
+	
+	
+	
+	if (currentCheck == TRUE){
+		returnEvent.EventType = BLE_RECIEVE_EVENT;
+		returnEvent.EventParam = 0;
+	}	
+	
+	return returnEvent;
+		
+}
 
 
 
