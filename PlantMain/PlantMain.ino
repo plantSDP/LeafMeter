@@ -79,7 +79,7 @@ void setup() {
   // digitalWrite(13,HIGH); // HIGH means LED on
 
 
-  DS3231_init(DS3231_CONTROL_INTCN);  // initialize RTC module
+  //DS3231_init(DS3231_CONTROL_INTCN);  // initialize RTC module
 
   lcd.init();  		  // initialize the lcd
   lcd.backlight();  // open the backlight for the lcd
