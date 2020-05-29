@@ -123,10 +123,10 @@ Event Run_SubHSM_Active(Event thisEvent) {
 
 					// record data into data arrays
 					co2Data[dataArrayAddress] = co2;
-					humData[dataArrayAddress] = hum;
-					tempData[dataArrayAddress] = temp;
-					presData[dataArrayAddress] = pres;
-					luxData[dataArrayAddress] = lux;
+					// humData[dataArrayAddress] = hum;
+					// tempData[dataArrayAddress] = temp;
+					// presData[dataArrayAddress] = pres;
+					// luxData[dataArrayAddress] = lux;
 
 					// increment data array address
 					if (dataArrayAddress < MAX_SAMPLES_PER_CYCLE) {

@@ -1,5 +1,5 @@
 // Our Architecture header includes			
-// contains global definitions, objects, structs used by the rest of the architecture
+// contains global declarations+definitions for objects, structs, arrays, & variables used by the rest of the architecture
 #include "Configure.h"
 
 // HSM & its substates
@@ -23,13 +23,12 @@
 #include <LiquidCrystal_I2C.h>
 
 // Definitions, Constructions
+LiquidCrystal_I2C lcd(0x27, 16, 2); // constructs an lcd class, set the LCD address to 0x27 for a 16 chars and 2 line display
+
 BME280 pressureSensor(Wire,0x77);	// Constructor for the BME280 pressure sensor
-Adafruit_TSL2591 lightSensor = Adafruit_TSL2591(2591);
-LiquidCrystal_I2C lcd(0x27, 16, 2); // set the LCD address to 0x27 for a 16 chars and 2 line display
+Adafruit_TSL2591 lightSensor = Adafruit_TSL2591(2591);  // light sensor definition
+
 static Event newEvent;
-char myString[50]; 
-
-
 
 void setup() {
   // put your setup code here, to run once:

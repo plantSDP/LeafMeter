@@ -21,12 +21,12 @@
 #include "CozirLib.h"				// Co2 sensor
 
 //====================================================================================================================
-// Configure.h holds global definitions, structs, objects, needed by other parts of the framework (HSM, EventCheckers)
+// Configure.h holds global declarations needed by other parts of the framework (HSM, EventCheckers)
 //====================================================================================================================
 
-//===================================
-// Public Definitions & Global Things
-//===================================
+//===============================================
+// Global Declarations & Public Structs/Functions
+//===============================================
 #define TRUE 1
 #define FALSE 0
 
@@ -47,7 +47,7 @@ extern char metaFileName[38];			// Declares a string for storing the unique meta
 extern BME280 pressureSensor;			// Declares global BME280 class
 extern Adafruit_TSL2591 lightSensor;	// Declares global TSL2591 class
 
-// Button EventParam Definitions used by the HSM, used to differentiate BTN_EVENT
+// Button EventParam Definitions used by the HSM, used to differentiate BTN_EVENTs
 #define NO_PRESS			0b0
 #define BTN1				0b1
 #define BTN2				0b10
@@ -59,7 +59,7 @@ extern Adafruit_TSL2591 lightSensor;	// Declares global TSL2591 class
 #define TIMER_1_PARAM 		0b10
 #define TIMER_2_PARAM		0b100
 
-// Humidity thresholds used by HSM, measured in RH
+// Humidity thresholds for used by HSM, measured in RH
 #define HUM_DANGER_THRESHOLD 	90
 #define HUM_WARNING_THRESHOLD 	80
 
@@ -73,9 +73,9 @@ extern uint8_t rfOption;			// delcaration: holds rfOption, default is NO (0)
 
 // Active and Waiting Periods, Sampling Frequency
 #define ACTIVE_DURATION 600000		// duration of active cycle in [ms], default 600000[ms] = 10[min]
-extern uint8_t period;				// holds value for period in between measurements in [min], default is 60[min] but can be user-defined
 #define SAMPLING_FREQ 550			// sampling frequency in [ms], the minimum is 500[ms]
-#define MAX_SAMPLES_PER_CYCLE 120	// ACTIVE_DURATION / MIN_SAMPLING_FREQ
+#define MAX_SAMPLES_PER_CYCLE 1200	// ACTIVE_DURATION / MIN_SAMPLING_FREQ
+extern uint8_t period;				// holds value for period in between measurements in [min], default is 60[min] but can be user-defined
 
 // Number of measurement cycles
 extern uint8_t numCycles;			// declaration: holds value for number of measurement cycles, default is 1
@@ -84,20 +84,16 @@ extern uint8_t numCycles;			// declaration: holds value for number of measuremen
 extern uint8_t numSamples;			// declaration: holds value of the number of samples taken in a single active meas cycle, default is 0
 
 // Global microclimate variables declaration
-extern unsigned int co2;		// holds CO2 measurement in ppm from CozIR, default is 0
-extern unsigned int hum;		// holds humidity measurement in RH from CozIR, default is 0
-extern int temp;				// holds temperature mesurement in C from CozIR, default is 0
+extern uint16_t co2;			// holds CO2 measurement in ppm from CozIR, default is 0
+extern uint8_t hum;				// holds humidity measurement in RH from CozIR, default is 0
+extern int8_t temp;				// holds temperature mesurement in C from CozIR, default is 0
 
 extern int pres;				// holds pressure measurement in Pa from BME280, default is 0
 
-extern unsigned int lux;		// holds light measurement in lux from TSL2591, default is 0
+extern uint16_t lux;		// holds light measurement in lux from TSL2591, default is 0
 
 // Global microclimate data arrays declaration
-extern unsigned int co2Data[MAX_SAMPLES_PER_CYCLE];			// these arrays hold microclimate data for one active measurement cycle
-extern unsigned int humData[MAX_SAMPLES_PER_CYCLE];			
-extern int tempData[MAX_SAMPLES_PER_CYCLE];
-extern int presData[MAX_SAMPLES_PER_CYCLE];
-extern unsigned int luxData[MAX_SAMPLES_PER_CYCLE];
+extern uint16_t co2Data[MAX_SAMPLES_PER_CYCLE/5];			// this array holds co2 data for one active measurement cycle, used for digital filtering
 
 extern uint8_t dataArrayAddress;
 

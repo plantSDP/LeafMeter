@@ -7,9 +7,9 @@
 
 
 typedef struct CozirData{
-	unsigned int co2;
-	int temp;
-	unsigned int rh;
+	uint16_t co2;
+	int8_t temp;
+	uint8_t rh;
 }CozirData;
 
 
