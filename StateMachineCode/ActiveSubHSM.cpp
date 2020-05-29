@@ -148,7 +148,7 @@ Event Run_SubHSM_Active(Event thisEvent) {
 						// Serial.println(myString);
 					} else {
 						dataFile.close();
-						Serial.println("failed to write to datafile")
+						Serial.println("failed to write to datafile");
 					}
 					numSamples = numSamples + 1;		// keep a record of how many samples are recorded to the .txt file
 
