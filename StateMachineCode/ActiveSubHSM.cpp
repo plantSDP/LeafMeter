@@ -56,13 +56,30 @@ Event Run_SubHSM_Active(Event thisEvent) {
 	switch (CurrentState) {
 		case InitPSubState:								// If current state is initial Pseudo State
 			if (thisEvent.EventType == INIT_EVENT) {	// only respond to INIT_EVENT
+				// retrieve new date and time
+				DS3231_get(&rtcDateTimeStruct);
+
+				// create new, unique file name using cycle number. Name, not including .txt extension, must be 8 characters or shorter
+				sprintf(fileName, "data%d.txt", numCycles);
+				Serial.println(fileName);
+
+				sprintf(myString, "MEAS IN PROG    ");
+				lcd.setCursor(0, 0); // set the cursor to column 0, line 0
+				lcd.print(myString);  // Print a message to the LCD
+				sprintf(myString, "BTN3 TO CANCEL  ");
+				lcd.setCursor(0, 1); // set the cursor to column 0, line 1
+				lcd.print(myString);  // Print a message to the LCD
+
 				nextState = State1_StartingActive;		// transition to first state
 				makeTransition = TRUE;
 			}
 			break;
 		
 		case State0_Failure:
-			sprintf(myString, "Sensor Failure");
+			sprintf(myString, "Sensor/SD Failed");
+			lcd.setCursor(0, 0); // set the cursor to column 0, line 0
+			lcd.print(myString);  // Print a message to the LCD
+			sprintf(myString, "Reset Device    ");
 			lcd.setCursor(0, 0); // set the cursor to column 0, line 0
 			lcd.print(myString);  // Print a message to the LCD
 			thisEvent.EventType = NO_EVENT;
@@ -99,7 +116,7 @@ Event Run_SubHSM_Active(Event thisEvent) {
 						nextState = State3_TakingMeasurement2;
 						makeTransition = TRUE;
 					}
-					thisEvent.EventType = NO_EVENT;
+					//thisEvent.EventType = NO_EVENT;
 					break;
 				default:
 					break;
@@ -116,9 +133,7 @@ Event Run_SubHSM_Active(Event thisEvent) {
 					co2 = Cozir_Get_Co2();
 					hum = Cozir_Get_Rh();
 					temp = Cozir_Get_Temp();
-
 					pres = pressureSensor.getPressure_Pa();
-
 					lux = GetLux(lightSensor.getFullLuminosity());
 
 					// record data into data arrays
@@ -135,7 +150,7 @@ Event Run_SubHSM_Active(Event thisEvent) {
 					
 					// create data string for SD card .txt file
 					char dataString[50];
-					sprintf(dataString, "%04d\t%02d\t%03d\t%06d\t%06u\n", co2, hum, temp, pres, lux);
+					sprintf(dataString, "%04d\t%02d\t%03d\t%06d\t%06u", co2, hum, temp, pres, lux);
 					Serial.println(dataString);
 
 					dataFile = SD.open(fileName, FILE_WRITE);
@@ -152,13 +167,10 @@ Event Run_SubHSM_Active(Event thisEvent) {
 					}
 					numSamples = numSamples + 1;		// keep a record of how many samples are recorded to the .txt file
 
+					nextState = State2_TakingMeasurement1;
+					makeTransition = TRUE;
+
 					thisEvent.EventType = NO_EVENT;
-					break;
-				case TIMEOUT:
-					if (thisEvent.EventParam == TIMER_DATA_PARAM) {
-						nextState = State3_TakingMeasurement2;
-						makeTransition = TRUE;
-					}
 					break;
 				default:
 					break;

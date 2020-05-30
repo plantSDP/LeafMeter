@@ -38,11 +38,11 @@
 						 // as of 5/10/2020, RF testing has not been implemented fully, and if NO_RF_TEST is undefined the resulting code is unstable
 
 // Global Objects
-extern char myString[50]; 				// Declares a string for storing messages to be printed to LCD screen
+extern char myString[32]; 				// Declares a string for storing messages to be printed to LCD screen
 extern LiquidCrystal_I2C lcd;			// Declares global LCD screen class
 
-extern char fileName[33];				// Declares a string for storing the unique data file name for each measurement period
-extern char metaFileName[38];			// Declares a string for storing the unique metadata file name for each measurement period
+extern char fileName[16];				// Declares a string for storing the unique data file name for each measurement period
+extern char metaFileName[16];			// Declares a string for storing the unique metadata file name for each measurement period
 
 extern BME280 pressureSensor;			// Declares global BME280 class
 extern Adafruit_TSL2591 lightSensor;	// Declares global TSL2591 class
@@ -79,6 +79,7 @@ extern uint8_t period;				// holds value for period in between measurements in [
 
 // Number of measurement cycles
 extern uint8_t numCycles;			// declaration: holds value for number of measurement cycles, default is 1
+extern uint8_t numCyclesCompleted;  // declaration: holds value for number of measurement cycles complete, default is 0
 
 // Number of samples taken
 extern uint8_t numSamples;			// declaration: holds value of the number of samples taken in a single active meas cycle, default is 0
@@ -90,7 +91,7 @@ extern int8_t temp;				// holds temperature mesurement in C from CozIR, default 
 
 extern int pres;				// holds pressure measurement in Pa from BME280, default is 0
 
-extern uint16_t lux;		// holds light measurement in lux from TSL2591, default is 0
+extern uint16_t lux;			// holds light measurement in lux from TSL2591, default is 0
 
 // Global microclimate data arrays declaration
 extern uint16_t co2Data[MAX_SAMPLES_PER_CYCLE/5];			// this array holds co2 data for one active measurement cycle, used for digital filtering

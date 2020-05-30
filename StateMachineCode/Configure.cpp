@@ -30,22 +30,22 @@ void SyncRTC(uint8_t min1, uint8_t min2, uint8_t hour1, uint8_t hour2, uint8_t d
 	uint8_t hour;
 	uint8_t day;
 	uint8_t month;
-	uint8_t year;
+	uint16_t year;
 
 	min 	= (min1*10) + min2;
 	hour 	= (hour1*10) + hour2;
 	day 	= (day1*10) + day2;
 	month	= (month1*10) + month2;
-	year 	= (year1*10) + year2;
+	year 	= 2000 + (year1*10) + year2;
 
 	rtcDateTimeStruct.min 	= min;		// minute
 	rtcDateTimeStruct.hour 	= hour;		// hour
 	rtcDateTimeStruct.mday 	= day;		// day of the month
 	rtcDateTimeStruct.mon 	= month;	// month
-	rtcDateTimeStruct.year 	= year;		// year, in short notation
+	rtcDateTimeStruct.year 	= year;		// year
 
     char outString[50];
-    sprintf(outString, "%02d/%02d/%02d %02d:%02d", rtcDateTimeStruct.mday, rtcDateTimeStruct.mon, rtcDateTimeStruct.year, rtcDateTimeStruct.hour, rtcDateTimeStruct.min);
+    sprintf(outString, "%02d/%02d/%04d %02d:%02d", rtcDateTimeStruct.mday, rtcDateTimeStruct.mon, rtcDateTimeStruct.year, rtcDateTimeStruct.hour, rtcDateTimeStruct.min);
     Serial.println(outString);
 
 	DS3231_set(rtcDateTimeStruct);		// sync the RTC
