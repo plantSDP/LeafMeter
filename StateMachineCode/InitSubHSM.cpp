@@ -240,7 +240,7 @@ Event Run_SubHSM_Init(Event thisEvent) {
 			switch (thisEvent.EventType) {
 				case ENTRY_EVENT:
 					// Display prompt
-					sprintf(myString, "Min btwn meas:");
+					sprintf(myString, "# Min btwn meas:     ");
 					lcd.setCursor(0, 0);  // set the cursor to column 0, line 0
 					lcd.print(myString);  // Print a message to the LCD
 					sprintf(myString, "          %3d        ", period);
@@ -259,7 +259,7 @@ Event Run_SubHSM_Init(Event thisEvent) {
 							period = period + 1;
 						}
 						// update display
-						sprintf(myString, "Min btwn meas,");
+						sprintf(myString, "# Min btwn meas:  ");
 						lcd.setCursor(0, 0);  // set the cursor to column 0, line 0
 						lcd.print(myString);  // Print a message to the LCD
 						sprintf(myString, "          %3d     ", period);
@@ -274,7 +274,7 @@ Event Run_SubHSM_Init(Event thisEvent) {
 						}
 						
 						// update display
-						sprintf(myString, "Min btwn meas,");
+						sprintf(myString, "# Min btwn meas:  ");
 						lcd.setCursor(0, 0);  // set the cursor to column 0, line 0
 						lcd.print(myString);  // Print a message to the LCD
 						sprintf(myString, "          %3d     ", period);
@@ -306,7 +306,7 @@ Event Run_SubHSM_Init(Event thisEvent) {
 			switch (thisEvent.EventType) {
 				case ENTRY_EVENT:
 					// Display prompt
-					sprintf(myString, "# of meas:      ");
+					sprintf(myString, "# of meas cycles");
 					lcd.setCursor(0, 0);  // set the cursor to column 0, line 0
 					lcd.print(myString);  // Print a message to the LCD
 					sprintf(myString, "          %3d   ", numCycles);
@@ -325,7 +325,7 @@ Event Run_SubHSM_Init(Event thisEvent) {
 							numCycles = numCycles + 1;
 						}
 						// update display
-						sprintf(myString, "# of meas:      ");
+						sprintf(myString, "# of meas cycles");
 						lcd.setCursor(0, 0);  // set the cursor to column 0, line 0
 						lcd.print(myString);  // Print a message to the LCD
 						sprintf(myString, "          %3d   ", numCycles);
@@ -340,7 +340,7 @@ Event Run_SubHSM_Init(Event thisEvent) {
 						}
 						
 						// update display
-						sprintf(myString, "# of meas:      ");
+						sprintf(myString, "# of meas cycles");
 						lcd.setCursor(0, 0);  // set the cursor to column 0, line 0
 						lcd.print(myString);  // Print a message to the LCD
 						sprintf(myString, "          %3d   ", numCycles);
@@ -372,7 +372,7 @@ Event Run_SubHSM_Init(Event thisEvent) {
 			switch (thisEvent.EventType) {
 				case ENTRY_EVENT:
 					// Display prompt
-					sprintf(myString, "Set RF option:");
+					sprintf(myString, "Set RF option:        ");
 					lcd.setCursor(0, 0);  // set the cursor to column 0, line 0
 					lcd.print(myString);  // Print a message to the LCD
 					
@@ -389,7 +389,7 @@ Event Run_SubHSM_Init(Event thisEvent) {
 				case BTN_EVENT:
 					if (thisEvent.EventParam == BTN1) {
 						rfOption = 1;
-						sprintf(myString, "Set RF option:");
+						sprintf(myString, "Set RF option:        ");
 						lcd.setCursor(0, 0);  // set the cursor to column 0, line 0
 						lcd.print(myString);  // Print a message to the LCD
 					
@@ -401,7 +401,7 @@ Event Run_SubHSM_Init(Event thisEvent) {
 
 					} else if (thisEvent.EventParam == BTN2) {
 						rfOption = 0;
-						sprintf(myString, "Set RF option:");
+						sprintf(myString, "Set RF option:        ");
 						lcd.setCursor(0, 0); // set the cursor to column 0, line 0
 						lcd.print(myString);  // Print a message to the LCD
 					

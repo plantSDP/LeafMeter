@@ -76,7 +76,7 @@ Event Run_SubHSM_Leak(Event thisEvent) {
 			switch (thisEvent.EventType) {
 				case ENTRY_EVENT:
 					// Display "continue with leak check" prompt
-					sprintf(myString, "LEAK CHECK OFF  ");
+					sprintf(myString, "LEAK CHECK DONE ");
 					lcd.setCursor(0, 0);  // set the cursor to column 0, line 0
 					lcd.print(myString);  // Print a message to the LCD
 					sprintf(myString, "BTN3 CONTINUE   ");

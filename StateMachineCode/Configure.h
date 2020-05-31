@@ -108,7 +108,7 @@ extern uint8_t day2;
 extern uint8_t year1;
 extern uint8_t year2;
 
-extern uint8_t hour1;	// HH:MM millitary time, default 00:00
+extern uint8_t hour1;	// HH:MM, default 00:00
 extern uint8_t hour2;
 
 extern uint8_t min1;

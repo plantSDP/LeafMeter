@@ -44,6 +44,10 @@ typedef enum {
 // Holds the current state
 static WaitSubHSMStates CurrentState = InitPSubState;
 
+// Resets the static CurrentState to InitPState, allowing the sub statemachine to start at the first state instead of a previously saved one 
+void Reset_SubHSM_Wait(void) {
+	CurrentState = InitPSubState;
+}
 
 /*
 This function initializes the state machine with an INIT_EVENT. 
@@ -112,10 +116,10 @@ Event Run_SubHSM_Wait(Event thisEvent) {
 			switch (thisEvent.EventType) {
 				case ENTRY_EVENT:
 					// Display status on LCD
-					sprintf(myString, "Idle: BT3 CONFIG");
+					sprintf(myString, "Idle: B3 CONFIG ");
 					lcd.setCursor(0, 0);  // set the cursor to column 0, line 0
 					lcd.print(myString);  // Print a message to the LCD
-					sprintf(myString, "BT4 MEAS NOW    ");
+					sprintf(myString, "B4 TAKE MEAS NOW");
 					lcd.setCursor(0, 1);  // set the cursor to column 0, line 1
 					lcd.print(myString);  // Print a message to the LCD
 
@@ -132,7 +136,7 @@ Event Run_SubHSM_Wait(Event thisEvent) {
 			}
 			break;
 		
-		// local config
+		// local config chain
 		case State3_ConfigPeriod:
 			switch (thisEvent.EventType) {
 				case ENTRY_EVENT:
@@ -203,7 +207,7 @@ Event Run_SubHSM_Wait(Event thisEvent) {
 			switch (thisEvent.EventType) {
 				case ENTRY_EVENT:
 					// Display prompt
-					sprintf(myString, "# of meas:      ");
+					sprintf(myString, "# of meas cycles");
 					lcd.setCursor(0, 0);  // set the cursor to column 0, line 0
 					lcd.print(myString);  // Print a message to the LCD
 					sprintf(myString, "          %3d   ", numCycles);
@@ -222,7 +226,7 @@ Event Run_SubHSM_Wait(Event thisEvent) {
 							numCycles = numCycles + 1;
 						}
 						// update display
-						sprintf(myString, "# of meas:      ");
+						sprintf(myString, "# of meas cycles");
 						lcd.setCursor(0, 0);  // set the cursor to column 0, line 0
 						lcd.print(myString);  // Print a message to the LCD
 						sprintf(myString, "          %3d   ", numCycles);
@@ -237,7 +241,7 @@ Event Run_SubHSM_Wait(Event thisEvent) {
 						}
 						
 						// update display
-						sprintf(myString, "# of meas:      ");
+						sprintf(myString, "# of meas cycles");
 						lcd.setCursor(0, 0);  // set the cursor to column 0, line 0
 						lcd.print(myString);  // Print a message to the LCD
 						sprintf(myString, "          %3d   ", numCycles);
@@ -269,7 +273,7 @@ Event Run_SubHSM_Wait(Event thisEvent) {
 			switch (thisEvent.EventType) {
 				case ENTRY_EVENT:
 					// Display prompt
-					sprintf(myString, "Set RF option:");
+					sprintf(myString, "Set RF option:        ");
 					lcd.setCursor(0, 0);  // set the cursor to column 0, line 0
 					lcd.print(myString);  // Print a message to the LCD
 					
@@ -286,7 +290,7 @@ Event Run_SubHSM_Wait(Event thisEvent) {
 				case BTN_EVENT:
 					if (thisEvent.EventParam == BTN1) {
 						rfOption = 1;
-						sprintf(myString, "Set RF option:");
+						sprintf(myString, "Set RF option:        ");
 						lcd.setCursor(0, 0);  // set the cursor to column 0, line 0
 						lcd.print(myString);  // Print a message to the LCD
 					
@@ -298,7 +302,7 @@ Event Run_SubHSM_Wait(Event thisEvent) {
 
 					} else if (thisEvent.EventParam == BTN2) {
 						rfOption = 0;
-						sprintf(myString, "Set RF option:");
+						sprintf(myString, "Set RF option:        ");
 						lcd.setCursor(0, 0); // set the cursor to column 0, line 0
 						lcd.print(myString);  // Print a message to the LCD
 					
@@ -736,7 +740,6 @@ Event Run_SubHSM_Wait(Event thisEvent) {
 					PrintTime();
 					// blink cursor location
 					lcd.setCursor(4, 1);
-
 					thisEvent.EventType = NO_EVENT;
 					break;
 				case BTN_EVENT:

@@ -19,6 +19,11 @@ typedef enum {
 // Holds current state
 static ActiveSubHSMStates CurrentState = InitPSubState;
 
+// This function resets the state machine's CurrentState to the first InitPSubState
+void Reset_SubHSM_Active(void) {
+	CurrentState = InitPSubState;
+}
+
 /*
 This function initializes the state machine with an INIT_EVENT. 
 In regards to the state machine, it transitions the machine out of the initial pseudostate and performs one-time setup functions
@@ -60,13 +65,13 @@ Event Run_SubHSM_Active(Event thisEvent) {
 				DS3231_get(&rtcDateTimeStruct);
 
 				// create new, unique file name using cycle number. Name, not including .txt extension, must be 8 characters or shorter
-				sprintf(fileName, "data%d.txt", numCycles);
+				sprintf(fileName, "data%02d%02d.txt", rtcDateTimeStruct.hour, rtcDateTimeStruct.min);
 				Serial.println(fileName);
 
-				sprintf(myString, "MEAS IN PROG    ");
+				sprintf(myString, "MEAS IN PROGRESS");
 				lcd.setCursor(0, 0); // set the cursor to column 0, line 0
 				lcd.print(myString);  // Print a message to the LCD
-				sprintf(myString, "BTN3 TO CANCEL  ");
+				sprintf(myString, "BTN4 TO CANCEL  ");
 				lcd.setCursor(0, 1); // set the cursor to column 0, line 1
 				lcd.print(myString);  // Print a message to the LCD
 
@@ -151,16 +156,14 @@ Event Run_SubHSM_Active(Event thisEvent) {
 					// create data string for SD card .txt file
 					char dataString[50];
 					sprintf(dataString, "%04d\t%02d\t%03d\t%06d\t%06u", co2, hum, temp, pres, lux);
-					Serial.println(dataString);
+					// Serial.println(dataString);
 
 					dataFile = SD.open(fileName, FILE_WRITE);
 					// if the file is available, write the data string to it:
 					if (dataFile) {
 						dataFile.println(dataString);
 						dataFile.close();
-						Serial.println("wrote to datafile");
-						// print to the serial port too:
-						// Serial.println(myString);
+						// Serial.println("wrote to datafile");
 					} else {
 						dataFile.close();
 						Serial.println("failed to write to datafile");

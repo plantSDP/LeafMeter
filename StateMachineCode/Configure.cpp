@@ -45,8 +45,10 @@ void SyncRTC(uint8_t min1, uint8_t min2, uint8_t hour1, uint8_t hour2, uint8_t d
 	rtcDateTimeStruct.year 	= year;		// year
 
     char outString[50];
-    sprintf(outString, "%02d/%02d/%04d %02d:%02d", rtcDateTimeStruct.mday, rtcDateTimeStruct.mon, rtcDateTimeStruct.year, rtcDateTimeStruct.hour, rtcDateTimeStruct.min);
+    sprintf(outString, "RTC set at %02d/%02d/%04d %02d:%02d", rtcDateTimeStruct.mday, rtcDateTimeStruct.mon, rtcDateTimeStruct.year, rtcDateTimeStruct.hour, rtcDateTimeStruct.min);
     Serial.println(outString);
+
+	sprintf(outString, "%d%d:%d%d", hour1, hour2, min1, min2);
 
 	DS3231_set(rtcDateTimeStruct);		// sync the RTC
 }
