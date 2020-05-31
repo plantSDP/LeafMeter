@@ -62,7 +62,7 @@ typedef enum {
 	
 	//==============================================================================================================================
 	
-	COMMUNICATION_FAILURE				// Used to indicate communication with the field unit failed [REMOTE -> GUI]
+	COMMUNICATION_FAILURE,				// Used to indicate communication with the field unit failed [REMOTE -> GUI]
 	
 	SET_SETUP_MODE,						// The message to be sent to put the remote controller into RF setup mode. [GUI -> REMOTE]
 	
