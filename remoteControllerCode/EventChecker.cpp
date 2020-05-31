@@ -142,8 +142,43 @@ Event BLEMessageCheck(void){
 				BLEMessage_length = 6;
 				currentCheck = TRUE;
 			}
+		} else if (messageID == MEASUREMENT_REQUEST){
+				if (numBytes >= 2){
+				Serial1.readBytes(BLEMessage, 2);
+				BLEMessage_length = 2;
+				currentCheck = TRUE;
+			}
+		}else if (messageID == CONFIGURE_TOTAL_MEASUREMENTS){
+				if (numBytes >= 2){
+				Serial1.readBytes(BLEMessage, 2);
+				BLEMessage_length = 2;
+				currentCheck = TRUE;
+			}
+		}else if (messageID == CONFIGURE_CYCLE_PERIOD){
+				if (numBytes >= 3){
+				Serial1.readBytes(BLEMessage, 3);
+				BLEMessage_length = 3;
+				currentCheck = TRUE;
+			}
+		}else if (messageID == POWER_OFF_REQUEST){
+				if (numBytes >= 3){
+				Serial1.readBytes(BLEMessage, 3);
+				BLEMessage_length = 3;
+				currentCheck = TRUE;
+			}
+		}else if (messageID == UPDATE_STATUS_REQUEST){
+				if (numBytes >= 1){
+				Serial1.readBytes(BLEMessage, 1);
+				BLEMessage_length = 1;
+				currentCheck = TRUE;
+			}
+		}else if (messageID == DATA_TRANSMISSION_REQUEST){
+				if (numBytes >= 2){
+				Serial1.readBytes(BLEMessage, 2);
+				BLEMessage_length = 2;
+				currentCheck = TRUE;
+			}
 		}
-		
 	}
 	
 	

@@ -1,35 +1,44 @@
-//This file is meant to be used for the remote controller. It handles the logic for sending and and recieving messages over the 915Mhz link to the field unit. 
-//When messages are recieved, the information encoded in the payload is decoded and stored in members of a global struct 'recievedInfo' which is defined in ClientConfigure.h. 
-//To send messages, first the desired payload and the length should be stored in the global struct 'clientInfo'. If the message is a measurment data request, the member 'payloadIsData' should be set to TRUE. 
-//call the function 'Run_ClientFSM()' with a 'TRANSMIT_REQUEST_EVENT' to send this payload. The packet will only be sent if the current state of the remote controller is not in the middle of handling a transaction. 
-//currently there is no way to queue packets to be sent. 
+/*
+  Written in C++ but does not make large use of OOP functionallity. 
+  This code is intended to be used with the Arduino IDE in conjunction with the file 'RemoteControllerMain.ino'
+  
+  This file is meant to be used for the remote controller. It handles the logic for sending and and recieving messages over the 915Mhz link to the field unit. 
+  When messages are recieved, the information encoded in the payload is decoded and stored in members of a global struct 'recievedInfo' which is defined in ClientConfigure.h. 
+  To send messages, first the desired payload and the length should be stored in the global struct 'clientInfo'. If the message is a measurment data request, the member 'payloadIsData' should be set to TRUE. 
+  Call the function 'Run_ClientFSM()' with a 'TRANSMIT_REQUEST_EVENT' to send this payload. The packet will only be sent if the current state of the remote controller is not in the middle of handling a transaction. 
+  currently there is no way to queue packets to be sent. 
+  
+  Written by CO2 leaf meter
+*/
 
-// Includes
-#include "ClientFSM.h"
-#include "Arduino.h"
-#include "RemoteConfigure.h"
-#include "EventChecker.h"
+
+
+#include "Arduino.h"   //This gives access to a variety of functions and #defines that ease development. (Part of the native arduino toolchain)
+#include "ClientFSM.h" //contains protoypes for the functions in this file (Written by CO2 leaf meter)
+#include "RemoteConfigure.h" //This gives access to enums, structs, globals which are needed (Written by CO2 leaf meter)
+#include "EventChecker.h"    //This gives access to event checking functions. In particular it allows timers to be set (Written by CO2 leaf meter)
 
 
 
-// Private definitions
+// These defines are used with the retry capability of our protocol. The retry periods are used to set timers when packets are transmitted. If these timers expire, a retransmission 
+// will take place unless there have been too many retries. 
 #define ALLOWED_RETRIES 2 //number of retries before giving up transmission and warning the user
 #define RETRY_PERIOD_MAX 1700 //twice the round trip ping of a 255 byte payload (ms)
 #define RETRY_PERIOD_MIN 250 //twice the round trip ping of a 16 byte payload (ms)
 
-// List states here:
-typedef enum {
-    InitPState,
-	State0_Idle,
-    State1_WaitingForACK,
-    State2_GettingData,
-	State3_TestingLink,
+
+typedef enum { //The list of possible states for the porotocol state machine. 
+    InitPState, 				//This is used for any initialization at the start of the program. This state should be left immediately and not returned to.
+	State0_Idle,				//In this state, the remote controller is waiting to transmit a packet and is not listening for messages from the field unit
+    State1_WaitingForACK,		//In this state, a packet has been sent and the remote controller is expecting a response from the field unit
+    State2_GettingData,			//This state is used when the remote is expecting measurment data to be transmitted by the field unit.
+	State3_TestingLink,			//This state is used when setting up the field unit to test the link strength.
 } ClientFSMStates;
 
 // Holds the current state
 static ClientFSMStates CurrentState = InitPState;
 
-// This function runs the state machine with an INIT_EVENT
+// This function runs the state machine with an INIT_EVENT to initialize the state machine. It should only be called once. When called the state machine is set to Idle
 uint8_t Init_ClientFSM(void){
 	Event thisEvent;
 	thisEvent.EventType = INIT_EVENT;
@@ -42,6 +51,25 @@ uint8_t Init_ClientFSM(void){
 	}
 }
 
+
+
+/*
+	This is the main function of this state machine. It takes an event (type and parameter) as an input. Based on the current state, the events will be handled differently. 
+	The state machine waits in an idle state until it is prompted to transmit a message by a TRANSMIT_REQUEST_EVENT. Once transmitted, the state will change to either wait for 
+	an ack, or a measurment data packet depending on if the transmitted message was a data request. If awaiting an ack, once a packet is correctly recieved, it relays the message 
+	to the GUI via the bluetooth module. It will parse the response, store it locally in the 'recieved_info' struct but as of 5/30/20 does nothing with that parsed data. If no response
+	is recieved after the maximum number of retries, an error message is sent to the GUI. 
+	
+	If the transmitted message to the field unit was a request for measurment data, the state will change from Idle to GettingData. When a data packet is recieved, it is parsed 
+	and is checked if it is the last packet to be sent. If not it will send an acknowldegment to indicate it is ready for the next packet. If it is the last packet, the state 
+	will return to idle and no acknowldegment is needed. In the case that a packet is not recieved in an appriate amount of time, a non-acknowlengment will be sent to the field unit,
+	indicating a request for retransmission of the most recent packet. 
+	
+	Finally if the current state is idle, a LINK_SETUP_EVENT can be used to change states to testingLink. Here the remote controller will wait for a ping message, then respond
+	with a pong message. This state transitions back to idle on a END_LINK_SETUP_EVENT. 
+	
+	5/30/20 KNOWN EDGE CASE: While recieving measurment data, if an ack is not heard by the field unit, if the following nack is recieved, it will send the wrong data packet.
+*/
 Event Run_ClientFSM(Event thisEvent) {
 	
 	uint8_t makeTransition = FALSE; // use to flag transition

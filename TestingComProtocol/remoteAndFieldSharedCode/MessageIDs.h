@@ -1,9 +1,15 @@
+/*
+	Written in C++ but does not make large use of OOP functionallity. 
+    This code is intended to be used with the Arduino IDE in conjunction with both the field unit and remote controller code
+	
+	This header stores the enum which is shared between all parts of the leaf meter system. It is used to identify message types for efficient parsing 
+	of messages. 
+*/
+
+
+
 #ifndef MESSAGEIDS_H
 #define MESSAGEIDS_H
-
-
-#define COMMAND_TIMEOUT_PERIOD 500
-#define DATA_TIMEOUT_PERIOD 1500
 
 
 //Messages are sent in big endian

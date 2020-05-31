@@ -1,6 +1,6 @@
 #include "EventChecker.h"
 #include "ClientFSM.h"
-#include "ClientConfigure.h"
+#include "RemoteConfigure.h"
 #include "Arduino.h"
 #include <RH_RF95.h>
 #include <RHHardwareSPI1.h>
