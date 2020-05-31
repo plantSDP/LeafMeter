@@ -14,17 +14,24 @@
 #define TIMER_WAIT_DURATION 0				// Timer 0 is used as the wait duration timer
 #define TIMER_WAIT_DURATION_PARAM 0b1
 
-File metaDataFile;		// used to open a new metadata file in the SD card
+File metaDataFile;
+
+uint8_t startHour = rtcDateTimeStruct.hour;			// used to store start time
+uint8_t startMin = rtcDateTimeStruct.min;
+uint8_t startSec = rtcDateTimeStruct.sec;
+
 
 // This enum lists the names of all states in this state machine
 typedef enum {
 	InitPState,		// initilizing state machine pseudo state for one-time startup functions
+	Welcome,		// Displays welcome msg
     Initing,		// initializing the device
     LeakChecking,	// checking for a leak
 	RFChecking,		// checking for RF connection
 	DateTime,		// entering date and time
 	Active,			// running a measurment
 	Waiting,		// waiting for next measurement or user input
+	Finished,		// run out of measurement cycles
 } HSMstates;
 
 static HSMstates CurrentState = InitPState;		// holds the current state, default is the initial pseudostate
@@ -74,8 +81,30 @@ Event RunHSM(Event thisEvent){
 				//Init_SubHSM_DateTime();
 				//Init_SubHSM_Active();
 				//Init_SubHSM_Wait();
-				nextState = Initing;
+				nextState = Welcome;
 				makeTransition = TRUE;	
+			}
+			break;
+		
+		case Welcome:
+			switch (thisEvent.EventType) {
+				case ENTRY_EVENT:
+					sprintf(myString, "Welcome Co2 Flux");
+					lcd.setCursor(0, 0); // set the cursor to column 0, line 0
+					lcd.print(myString);  // Print a message to the LCD
+					sprintf(myString, "BTN3 to continue");
+					lcd.setCursor(0, 1); // set the cursor to column 0, line 1
+					lcd.print(myString);  // Print a message to the LCD					
+					thisEvent.EventType = NO_EVENT;
+					break;
+				case BTN_EVENT:
+					if (thisEvent.EventParam == BTN3) {
+						nextState = Initing;
+						makeTransition = TRUE;
+					}
+					break;
+				default:
+					break;
 			}
 			break;
 
@@ -160,6 +189,7 @@ Event RunHSM(Event thisEvent){
 			
 			switch (thisEvent.EventType) {
 				case ENTRY_EVENT:
+					//Serial.println("entered DATETIME");
 					Init_SubHSM_DateTime();				// one-time sub-state init call
 					thisEvent.EventType = NO_EVENT;
 					break;
@@ -181,6 +211,7 @@ Event RunHSM(Event thisEvent){
 					}
 					break;
 				case EXIT_EVENT:
+					//Serial.println("leaving DATETIME");
 					SyncRTC(min1, min2, hour1, hour2, day1, day2, month1, month2, year1, year2);	// sync the RTC with the current time
 					thisEvent.EventType = NO_EVENT;		// exit event handled, return NO_EVENT
 					break;
@@ -195,77 +226,87 @@ Event RunHSM(Event thisEvent){
 			switch(thisEvent.EventType) {
 				// On entry, init active duration timer, display message
 				case ENTRY_EVENT:
-					Init_SubHSM_Active(0);				// one-time sub-state init call
-					
+					//Serial.println("in ACTIVE");
 					SetTimer(TIMER_ACTIVE_DURATION, ACTIVE_DURATION);
 
-					// retrieve new date and time
-					DS3231_get(&rtcDateTimeStruct);
-
-					// create new, unique file name using current date & time MM/DD/YYYY-HH/mm/SS, 33 characters (null termination included)
-					sprintf(fileName, "Data_Date%02d_%02d_%04d-%02d_%02d_%02d.txt",
-					rtcDateTimeStruct.mon, rtcDateTimeStruct.mday, rtcDateTimeStruct.year, rtcDateTimeStruct.hour, rtcDateTimeStruct.min, rtcDateTimeStruct.sec);
+					Init_SubHSM_Active(1);				// one-time sub-state init call
 					
-					sprintf(myString, "MEAS IN PROG    ");
-					lcd.setCursor(0, 0); // set the cursor to column 0, line 0
-					lcd.print(myString);  // Print a message to the LCD
-					sprintf(myString, "BTN3 TO CANCEL  ");
-					lcd.setCursor(0, 1); // set the cursor to column 0, line 1
-					lcd.print(myString);  // Print a message to the LCD
-
 					thisEvent.EventType = NO_EVENT;		// Entry event consumed
 					break;
 				// On active duration timeout, transition to waiting
 				case TIMEOUT:
 					if (thisEvent.EventParam == TIMER_ACTIVE_DURATION_PARAM) {
-						// if no more remaining cycles, return to initing
-						if (numCycles > 1) {
-							Init_SubHSM_Init(1); 		// reset and init substate machine, all cycles done
-							nextState = Initing;
+						// file name, not including .txt extension, must be 8 characters or shorter
+						sprintf(metaFileName, "meta%02d%02d.txt", rtcDateTimeStruct.hour, rtcDateTimeStruct.min);		// create new unique metadata file name
+
+						// if no more remaining cycles, finish
+						if (numCycles < 1) {
+							nextState = Finished;
 							makeTransition = TRUE;
 						} else {
 							numCycles = numCycles - 1;	// decrement number of cycles by 1
 
-							Init_SubHSM_Wait(1);		// reset and init waiting substate
+							Reset_SubHSM_Wait();
+							SetTimer(TIMER_WAIT_DURATION, period*60000);
 							nextState = Waiting;
 							makeTransition = TRUE;
 						}
 					}
 					break;
 				case BTN_EVENT:
-					if (thisEvent.EventParam == BTN3) {
-						Init_SubHSM_Wait(1);			// reset and init waiting substate machine, start a new idle cycle
-
-						nextState = Waiting;
-						makeTransition = TRUE;
+					if (thisEvent.EventParam == BTN4) {
+						// file name, not including .txt extension, must be 8 characters or shorter
+						sprintf(metaFileName, "meta%02d%02d.txt", rtcDateTimeStruct.hour, rtcDateTimeStruct.min);		// create new unique metadata file name
+						
+						numCycles = numCycles - 1;	// decrement number of cycles by 1
+						if (numCycles < 1) {
+							nextState = Finished;
+							makeTransition = TRUE;
+						} else {
+							Reset_SubHSM_Wait();
+							SetTimer(TIMER_WAIT_DURATION, period*60000);
+							nextState = Waiting;
+							makeTransition = TRUE;
+						}
 					}
 					break;
 				case EXIT_EVENT:
 					// create new metadata file string by first making a string "Meta", then concatenating the fileName onto it 
-					sprintf(metaFileName, "Meta");
-					strcat(metaFileName, fileName);
+					// Serial.println("leaving ACTIVE");
 
 					// create new metadata string
 					char metaDataString[400];
 
+					startHour = rtcDateTimeStruct.hour;	// store start time
+					startMin = rtcDateTimeStruct.min;
+					startSec = rtcDateTimeStruct.sec;
+
+					DS3231_get(&rtcDateTimeStruct);				// get end time
+
 					// currently: species, location, UTC, avg microclimate data, co2 flux are not implemented as of 5/24/20
-					sprintf(metaDataString, "Species:\nLocation:\nDate:%02d/%02d/%04d\nLocalStartTime:%02d:%02d:%02d\nUTC:\nAvgHum:\nAvgTemp:\nAvgLux:\nCo2Flux:\nSamplePeriod:%d\nNumSamples%d\n",
-											 rtcDateTimeStruct.mday, rtcDateTimeStruct.mon, rtcDateTimeStruct.year, 
-											 rtcDateTimeStruct.hour, rtcDateTimeStruct.min, rtcDateTimeStruct.sec,
-											 period, numSamples);
+					sprintf(metaDataString, "Measurement Cycle #%d\nSpecies:\nLocation:\nDate:%02d/%02d/%04d\nLocalStartTime:%02d:%02d:%02d\nLocalEndTime:%02d:%02d:%02d\nAvgHum:\nAvgTemp:\nAvgLux:\nCo2Flux:\nTimeBtwnCycles:%d\nNumSamples:%d\nTimeBtwnSamples:550",
+					numCycles+1,
+					rtcDateTimeStruct.mday,rtcDateTimeStruct.mon,rtcDateTimeStruct.year,
+					startHour,startMin,startSec,
+					rtcDateTimeStruct.hour,rtcDateTimeStruct.min,rtcDateTimeStruct.sec,
+					period,numSamples);
 
+					// Serial.println(metaDataString);	// testing
 
-					metaDataFile = SD.open(metaFileName, FILE_WRITE);
+					metaDataFile = SD.open(metaFileName, FILE_WRITE);			// opens a .txt file with name meta[X].txt and writes to it
 					// if the file is available, write the data string to it:
 					if (metaDataFile) {
 						metaDataFile.println(metaDataString);
 						metaDataFile.close();
+						// Serial.println("wrote to metafile");
 						// print to the serial port too:
 						// Serial.println(myString);
 					} else {
 						metaDataFile.close();
+						Serial.println("failed to write to metafile");
 					}
 
+					numCyclesCompleted = numCyclesCompleted + 1; // increment number of cycles
 					thisEvent.EventType = NO_EVENT;
 					break;
 				default:
@@ -279,32 +320,42 @@ Event RunHSM(Event thisEvent){
 			switch(thisEvent.EventType) {
 				// On entry, init wait duration timer, display message
 				case ENTRY_EVENT:
-					Init_SubHSM_Wait(0);				// one-time sub-state init call
+					Init_SubHSM_Wait(1);				// one-time sub-state init call
 
 					SetTimer(TIMER_WAIT_DURATION, period*60000);	// init wait duration timer with period. Must convert from [min] to [ms]
 					
-					sprintf(myString, "WAITING         ");
-					lcd.setCursor(0, 0);  // set the cursor to column 0, line 0
-					lcd.print(myString);  // Print a message to the LCD
-					sprintf(myString, "                ");
-					lcd.setCursor(0, 1);  // set the cursor to column 0, line 1
-					lcd.print(myString);  // Print a message to the LCD
-
 					thisEvent.EventType = NO_EVENT;
 					break;
 					
-				// On wait duration timeout, transition to active
-				case TIMEOUT:
-					if (thisEvent.EventParam == TIMER_WAIT_DURATION_PARAM) {
-						Init_SubHSM_Active(1);		// reset and init active substate machine for a new active meas cycle
+				// On wait duration timeout or on-demand measurement, transition to active
+				case BTN_EVENT:
+					if (thisEvent.EventParam == BTN4) {
+						Reset_SubHSM_Active();		// reset active substate machine for a new active meas cycle
+						SetTimer(TIMER_ACTIVE_DURATION, ACTIVE_DURATION);
 						nextState = Active;
 						makeTransition = TRUE;
 					}
-
+					break;
+				case TIMEOUT:
+					if (thisEvent.EventParam == TIMER_WAIT_DURATION_PARAM) {
+						Reset_SubHSM_Active();		// reset active substate machine for a new active meas cycle
+						SetTimer(TIMER_ACTIVE_DURATION, ACTIVE_DURATION);
+						nextState = Active;
+						makeTransition = TRUE;
+					}
 					break;
 				default:
 					break;
 			}			
+			break;
+
+		case Finished:
+			sprintf(myString, "  ==Finished==  ");
+			lcd.setCursor(0, 0); // set the cursor to column 0, line 0
+			lcd.print(myString);  // Print a message to the LCD
+			sprintf(myString, "================");
+			lcd.setCursor(0, 1); // set the cursor to column 0, line 1
+			lcd.print(myString);  // Print a message to the LCD
 			break;
 
 		default:

@@ -107,7 +107,7 @@ Event Run_SubHSM_DateTime(Event thisEvent) {
 						nextState = State3_DayDigit1;
 						makeTransition = TRUE;
 					}
-					thisEvent.EventType = NO_EVENT;					
+					//thisEvent.EventType = NO_EVENT;				
 					break;
 				default:
 					break;
@@ -151,7 +151,7 @@ Event Run_SubHSM_DateTime(Event thisEvent) {
 						nextState = State3_DayDigit1;
 						makeTransition = TRUE;
 					}
-					thisEvent.EventType = NO_EVENT;
+					//thisEvent.EventType = NO_EVENT;
 					break;
 				default:
 					break;
@@ -456,7 +456,7 @@ Event Run_SubHSM_DateTime(Event thisEvent) {
 						nextState = State7_HourDigit1;
 						makeTransition = TRUE;
 					}
-					thisEvent.EventType = NO_EVENT;
+					//thisEvent.EventType = NO_EVENT;
 					break;
 				default:
 					break;
@@ -492,7 +492,7 @@ Event Run_SubHSM_DateTime(Event thisEvent) {
 						nextState = State7_HourDigit1;
 						makeTransition = TRUE;
 					}
-					thisEvent.EventType = NO_EVENT;
+					//thisEvent.EventType = NO_EVENT;
 					break;
 				default:
 					break;

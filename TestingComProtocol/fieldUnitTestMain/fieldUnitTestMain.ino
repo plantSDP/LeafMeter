@@ -12,7 +12,7 @@ RF_module_info serverInfo;
 Recieved_info info_recieved;
 Field_info fieldInfo;
 static Event newEvent;
-char myString[50]; 
+//char myString[50]; 
 uint8_t test; //using this to send a message
 
 void setup() {

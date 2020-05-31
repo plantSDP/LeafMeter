@@ -44,6 +44,10 @@ typedef enum {
 // Holds the current state
 static WaitSubHSMStates CurrentState = InitPSubState;
 
+// Resets the static CurrentState to InitPState, allowing the sub statemachine to start at the first state instead of a previously saved one 
+void Reset_SubHSM_Wait(void) {
+	CurrentState = InitPSubState;
+}
 
 /*
 This function initializes the state machine with an INIT_EVENT. 
@@ -94,6 +98,8 @@ Event Run_SubHSM_Wait(Event thisEvent) {
 			switch (thisEvent.EventType) {
 				case ENTRY_EVENT:
 					// record data to SD card, transition to idle
+					nextState = State2_Idle;
+					makeTransition = TRUE;					
 
 					thisEvent.EventType = NO_EVENT;
 					break;
@@ -110,10 +116,10 @@ Event Run_SubHSM_Wait(Event thisEvent) {
 			switch (thisEvent.EventType) {
 				case ENTRY_EVENT:
 					// Display status on LCD
-					sprintf(myString, "Idling          ");
+					sprintf(myString, "Idle: B3 CONFIG ");
 					lcd.setCursor(0, 0);  // set the cursor to column 0, line 0
 					lcd.print(myString);  // Print a message to the LCD
-					sprintf(myString, "BTN3 CONFIG     ");
+					sprintf(myString, "B4 TAKE MEAS NOW");
 					lcd.setCursor(0, 1);  // set the cursor to column 0, line 1
 					lcd.print(myString);  // Print a message to the LCD
 
@@ -130,7 +136,7 @@ Event Run_SubHSM_Wait(Event thisEvent) {
 			}
 			break;
 		
-		// local config
+		// local config chain
 		case State3_ConfigPeriod:
 			switch (thisEvent.EventType) {
 				case ENTRY_EVENT:
@@ -201,7 +207,7 @@ Event Run_SubHSM_Wait(Event thisEvent) {
 			switch (thisEvent.EventType) {
 				case ENTRY_EVENT:
 					// Display prompt
-					sprintf(myString, "# of meas:      ");
+					sprintf(myString, "# of meas cycles");
 					lcd.setCursor(0, 0);  // set the cursor to column 0, line 0
 					lcd.print(myString);  // Print a message to the LCD
 					sprintf(myString, "          %3d   ", numCycles);
@@ -220,7 +226,7 @@ Event Run_SubHSM_Wait(Event thisEvent) {
 							numCycles = numCycles + 1;
 						}
 						// update display
-						sprintf(myString, "# of meas:      ");
+						sprintf(myString, "# of meas cycles");
 						lcd.setCursor(0, 0);  // set the cursor to column 0, line 0
 						lcd.print(myString);  // Print a message to the LCD
 						sprintf(myString, "          %3d   ", numCycles);
@@ -235,7 +241,7 @@ Event Run_SubHSM_Wait(Event thisEvent) {
 						}
 						
 						// update display
-						sprintf(myString, "# of meas:      ");
+						sprintf(myString, "# of meas cycles");
 						lcd.setCursor(0, 0);  // set the cursor to column 0, line 0
 						lcd.print(myString);  // Print a message to the LCD
 						sprintf(myString, "          %3d   ", numCycles);
@@ -267,7 +273,7 @@ Event Run_SubHSM_Wait(Event thisEvent) {
 			switch (thisEvent.EventType) {
 				case ENTRY_EVENT:
 					// Display prompt
-					sprintf(myString, "Set RF option:");
+					sprintf(myString, "Set RF option:        ");
 					lcd.setCursor(0, 0);  // set the cursor to column 0, line 0
 					lcd.print(myString);  // Print a message to the LCD
 					
@@ -284,7 +290,7 @@ Event Run_SubHSM_Wait(Event thisEvent) {
 				case BTN_EVENT:
 					if (thisEvent.EventParam == BTN1) {
 						rfOption = 1;
-						sprintf(myString, "Set RF option:");
+						sprintf(myString, "Set RF option:        ");
 						lcd.setCursor(0, 0);  // set the cursor to column 0, line 0
 						lcd.print(myString);  // Print a message to the LCD
 					
@@ -296,7 +302,7 @@ Event Run_SubHSM_Wait(Event thisEvent) {
 
 					} else if (thisEvent.EventParam == BTN2) {
 						rfOption = 0;
-						sprintf(myString, "Set RF option:");
+						sprintf(myString, "Set RF option:        ");
 						lcd.setCursor(0, 0); // set the cursor to column 0, line 0
 						lcd.print(myString);  // Print a message to the LCD
 					
@@ -712,6 +718,10 @@ Event Run_SubHSM_Wait(Event thisEvent) {
 					} else if (thisEvent.EventParam == BTN2) {			// Switch digits
 						nextState = State15_min2;
 						makeTransition = TRUE;
+					} else if (thisEvent.EventParam == BTN3) {			// finished with configuration, sync RTC & continue back to idle
+						SyncRTC(min1, min2, hour1, hour2, day1, day2, month1, month2, year1, year2);
+						nextState = State2_Idle;
+						makeTransition = TRUE;
 					} else if (thisEvent.EventParam == BTN4) {			// Back to Hour digit 1
 						nextState = State12_H1;
 						makeTransition = TRUE;
@@ -730,7 +740,6 @@ Event Run_SubHSM_Wait(Event thisEvent) {
 					PrintTime();
 					// blink cursor location
 					lcd.setCursor(4, 1);
-
 					thisEvent.EventType = NO_EVENT;
 					break;
 				case BTN_EVENT:
@@ -745,6 +754,7 @@ Event Run_SubHSM_Wait(Event thisEvent) {
 						PrintTime();
 						// blink cursor location
 						lcd.setCursor(4, 1);
+						
 					} else if (thisEvent.EventParam == BTN2) {			// Switch digits
 						nextState = State14_min1;
 						makeTransition = TRUE;

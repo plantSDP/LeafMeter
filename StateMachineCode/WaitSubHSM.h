@@ -12,6 +12,9 @@
  * PUBLIC FUNCTION PROTOTYPES                                                  *
  ******************************************************************************/
 
+// Resets the static CurrentState to InitPState, allowing the sub statemachine to start at the first state instead of a previously saved one 
+void Reset_SubHSM_Wait(void);
+
 /*
 This function initializes the state machine with an INIT_EVENT. 
 In regards to the state machine, it transitions the machine out of the initial pseudostate and performs one-time setup functions

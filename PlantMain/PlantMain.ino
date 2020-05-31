@@ -16,28 +16,29 @@
 #include "EventCheckers.h"
 
 // Boilerplate includes for Arduino, Adafruit sensors, I2C communication, and LCD screen
-#include "Arduino.h"
-#include <Adafruit_Sensor.h>
+//#include "Arduino.h"
+//#include <Adafruit_Sensor.h>
 //#include <Wire.h>
 #include "i2c_t3.h"
-#include <LiquidCrystal_I2C.h>
+//#include <LiquidCrystal_I2C.h>
 
 // Constructions
 LiquidCrystal_I2C lcd(0x27, 16, 2); // constructs an lcd class, set the LCD address to 0x27 for a 16 chars and 2 line display
 
-BME280 pressureSensor(Wire,0x77);	// Constructor for the BME280 pressure sensor
+BME280 pressureSensor(Wire,0x76);	// Constructor for the BME280 pressure sensor
 Adafruit_TSL2591 lightSensor = Adafruit_TSL2591(2591);  // light sensor definition
 
 // Global Variable/Array/Struct **definitions**. Declarations are in the .h file.
-char myString[50];
+char myString[32];
 
-char fileName[33];                  // global strings for filenames
-char metaFileName[38];
+char fileName[16];              // global strings for filenames
+char metaFileName[16];
 
 uint8_t rfOption = RF_NO;       // sets rfOption, default is NO (0)
 
 uint8_t period = 60;            // holds value for period in between measurements in [min], default is 60[min] but can be user-defined
 uint8_t numCycles = 1;          // holds value for number of measurement cycles, default is 1
+uint8_t numCyclesCompleted = 0; // holds value for number of measurement cycles complete, default is 0
 uint8_t numSamples = 0;         // holds value of the number of samples taken in a single active meas cycle, default is 0
 
 uint16_t co2 = 0;		// holds CO2 measurement in ppm from CozIR, default is 0
@@ -78,7 +79,13 @@ void setup() {
   // pinMode(13,OUTPUT);
   // digitalWrite(13,HIGH); // HIGH means LED on
 
+  Serial.begin(9600);
+  while (!Serial) {
+    ; // wait for serial port to connect. Needed for Leonardo only
+  }
+  Serial.println("hello world");
 
+  Wire.begin();
   DS3231_init(DS3231_CONTROL_INTCN);  // initialize RTC module
 
   lcd.init();  		  // initialize the lcd
@@ -94,6 +101,7 @@ void loop() {
   // Update button event status
   newEvent = ButtonCheckDebounce();
   if (newEvent.EventType != NO_EVENT){	// if new, send it to the state machine
+    Serial.println("BTN_EVENT");
     RunHSM(newEvent);
   }
   

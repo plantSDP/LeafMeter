@@ -69,7 +69,7 @@ Event Run_SubHSM_RF(Event thisEvent) {
 			switch (thisEvent.EventType) {
 				case ENTRY_EVENT:
 					// Display prompt
-					sprintf(myString, "RF CHECK OFF    ");
+					sprintf(myString, "RF CHECK DONE   ");
 					lcd.setCursor(0, 0);  // set the cursor to column 0, line 0
 					lcd.print(myString);  // Print a message to the LCD
 					sprintf(myString, "BTN3 CONTINUE   ");

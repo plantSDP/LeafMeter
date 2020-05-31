@@ -83,13 +83,22 @@ Event Run_SubHSM_Init(Event thisEvent) {
 				} else {
 					pressureSensor.setNormalMode();
 				}
+
+				if (!SD.begin(SD_CHIP_SELECT)) {
+					nextState = State0_Failure;
+				} else {
+
+				}
 				makeTransition = TRUE;					// Always transition out of the initial pseudostate
 			}
 			break;
 		
 		case State0_Failure:
-			sprintf(myString, "Failure      ");
+			sprintf(myString, "Sensor/SD Failed");
 			lcd.setCursor(0, 0); // set the cursor to column 0, line 0
+			lcd.print(myString);  // Print a message to the LCD
+			sprintf(myString, "Reset Device    ");
+			lcd.setCursor(0, 1); // set the cursor to column 0, line 0
 			lcd.print(myString);  // Print a message to the LCD	
 			thisEvent.EventType = NO_EVENT;
 			break;
@@ -101,7 +110,7 @@ Event Run_SubHSM_Init(Event thisEvent) {
 					sprintf(myString, "Co2 Flux Meter  ");
 					lcd.setCursor(0, 0); // set the cursor to column 0, line 0
 					lcd.print(myString);  // Print a message to the LCD
-					sprintf(myString, "Starting...     ");
+					sprintf(myString, "Sensor Warmup   ");
 					lcd.setCursor(0, 1); // set the cursor to column 0, line 1
 					lcd.print(myString);  // Print a message to the LCD
 
@@ -124,17 +133,10 @@ Event Run_SubHSM_Init(Event thisEvent) {
 							makeTransition = TRUE;	
 						}
 					} else if (thisEvent.EventParam == TIMER_1_PARAM) {		// if Timer 1 has timed out, 10sec cozir warmup is done
-						if ((Cozir_Init()) && (lightSensor.begin()) && (pressureSensor.begin() && SD.begin(SD_CHIP_SELECT))) {	// initializations for the three sensors
+						if (Cozir_Init()){	// initialization for cozir
 							// Request humidity data from Cozir
 							Cozir_Request_Data();
 							SetTimer(0, 100); 		// It takes around 70-100ms for the Cozir to send data after a request
-
-							// tsl startup settings
-							lightSensor.setGain(TSL2591_GAIN_LOW);
-							lightSensor.setTiming(TSL2591_INTEGRATIONTIME_100MS);
-
-							// bme280 startup settings
-							pressureSensor.setNormalMode();
 
 						} else {
 							nextState = State0_Failure;						// if any sensors fail, transition to failure state
@@ -238,7 +240,7 @@ Event Run_SubHSM_Init(Event thisEvent) {
 			switch (thisEvent.EventType) {
 				case ENTRY_EVENT:
 					// Display prompt
-					sprintf(myString, "Min btwn meas:");
+					sprintf(myString, "# Min btwn meas:     ");
 					lcd.setCursor(0, 0);  // set the cursor to column 0, line 0
 					lcd.print(myString);  // Print a message to the LCD
 					sprintf(myString, "          %3d        ", period);
@@ -257,7 +259,7 @@ Event Run_SubHSM_Init(Event thisEvent) {
 							period = period + 1;
 						}
 						// update display
-						sprintf(myString, "Min btwn meas,");
+						sprintf(myString, "# Min btwn meas:  ");
 						lcd.setCursor(0, 0);  // set the cursor to column 0, line 0
 						lcd.print(myString);  // Print a message to the LCD
 						sprintf(myString, "          %3d     ", period);
@@ -272,7 +274,7 @@ Event Run_SubHSM_Init(Event thisEvent) {
 						}
 						
 						// update display
-						sprintf(myString, "Min btwn meas,");
+						sprintf(myString, "# Min btwn meas:  ");
 						lcd.setCursor(0, 0);  // set the cursor to column 0, line 0
 						lcd.print(myString);  // Print a message to the LCD
 						sprintf(myString, "          %3d     ", period);
@@ -304,7 +306,7 @@ Event Run_SubHSM_Init(Event thisEvent) {
 			switch (thisEvent.EventType) {
 				case ENTRY_EVENT:
 					// Display prompt
-					sprintf(myString, "# of meas:      ");
+					sprintf(myString, "# of meas cycles");
 					lcd.setCursor(0, 0);  // set the cursor to column 0, line 0
 					lcd.print(myString);  // Print a message to the LCD
 					sprintf(myString, "          %3d   ", numCycles);
@@ -323,7 +325,7 @@ Event Run_SubHSM_Init(Event thisEvent) {
 							numCycles = numCycles + 1;
 						}
 						// update display
-						sprintf(myString, "# of meas:      ");
+						sprintf(myString, "# of meas cycles");
 						lcd.setCursor(0, 0);  // set the cursor to column 0, line 0
 						lcd.print(myString);  // Print a message to the LCD
 						sprintf(myString, "          %3d   ", numCycles);
@@ -338,7 +340,7 @@ Event Run_SubHSM_Init(Event thisEvent) {
 						}
 						
 						// update display
-						sprintf(myString, "# of meas:      ");
+						sprintf(myString, "# of meas cycles");
 						lcd.setCursor(0, 0);  // set the cursor to column 0, line 0
 						lcd.print(myString);  // Print a message to the LCD
 						sprintf(myString, "          %3d   ", numCycles);
@@ -370,7 +372,7 @@ Event Run_SubHSM_Init(Event thisEvent) {
 			switch (thisEvent.EventType) {
 				case ENTRY_EVENT:
 					// Display prompt
-					sprintf(myString, "Set RF option:");
+					sprintf(myString, "Set RF option:        ");
 					lcd.setCursor(0, 0);  // set the cursor to column 0, line 0
 					lcd.print(myString);  // Print a message to the LCD
 					
@@ -387,7 +389,7 @@ Event Run_SubHSM_Init(Event thisEvent) {
 				case BTN_EVENT:
 					if (thisEvent.EventParam == BTN1) {
 						rfOption = 1;
-						sprintf(myString, "Set RF option:");
+						sprintf(myString, "Set RF option:        ");
 						lcd.setCursor(0, 0);  // set the cursor to column 0, line 0
 						lcd.print(myString);  // Print a message to the LCD
 					
@@ -399,7 +401,7 @@ Event Run_SubHSM_Init(Event thisEvent) {
 
 					} else if (thisEvent.EventParam == BTN2) {
 						rfOption = 0;
-						sprintf(myString, "Set RF option:");
+						sprintf(myString, "Set RF option:        ");
 						lcd.setCursor(0, 0); // set the cursor to column 0, line 0
 						lcd.print(myString);  // Print a message to the LCD
 					

@@ -5,7 +5,7 @@
 #include <LiquidCrystal_I2C.h>
 
 LiquidCrystal_I2C lcd(0x27, 16, 2);
-BME280 bme280Sensor(Wire,0x77);
+BME280 bme280Sensor(Wire,0x76);
 Adafruit_TSL2591 tsl = Adafruit_TSL2591(2591);
 uint32_t lum;
 uint16_t ir, full;
@@ -18,7 +18,7 @@ int pressureRead, tempRead, humidRead;
 CozirData cozirData;
 
 void setup() {
-  Serial.begin(115200);
+  Serial.begin(9600);
   while(!Serial){}
   Serial.println("Starting CO2 Meter Sensor Test");
   delay(10000);

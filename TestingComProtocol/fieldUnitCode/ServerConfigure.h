@@ -15,7 +15,7 @@
 #define RECIEVING 1
 #define NUM_CYCLES_MAX 32
 
-extern char myString[50]; // for screen printing
+//extern char myString[50]; // for screen printing
 
 //globally accessible objects, structs, and variables. 
 extern RH_RF95 rf95; //LoRa transciever object. Defined in RH_RF95.h
