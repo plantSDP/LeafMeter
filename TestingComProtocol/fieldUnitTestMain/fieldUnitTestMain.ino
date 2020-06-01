@@ -27,7 +27,7 @@ void setup() {
   
   Serial.begin(9600);
   while (!Serial) ; // Wait for serial port to be available
-  Serial.println("Beginning...");
+  Serial.println("Field Unit Startup");
 
   if (!rf95.init()){
     Serial.println("RF init failed");

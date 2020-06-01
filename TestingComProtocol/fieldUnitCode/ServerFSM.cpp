@@ -64,12 +64,12 @@ Event Run_ServerFSM(Event thisEvent) {
 		case State0_Listening: 					//This is the most common state. In here, the server is always waiting for a packet to decode. After decoding, an acknowledgmenet is sent to the client. 
 			switch(thisEvent.EventType){		//If the client asks for measurement data, the state will change to 
 				case ENTRY_EVENT:
-					//Serial.println("Entered Listening State"); //here for testing
+					Serial.println("Entered Listening State"); //here for testing
 					thisEvent.EventType = NO_EVENT;
 					break;
 					
 				case RF_RECIEVE_EVENT:		
-					//Serial.print("Got Message..."); //here for testing
+					Serial.print("Field Unit Received Message..."); //here for testing
 					info_recieved.payloadLength = RH_RF95_MAX_MESSAGE_LEN; //this is needed to indicate that the entire payload may be copied
 					rf95.recv(info_recieved.raw_payload, &info_recieved.payloadLength); //get the payload from the module 
 					info_recieved.messageID = info_recieved.raw_payload[0];
@@ -80,12 +80,16 @@ Event Run_ServerFSM(Event thisEvent) {
 						info_recieved.year = info_recieved.raw_payload[3];
 						info_recieved.hour = info_recieved.raw_payload[4];
 						info_recieved.minute = info_recieved.raw_payload[5];
-						// Serial.print("ConfigureDateTime:"); //here for testing
-						// Serial.print(info_recieved.day); //here for testing
-						// Serial.print(info_recieved.month);
-						// Serial.print(info_recieved.year);
-						// Serial.print(info_recieved.hour);
-						// Serial.println(info_recieved.minute);
+						Serial.print("ConfigureDateTime: "); //here for testing
+						Serial.print(info_recieved.day); //here for testing
+						Serial.print("/");
+						Serial.print(info_recieved.month);
+						Serial.print("/");
+						Serial.print(info_recieved.year);
+						Serial.print("_");
+						Serial.print(info_recieved.hour);
+						Serial.print(":");
+						Serial.println(info_recieved.minute);
 						
 						serverInfo.payloadToSend[0] = CONFIGURE_DATE_TIME_ACK;	//transmit the ack
 						serverInfo.payloadToSend_length = 1;
@@ -97,8 +101,8 @@ Event Run_ServerFSM(Event thisEvent) {
 					} else if (info_recieved.messageID == MEASUREMENT_REQUEST){
 						info_recieved.data_transmit_indicator = info_recieved.raw_payload[1]; 
 						//?determine if the the on demand measurment is going to be accepted somehow. Also do something with this indicator. I think we should give up on real-time transmission as were short on time.
-						//Serial.print("Measurement Request"); //here for testing
-						//Serial.println(info_recieved.data_transmit_indicator);
+						Serial.print("Measurement Request"); //here for testing
+						Serial.println(info_recieved.data_transmit_indicator);
 
 						serverInfo.payloadToSend[0] = MEASUREMENT_REQUEST_ACK;	//transmit the ack
 						serverInfo.payloadToSend[1] = 1; //? this set value should represent if the on-demand measurement will be taken
@@ -109,8 +113,8 @@ Event Run_ServerFSM(Event thisEvent) {
 					} else if (info_recieved.messageID == CONFIGURE_TOTAL_MEASUREMENTS){
 						info_recieved.new_total_measurements = info_recieved.raw_payload[1]; //?might need to do something here. Depends how main state machine is set up. 
 						fieldInfo.total_measurements = info_recieved.new_total_measurements;
-						//Serial.print("ConfigureTotalMeasurments"); //here for testing
-						//Serial.println(fieldInfo.total_measurements);
+						Serial.print("ConfigureTotalMeasurments"); //here for testing
+						Serial.println(fieldInfo.total_measurements);
 						
 						if ((fieldInfo.total_measurements - fieldInfo.num_measurements_taken) > NUM_CYCLES_MAX){
 							serverInfo.payloadToSend[1] = 0;
@@ -124,8 +128,8 @@ Event Run_ServerFSM(Event thisEvent) {
 					} else if (info_recieved.messageID == CONFIGURE_CYCLE_PERIOD){
 						info_recieved.new_min_between_measurements = ((uint16_t)info_recieved.raw_payload[1]<<8) | (info_recieved.raw_payload[2]); // there is a shift by 8 because shorts are sent Big Endian. '|' logical OR to recover the 16 bit value
 						fieldInfo.min_between_measurements = info_recieved.new_min_between_measurements; //? do something here probably
-						//Serial.print("ConfigureCyclePeriod"); //here for testing
-						//Serial.println(fieldInfo.min_between_measurements);
+						Serial.print("ConfigureCyclePeriod"); //here for testing
+						Serial.println(fieldInfo.min_between_measurements);
 						
 						serverInfo.payloadToSend[0] = CONFIGURE_CYCLE_PERIOD_ACK;
 						serverInfo.payloadToSend_length = 1;
@@ -134,8 +138,8 @@ Event Run_ServerFSM(Event thisEvent) {
 					} else if (info_recieved.messageID == POWER_OFF_REQUEST) {
 						info_recieved.time_till_powerOff = ((uint16_t)info_recieved.raw_payload[1]<<8) | (info_recieved.raw_payload[2]);
 						fieldInfo.time_till_powerOff = info_recieved.time_till_powerOff; // ?theres probably some stuff that needs to happen here. Set timer? calculate the real time to power off?
-						//Serial.print("Power Off Request"); //here for testing
-						//Serial.println(fieldInfo.time_till_powerOff);
+						Serial.print("Power Off Request"); //here for testing
+						Serial.println(fieldInfo.time_till_powerOff);
 						
 						serverInfo.payloadToSend[0] = POWER_OFF_REQUEST_ACK;
 						serverInfo.payloadToSend[1] = fieldInfo.time_till_powerOff >> 8;
@@ -144,7 +148,7 @@ Event Run_ServerFSM(Event thisEvent) {
 						rf95.send(serverInfo.payloadToSend, serverInfo.payloadToSend_length);
 						
 					} else if (info_recieved.messageID == UPDATE_STATUS_REQUEST){
-						//Serial.println("UpdateStatusRequest"); //here for testing						
+						Serial.println("UpdateStatusRequest"); //here for testing						
 						
 						serverInfo.payloadToSend[0] = UPDATE_STATUS_REQUEST_ACK;
 						//?update the parameter fieldInfo.time_left_battery with the time left

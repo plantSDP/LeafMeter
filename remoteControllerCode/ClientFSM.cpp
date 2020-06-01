@@ -147,30 +147,35 @@ Event Run_ClientFSM(Event thisEvent) {
 						makeTransition = TRUE;
 						
 					}else if (info_recieved.messageID == CONFIGURE_DATE_TIME_ACK){
+						Serial.println("Received: Config Date/Time");
 						nextState = State0_Idle;
 						makeTransition = TRUE;
 						
 					}else if (info_recieved.messageID == MEASUREMENT_REQUEST_ACK){
+						Serial.println("Received: Measurement request");
 						info_recieved.measurement_confirmed = info_recieved.raw_payload[1];
 						nextState = State0_Idle;
 						makeTransition = TRUE;
 						
 					}else if (info_recieved.messageID == CONFIGURE_TOTAL_MEASUREMENTS_ACK){
+						Serial.println("Received: Config Total Measurements");
 						info_recieved.remaining_cycles = info_recieved.raw_payload[1];
 						nextState = State0_Idle;
 						makeTransition = TRUE;
 						
 					}else if (info_recieved.messageID == CONFIGURE_CYCLE_PERIOD_ACK){
+						Serial.println("Received: Config Cycle Period");
 						nextState = State0_Idle;
 						makeTransition = TRUE;
-
 						
 					}else if (info_recieved.messageID == POWER_OFF_REQUEST_ACK){
+						Serial.println("Received: Power Off Req");
 						info_recieved.time_till_powerOff = ((uint16_t)info_recieved.raw_payload[1]<<8) | (info_recieved.raw_payload[2]); // there is a shift by 8 because shorts are sent Big Endian. '|' logical OR to recover the 16 bit value
 						nextState = State0_Idle;
 						makeTransition = TRUE;				
 						
 					}else if (info_recieved.messageID == UPDATE_STATUS_REQUEST_ACK){
+						Serial.println("Received: Update Status Request");
 						info_recieved.time_left_battery = ((uint16_t)info_recieved.raw_payload[1]<<8) | (info_recieved.raw_payload[2]);
 						info_recieved.num_measurments_taken = info_recieved.raw_payload[3];
 						
@@ -195,12 +200,14 @@ Event Run_ClientFSM(Event thisEvent) {
 					
 				case TIMEOUT:
 					if (clientInfo.retry_number < ALLOWED_RETRIES){
+						Serial.println("retrying");
 						rf95.send(clientInfo.previousPayload, clientInfo.previousPayload_length);
 						clientInfo.transciever_state = RECIEVING;
 						SetTimer(2, RETRY_PERIOD_MIN);
 						clientInfo.retry_number++;
 						clientInfo.total_retries++;
 					} else{
+						Serial.println("retries exceeded, msg to server failure");
 						holder[0] = ID_INVALID; //*send an invalid ID so that the user can be warned that there has been a failure
 						BLE_send(holder,1);
 						clientInfo.retry_number = 0;

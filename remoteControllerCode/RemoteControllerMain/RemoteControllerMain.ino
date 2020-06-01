@@ -24,7 +24,10 @@ uint8_t BLEMessage[255];
 uint8_t BLEMessage_length;
 
 
-void setup() { //This code runs a single time at the beginning of the program. 
+void setup() { //This code runs a single time at the beginning of the program.
+  Serial.begin(9600);
+  while (!Serial) ; // Wait for serial port to be available
+  Serial.println("Remote Controller Startup");
   info_recieved.payloadLength = RH_RF95_MAX_MESSAGE_LEN; //indicate that the entire payload length may be copied when using the recv() method. 
   SPI1.setMISO(5); //set the pins for the SPI hardware used with the LoRa module. 
   SPI1.setMOSI(21); 
@@ -53,7 +56,8 @@ void loop() { //This code is called continuously in main after the setup() funct
 
 
   newEvent = BLEMessageCheck();         //check if a complete BLE message has been recieved by the BLE modules and sent via UART
-  if (newEvent.EventType != NO_EVENT){  //If yes and the remote controller is not currenlty in the middle of a transaction, different actions will take place. 
+  if (newEvent.EventType != NO_EVENT){  //If yes and the remote controller is not currenlty in the middle of a transaction, different actions will take place.
+    Serial.println("Bluetooth EVENT"); 
     if (clientInfo.transciever_state == TRANSMITTING){ 
       
       if (BLEMessage[0] == SET_SETUP_MODE){     //if the message is to set the remote controller to setup mode, run the state machine with a setup event, send an acknowledgment to the GUI
@@ -73,6 +77,7 @@ void loop() { //This code is called continuously in main after the setup() funct
         clientInfo.payloadToSend_length = BLEMessage_length;
         newEvent.EventType = TRANSMIT_REQUEST_EVENT;
         Run_ClientFSM(newEvent); //this will transmit the message to the field unit and start the acknowledgment process
-    } 
+      } 
+    }
   }
 }
