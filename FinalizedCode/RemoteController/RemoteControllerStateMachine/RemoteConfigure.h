@@ -19,7 +19,7 @@
 #include <RH_RF95.h> 		//The library we are using to communicate with the LoRa RF modules (Comes with the Teensyduino add-op for the arduino IDE). 
 #include <RHHardwareSPI1.h> //This header allows the SPI1 hardware to be used with the LoRa modules instead of the SPI0 hardware which is used with the SD card module (Comes with the Teensyduino add-op for the arduino IDE). 
 #include "MessageIDs.h"		//This holds the enum which is used for message type identification (Written by CO2 leaf meter)
-#include "HM10Lib.h"		//This allows message to be sent to the BLE module (Written by CO2 leaf meter)
+#include "HM10Lib.h"		//This allows messages to be sent to the BLE module (Written by CO2 leaf meter)
 
 // Public Definitions & Global Things
 

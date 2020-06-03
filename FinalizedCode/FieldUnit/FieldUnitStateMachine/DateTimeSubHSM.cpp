@@ -11,8 +11,7 @@
 #define YEAR_1 2
 #define YEAR_2 0
 
-void PrintDate(void);
-void PrintTime(void);
+
 
 // List states here:
 typedef enum {
@@ -518,6 +517,3 @@ Event Run_SubHSM_DateTime(Event thisEvent) {
 	return thisEvent;
 }
 
-//====================================
-// Private functions
-//====================================
