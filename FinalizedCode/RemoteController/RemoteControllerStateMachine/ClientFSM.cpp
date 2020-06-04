@@ -12,7 +12,6 @@
 */
 
 
-
 #include "Arduino.h"   //This gives access to a variety of functions and #defines that ease development. (Part of the native arduino toolchain)
 #include "ClientFSM.h" //contains protoypes for the functions in this file (Written by CO2 leaf meter)
 #include "RemoteConfigure.h" //This gives access to enums, structs, globals which are needed (Written by CO2 leaf meter)
