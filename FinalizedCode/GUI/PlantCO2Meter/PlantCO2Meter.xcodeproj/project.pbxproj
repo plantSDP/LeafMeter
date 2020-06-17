@@ -1,0 +1,633 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 50;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		E745AAC124785E7C009B999F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = E745AAC024785E7C009B999F /* AppDelegate.swift */; };
+		E745AAC324785E7C009B999F /* RootController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E745AAC224785E7C009B999F /* RootController.swift */; };
+		E745AAC624785E7C009B999F /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E745AAC424785E7C009B999F /* Main.storyboard */; };
+		E745AAC824785E7E009B999F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E745AAC724785E7E009B999F /* Assets.xcassets */; };
+		E745AACB24785E7E009B999F /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E745AAC924785E7E009B999F /* LaunchScreen.storyboard */; };
+		E745AAD624785E7E009B999F /* PlantCO2MeterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E745AAD524785E7E009B999F /* PlantCO2MeterTests.swift */; };
+		E745AAE124785E7E009B999F /* PlantCO2MeterUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E745AAE024785E7E009B999F /* PlantCO2MeterUITests.swift */; };
+		E745AAEF24786209009B999F /* ConfigController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E745AAEE24786209009B999F /* ConfigController.swift */; };
+		E745AAF42478EAEB009B999F /* CoreBluetooth.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E745AAF32478EAEB009B999F /* CoreBluetooth.framework */; };
+		E745AAF62478ECD2009B999F /* ScanViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E745AAF52478ECD2009B999F /* ScanViewController.swift */; };
+		E748FE552481B78300E82956 /* messageID_enum.swift in Sources */ = {isa = PBXBuildFile; fileRef = E748FE542481B78300E82956 /* messageID_enum.swift */; };
+		E748FE572481BEE800E82956 /* StatusController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E748FE562481BEE800E82956 /* StatusController.swift */; };
+		E748FE592481C4E200E82956 /* Protocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = E748FE582481C4E200E82956 /* Protocols.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		E745AAD224785E7E009B999F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E745AAB524785E7C009B999F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E745AABC24785E7C009B999F;
+			remoteInfo = PlantCO2Meter;
+		};
+		E745AADD24785E7E009B999F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E745AAB524785E7C009B999F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E745AABC24785E7C009B999F;
+			remoteInfo = PlantCO2Meter;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		E745AABD24785E7C009B999F /* PlantCO2Meter.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PlantCO2Meter.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		E745AAC024785E7C009B999F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		E745AAC224785E7C009B999F /* RootController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootController.swift; sourceTree = "<group>"; };
+		E745AAC524785E7C009B999F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		E745AAC724785E7E009B999F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		E745AACA24785E7E009B999F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		E745AACC24785E7E009B999F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		E745AAD124785E7E009B999F /* PlantCO2MeterTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PlantCO2MeterTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		E745AAD524785E7E009B999F /* PlantCO2MeterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlantCO2MeterTests.swift; sourceTree = "<group>"; };
+		E745AAD724785E7E009B999F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		E745AADC24785E7E009B999F /* PlantCO2MeterUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PlantCO2MeterUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		E745AAE024785E7E009B999F /* PlantCO2MeterUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlantCO2MeterUITests.swift; sourceTree = "<group>"; };
+		E745AAE224785E7E009B999F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		E745AAEE24786209009B999F /* ConfigController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigController.swift; sourceTree = "<group>"; };
+		E745AAF32478EAEB009B999F /* CoreBluetooth.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreBluetooth.framework; path = System/Library/Frameworks/CoreBluetooth.framework; sourceTree = SDKROOT; };
+		E745AAF52478ECD2009B999F /* ScanViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanViewController.swift; sourceTree = "<group>"; };
+		E748FE542481B78300E82956 /* messageID_enum.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = messageID_enum.swift; sourceTree = "<group>"; };
+		E748FE562481BEE800E82956 /* StatusController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusController.swift; sourceTree = "<group>"; };
+		E748FE582481C4E200E82956 /* Protocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Protocols.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		E745AABA24785E7C009B999F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E745AAF42478EAEB009B999F /* CoreBluetooth.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E745AACE24785E7E009B999F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E745AAD924785E7E009B999F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		E745AAB424785E7C009B999F = {
+			isa = PBXGroup;
+			children = (
+				E745AABF24785E7C009B999F /* PlantCO2Meter */,
+				E745AAD424785E7E009B999F /* PlantCO2MeterTests */,
+				E745AADF24785E7E009B999F /* PlantCO2MeterUITests */,
+				E745AABE24785E7C009B999F /* Products */,
+				E745AAF22478EAEB009B999F /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		E745AABE24785E7C009B999F /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				E745AABD24785E7C009B999F /* PlantCO2Meter.app */,
+				E745AAD124785E7E009B999F /* PlantCO2MeterTests.xctest */,
+				E745AADC24785E7E009B999F /* PlantCO2MeterUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		E745AABF24785E7C009B999F /* PlantCO2Meter */ = {
+			isa = PBXGroup;
+			children = (
+				E748FE5A2481C54D00E82956 /* ViewControllers */,
+				E745AAC024785E7C009B999F /* AppDelegate.swift */,
+				E745AAC424785E7C009B999F /* Main.storyboard */,
+				E745AAC724785E7E009B999F /* Assets.xcassets */,
+				E745AAC924785E7E009B999F /* LaunchScreen.storyboard */,
+				E745AACC24785E7E009B999F /* Info.plist */,
+				E748FE542481B78300E82956 /* messageID_enum.swift */,
+				E748FE582481C4E200E82956 /* Protocols.swift */,
+			);
+			path = PlantCO2Meter;
+			sourceTree = "<group>";
+		};
+		E745AAD424785E7E009B999F /* PlantCO2MeterTests */ = {
+			isa = PBXGroup;
+			children = (
+				E745AAD524785E7E009B999F /* PlantCO2MeterTests.swift */,
+				E745AAD724785E7E009B999F /* Info.plist */,
+			);
+			path = PlantCO2MeterTests;
+			sourceTree = "<group>";
+		};
+		E745AADF24785E7E009B999F /* PlantCO2MeterUITests */ = {
+			isa = PBXGroup;
+			children = (
+				E745AAE024785E7E009B999F /* PlantCO2MeterUITests.swift */,
+				E745AAE224785E7E009B999F /* Info.plist */,
+			);
+			path = PlantCO2MeterUITests;
+			sourceTree = "<group>";
+		};
+		E745AAF22478EAEB009B999F /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				E745AAF32478EAEB009B999F /* CoreBluetooth.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		E748FE5A2481C54D00E82956 /* ViewControllers */ = {
+			isa = PBXGroup;
+			children = (
+				E745AAF52478ECD2009B999F /* ScanViewController.swift */,
+				E745AAC224785E7C009B999F /* RootController.swift */,
+				E745AAEE24786209009B999F /* ConfigController.swift */,
+				E748FE562481BEE800E82956 /* StatusController.swift */,
+			);
+			path = ViewControllers;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		E745AABC24785E7C009B999F /* PlantCO2Meter */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E745AAE524785E7E009B999F /* Build configuration list for PBXNativeTarget "PlantCO2Meter" */;
+			buildPhases = (
+				E745AAB924785E7C009B999F /* Sources */,
+				E745AABA24785E7C009B999F /* Frameworks */,
+				E745AABB24785E7C009B999F /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = PlantCO2Meter;
+			productName = PlantCO2Meter;
+			productReference = E745AABD24785E7C009B999F /* PlantCO2Meter.app */;
+			productType = "com.apple.product-type.application";
+		};
+		E745AAD024785E7E009B999F /* PlantCO2MeterTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E745AAE824785E7E009B999F /* Build configuration list for PBXNativeTarget "PlantCO2MeterTests" */;
+			buildPhases = (
+				E745AACD24785E7E009B999F /* Sources */,
+				E745AACE24785E7E009B999F /* Frameworks */,
+				E745AACF24785E7E009B999F /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				E745AAD324785E7E009B999F /* PBXTargetDependency */,
+			);
+			name = PlantCO2MeterTests;
+			productName = PlantCO2MeterTests;
+			productReference = E745AAD124785E7E009B999F /* PlantCO2MeterTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		E745AADB24785E7E009B999F /* PlantCO2MeterUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E745AAEB24785E7E009B999F /* Build configuration list for PBXNativeTarget "PlantCO2MeterUITests" */;
+			buildPhases = (
+				E745AAD824785E7E009B999F /* Sources */,
+				E745AAD924785E7E009B999F /* Frameworks */,
+				E745AADA24785E7E009B999F /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				E745AADE24785E7E009B999F /* PBXTargetDependency */,
+			);
+			name = PlantCO2MeterUITests;
+			productName = PlantCO2MeterUITests;
+			productReference = E745AADC24785E7E009B999F /* PlantCO2MeterUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		E745AAB524785E7C009B999F /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastSwiftUpdateCheck = 1010;
+				LastUpgradeCheck = 1010;
+				ORGANIZATIONNAME = "Sam Bower";
+				TargetAttributes = {
+					E745AABC24785E7C009B999F = {
+						CreatedOnToolsVersion = 10.1;
+					};
+					E745AAD024785E7E009B999F = {
+						CreatedOnToolsVersion = 10.1;
+						TestTargetID = E745AABC24785E7C009B999F;
+					};
+					E745AADB24785E7E009B999F = {
+						CreatedOnToolsVersion = 10.1;
+						TestTargetID = E745AABC24785E7C009B999F;
+					};
+				};
+			};
+			buildConfigurationList = E745AAB824785E7C009B999F /* Build configuration list for PBXProject "PlantCO2Meter" */;
+			compatibilityVersion = "Xcode 9.3";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = E745AAB424785E7C009B999F;
+			productRefGroup = E745AABE24785E7C009B999F /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				E745AABC24785E7C009B999F /* PlantCO2Meter */,
+				E745AAD024785E7E009B999F /* PlantCO2MeterTests */,
+				E745AADB24785E7E009B999F /* PlantCO2MeterUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		E745AABB24785E7C009B999F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E745AACB24785E7E009B999F /* LaunchScreen.storyboard in Resources */,
+				E745AAC824785E7E009B999F /* Assets.xcassets in Resources */,
+				E745AAC624785E7C009B999F /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E745AACF24785E7E009B999F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E745AADA24785E7E009B999F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		E745AAB924785E7C009B999F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E745AAC324785E7C009B999F /* RootController.swift in Sources */,
+				E748FE572481BEE800E82956 /* StatusController.swift in Sources */,
+				E748FE592481C4E200E82956 /* Protocols.swift in Sources */,
+				E745AAEF24786209009B999F /* ConfigController.swift in Sources */,
+				E745AAC124785E7C009B999F /* AppDelegate.swift in Sources */,
+				E748FE552481B78300E82956 /* messageID_enum.swift in Sources */,
+				E745AAF62478ECD2009B999F /* ScanViewController.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E745AACD24785E7E009B999F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E745AAD624785E7E009B999F /* PlantCO2MeterTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E745AAD824785E7E009B999F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E745AAE124785E7E009B999F /* PlantCO2MeterUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		E745AAD324785E7E009B999F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E745AABC24785E7C009B999F /* PlantCO2Meter */;
+			targetProxy = E745AAD224785E7E009B999F /* PBXContainerItemProxy */;
+		};
+		E745AADE24785E7E009B999F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E745AABC24785E7C009B999F /* PlantCO2Meter */;
+			targetProxy = E745AADD24785E7E009B999F /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		E745AAC424785E7C009B999F /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				E745AAC524785E7C009B999F /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		E745AAC924785E7E009B999F /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				E745AACA24785E7E009B999F /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		E745AAE324785E7E009B999F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.1;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		E745AAE424785E7E009B999F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.1;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		E745AAE624785E7E009B999F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = GUK97XRVT3;
+				INFOPLIST_FILE = PlantCO2Meter/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.3;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = PlantSDP.PlantCO2Meter3;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 4.2;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		E745AAE724785E7E009B999F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = GUK97XRVT3;
+				INFOPLIST_FILE = PlantCO2Meter/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.3;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = PlantSDP.PlantCO2Meter3;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 4.2;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		E745AAE924785E7E009B999F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = Y5LK7FC85J;
+				INFOPLIST_FILE = PlantCO2MeterTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = PlantSDP.PlantCO2MeterTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 4.2;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/PlantCO2Meter.app/PlantCO2Meter";
+			};
+			name = Debug;
+		};
+		E745AAEA24785E7E009B999F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = Y5LK7FC85J;
+				INFOPLIST_FILE = PlantCO2MeterTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = PlantSDP.PlantCO2MeterTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 4.2;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/PlantCO2Meter.app/PlantCO2Meter";
+			};
+			name = Release;
+		};
+		E745AAEC24785E7E009B999F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = Y5LK7FC85J;
+				INFOPLIST_FILE = PlantCO2MeterUITests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = PlantSDP.PlantCO2MeterUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 4.2;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = PlantCO2Meter;
+			};
+			name = Debug;
+		};
+		E745AAED24785E7E009B999F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = Y5LK7FC85J;
+				INFOPLIST_FILE = PlantCO2MeterUITests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = PlantSDP.PlantCO2MeterUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 4.2;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = PlantCO2Meter;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		E745AAB824785E7C009B999F /* Build configuration list for PBXProject "PlantCO2Meter" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E745AAE324785E7E009B999F /* Debug */,
+				E745AAE424785E7E009B999F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		E745AAE524785E7E009B999F /* Build configuration list for PBXNativeTarget "PlantCO2Meter" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E745AAE624785E7E009B999F /* Debug */,
+				E745AAE724785E7E009B999F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		E745AAE824785E7E009B999F /* Build configuration list for PBXNativeTarget "PlantCO2MeterTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E745AAE924785E7E009B999F /* Debug */,
+				E745AAEA24785E7E009B999F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		E745AAEB24785E7E009B999F /* Build configuration list for PBXNativeTarget "PlantCO2MeterUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E745AAEC24785E7E009B999F /* Debug */,
+				E745AAED24785E7E009B999F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = E745AAB524785E7C009B999F /* Project object */;
+}
